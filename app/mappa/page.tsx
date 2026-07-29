@@ -77,7 +77,6 @@ export default function MappaPage() {
           maxScale={4}
           limitToBounds
           centerOnInit
-          autoAlignment={{ disabled: true }}
           wheel={{ step: 0.1 }}
         >
           {({ zoomIn, zoomOut, resetTransform }) => (
