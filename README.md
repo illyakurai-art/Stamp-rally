@@ -1,2 +1,3 @@
 # Stamp-rally
-stamprally webapp for novegro
+
+Stamp rally webapp for Novegro.
