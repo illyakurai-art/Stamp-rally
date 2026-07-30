@@ -24,6 +24,7 @@ ALTER TABLE public.stamps DROP CONSTRAINT IF EXISTS stamps_user_artist_unique;
 ALTER TABLE public.stamps ADD CONSTRAINT stamps_user_artist_unique UNIQUE (user_id, artist_id);
 
 -- 4. RPC ottimizzato: add_stamp con EXISTS(), query piu` leggere, transazione breve
+DROP FUNCTION IF EXISTS add_stamp(text);
 CREATE OR REPLACE FUNCTION add_stamp(p_artist_qr_token text)
 RETURNS void
 LANGUAGE plpgsql
@@ -83,6 +84,7 @@ $$;
 
 -- 5. RPC: conteggio timbri aggregato per utente (admin dashboard)
 --    Evita di trasferire 40K righe al client
+DROP FUNCTION IF EXISTS get_stamp_counts_by_users(text[]);
 CREATE OR REPLACE FUNCTION get_stamp_counts_by_users(p_user_ids text[])
 RETURNS TABLE (user_id text, count bigint)
 LANGUAGE plpgsql
