@@ -29,7 +29,7 @@ CREATE OR REPLACE FUNCTION add_stamp(p_artist_qr_token text)
 RETURNS void
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path = public
+SET search_path = public, auth
 AS $$
 DECLARE
   v_user_display_id text;
@@ -89,7 +89,6 @@ CREATE OR REPLACE FUNCTION get_stamp_counts_by_users(p_user_ids text[])
 RETURNS TABLE (user_id text, count bigint)
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path = public
 AS $$
 BEGIN
   RETURN QUERY
