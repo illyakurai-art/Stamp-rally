@@ -6,7 +6,7 @@
 -- 1. Indexes per le query critiche
 CREATE INDEX IF NOT EXISTS idx_stamps_user_id ON public.stamps (user_id);
 CREATE INDEX IF NOT EXISTS idx_stamps_artist_id ON public.stamps (artist_id);
-CREATE INDEX IF NOT EXISTS idx_stamps_created_at ON public.stamps (created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_stamps_created_at ON public.stamps (stamped_at DESC);
 CREATE INDEX IF NOT EXISTS idx_stamps_user_artist ON public.stamps (user_id, artist_id);
 CREATE INDEX IF NOT EXISTS idx_artists_qr_token ON public.artists (qr_token);
 CREATE INDEX IF NOT EXISTS idx_artists_active ON public.artists (active);
@@ -64,7 +64,7 @@ BEGIN
     SELECT 1 FROM stamps
     WHERE user_id = v_user_display_id
       AND artist_id = v_artist_display_id
-      AND created_at > now() - interval '20 seconds'
+      AND stamped_at > now() - interval '20 seconds'
   ) THEN
     RAISE EXCEPTION 'Attendi prima di timbrare nuovamente questo stand';
   END IF;
