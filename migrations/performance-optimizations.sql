@@ -100,3 +100,8 @@ BEGIN
   GROUP BY stamps.user_id;
 END;
 $$;
+
+-- 6. Aggiunge artista StarPlatinum
+INSERT INTO artists (name, display_id, qr_token, active, map_x, map_y)
+VALUES ('StarPlatinum', 'A0041', 'StarPlatinum-stamp', true, 75, 75)
+ON CONFLICT (display_id) DO NOTHING;
