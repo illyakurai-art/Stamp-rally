@@ -19,14 +19,12 @@ async function UsersContent() {
 
   const { data: stampCounts } = displayIds.length > 0
     ? await supabase
-        .from("stamps")
-        .select("user_id")
-        .in("user_id", displayIds)
+        .rpc("get_stamp_counts_by_users", { p_user_ids: displayIds })
     : { data: [] };
 
-  const stampsByUser = (stampCounts ?? []).reduce<Record<string, number>>(
+  const stampsByUser = (stampCounts as { user_id: string; count: number }[] ?? []).reduce<Record<string, number>>(
     (acc, s) => {
-      acc[s.user_id] = (acc[s.user_id] ?? 0) + 1;
+      acc[s.user_id] = s.count;
       return acc;
     },
     {}

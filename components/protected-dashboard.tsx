@@ -135,7 +135,7 @@ export function ProtectedDashboard() {
     });
   }, [router]);
 
-  // Re-fetch stamps quando stampsUpdated viene emesso
+  // Re-fetch stamps count quando stampsUpdated viene emesso (artists non cambiano)
   useEffect(() => {
     if (stampTick === 0) return;
     const supabase = createClient();
@@ -147,19 +147,29 @@ export function ProtectedDashboard() {
       const userIdsToMatch = [uid];
       if (did) userIdsToMatch.push(did);
 
-      const [stampsResult, artistsResult] = await Promise.all([
-        supabase.from("stamps").select("artist_id").in("user_id", userIdsToMatch),
-        supabase.from("artists").select("id, name, image_url, active, display_id").eq("active", true),
-      ]);
+      // Solo conteggio timbri, non tutti i dati — usa count con head:true
+      const { count } = await supabase
+        .from("stamps")
+        .select("id", { count: "exact", head: true })
+        .in("user_id", userIdsToMatch);
 
-      const scannedIdentifiers = new Set(stampsResult.data?.map((s) => s.artist_id) ?? []);
-      const artistList = (artistsResult.data ?? []).map((a) => ({
-        ...a,
-        scanned: scannedIdentifiers.has(a.id) || (a.display_id ? scannedIdentifiers.has(a.display_id) : false),
-      }));
+      setActiveStampsCount(count ?? 0);
 
-      setActiveStampsCount(stampsResult.data?.length ?? 0);
-      setArtists(artistList);
+      // Marca scanned sui nuovi artisti senza rifetchare l'intera lista
+      if (artists.length > 0) {
+        const { data: newStamps } = await supabase
+          .from("stamps")
+          .select("artist_id")
+          .in("user_id", userIdsToMatch);
+
+        const scannedIds = new Set(newStamps?.map((s) => s.artist_id) ?? []);
+        setArtists((prev) =>
+          prev.map((a) => ({
+            ...a,
+            scanned: scannedIds.has(a.id) || (a.display_id ? scannedIds.has(a.display_id) : false),
+          }))
+        );
+      }
     };
     fetchStamps();
   }, [stampTick]);

@@ -5,7 +5,21 @@ import { hasEnvVars } from "../utils";
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
 
-  // If the env vars are not set, skip proxy check.
+  // Cache-control per risorse non-sensibili
+  const { pathname } = request.nextUrl;
+  if (
+    pathname === "/mappa.jpg" ||
+    pathname === "/map-icon.png" ||
+    pathname === "/favicon.ico" ||
+    pathname.startsWith("/_next/")
+  ) {
+    supabaseResponse.headers.set(
+      "Cache-Control",
+      "public, max-age=3600, s-maxage=86400, stale-while-revalidate=31536000"
+    );
+  }
+
+  // Se le env vars non sono impostate, salta il proxy check
   if (!hasEnvVars) {
     return supabaseResponse;
   }
@@ -33,7 +47,6 @@ export async function updateSession(request: NextRequest) {
 
   const { data } = await supabase.auth.getClaims();
   const user = data?.claims;
-  const { pathname } = request.nextUrl;
 
   // --- Redirect utenti non autenticati verso sign-up ---
   if (
@@ -49,7 +62,6 @@ export async function updateSession(request: NextRequest) {
 
   // --- Logica basata sul ruolo per utenti autenticati ---
   if (user) {
-    // Recupera il ruolo una sola volta per tutte le decisioni
     const { data: profile } = await supabase
       .from("profiles")
       .select("role")
@@ -58,28 +70,24 @@ export async function updateSession(request: NextRequest) {
 
     const isStaff = profile?.role === "staff";
 
-    // Staff non può accedere a /protected — redirect ad /admin
     if (isStaff && pathname.startsWith("/protected")) {
       const url = request.nextUrl.clone();
       url.pathname = "/admin";
       return NextResponse.redirect(url);
     }
 
-    // Staff che visita / viene mandato ad /admin
     if (isStaff && pathname === "/") {
       const url = request.nextUrl.clone();
       url.pathname = "/admin";
       return NextResponse.redirect(url);
     }
 
-    // Staff che visita /admin/login già autenticato → /admin
     if (isStaff && pathname.startsWith("/admin/login")) {
       const url = request.nextUrl.clone();
       url.pathname = "/admin";
       return NextResponse.redirect(url);
     }
 
-    // Protezione /admin: utente non staff viene rimandato al login admin
     if (!isStaff && pathname.startsWith("/admin") && !pathname.startsWith("/admin/login")) {
       const url = request.nextUrl.clone();
       url.pathname = "/admin/login";
