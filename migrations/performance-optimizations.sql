@@ -13,12 +13,17 @@ CREATE INDEX IF NOT EXISTS idx_artists_active ON public.artists (active);
 CREATE INDEX IF NOT EXISTS idx_profiles_display_id ON public.profiles (display_id);
 CREATE INDEX IF NOT EXISTS idx_notifications_user_id ON public.notifications (user_id);
 
--- 2. Compound unique constraint (user_id + artist_id) per idempotenza
---    Evita race condition anche senza cooldown
+-- 2. Rimuovi duplicati prima di creare il vincolo UNIQUE
+DELETE FROM public.stamps
+WHERE ctid NOT IN (
+  SELECT min(ctid) FROM public.stamps GROUP BY user_id, artist_id
+);
+
+-- 3. Compound unique constraint (user_id + artist_id) per idempotenza
 ALTER TABLE public.stamps DROP CONSTRAINT IF EXISTS stamps_user_artist_unique;
 ALTER TABLE public.stamps ADD CONSTRAINT stamps_user_artist_unique UNIQUE (user_id, artist_id);
 
--- 3. RPC ottimizzato: add_stamp con EXISTS(), query piu` leggere, transazione breve
+-- 4. RPC ottimizzato: add_stamp con EXISTS(), query piu` leggere, transazione breve
 CREATE OR REPLACE FUNCTION add_stamp(p_artist_qr_token text)
 RETURNS void
 LANGUAGE plpgsql
@@ -76,7 +81,7 @@ BEGIN
 END;
 $$;
 
--- 4. RPC: conteggio timbri aggregato per utente (admin dashboard)
+-- 5. RPC: conteggio timbri aggregato per utente (admin dashboard)
 --    Evita di trasferire 40K righe al client
 CREATE OR REPLACE FUNCTION get_stamp_counts_by_users(p_user_ids text[])
 RETURNS TABLE (user_id text, count bigint)
