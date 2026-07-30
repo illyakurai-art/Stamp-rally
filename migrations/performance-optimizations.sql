@@ -13,15 +13,15 @@ CREATE INDEX IF NOT EXISTS idx_artists_active ON public.artists (active);
 CREATE INDEX IF NOT EXISTS idx_profiles_display_id ON public.profiles (display_id);
 CREATE INDEX IF NOT EXISTS idx_notifications_user_id ON public.notifications (user_id);
 
--- 2. Rimuovi duplicati prima di creare il vincolo UNIQUE
+-- 2. Rimuovi duplicati prima di creare il vincolo UNIQUE (opzionale, solo cleanup)
 DELETE FROM public.stamps
 WHERE ctid NOT IN (
   SELECT min(ctid) FROM public.stamps GROUP BY user_id, artist_id
 );
 
--- 3. Compound unique constraint (user_id + artist_id) per idempotenza
+-- 3. Compound unique constraint NON va bene per la rally (serve poter ritimbrare
+--    lo stesso artista dopo un nuovo giro). Lo droppiamo se esiste.
 ALTER TABLE public.stamps DROP CONSTRAINT IF EXISTS stamps_user_artist_unique;
-ALTER TABLE public.stamps ADD CONSTRAINT stamps_user_artist_unique UNIQUE (user_id, artist_id);
 
 -- 4. RPC ottimizzato: add_stamp con EXISTS(), query piu` leggere, transazione breve
 DROP FUNCTION IF EXISTS add_stamp(text);
@@ -75,10 +75,12 @@ BEGIN
     RAISE EXCEPTION 'Attendi prima di timbrare nuovamente questo stand';
   END IF;
 
-  -- Insert idempotente: usa il compound UNIQUE (user_id, artist_id)
+  -- Insert idempotente: ON CONFLICT DO NOTHING evita errori ma permette
+  -- di ritimbrare lo stesso artista dopo un nuovo giro (i timbri vecchi
+  -- vengono cancellati al redeem)
   INSERT INTO stamps (user_id, artist_id)
   VALUES (v_user_display_id, v_artist_display_id)
-  ON CONFLICT ON CONSTRAINT stamps_user_artist_unique DO NOTHING;
+  ON CONFLICT DO NOTHING;
 END;
 $$;
 
