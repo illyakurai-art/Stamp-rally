@@ -42,3 +42,6 @@ yarn-error.log*
 next-env.d.ts
 
 certificates
+
+# script locali (non devono essere pushati/deployati)
+*.bat
