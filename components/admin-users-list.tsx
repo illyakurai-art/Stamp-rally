@@ -88,6 +88,7 @@ export function AdminUsersList({ users }: { users: UserEntry[] }) {
                   <div className="min-w-0">
                     <p className="font-semibold truncate text-base">{user.nickname}</p>
                     <p className="text-xs text-foreground/40 mt-0.5">
+                      {user.display_id ?? "—"} ·{" "}
                       {new Date(user.created_at).toLocaleString("it-IT", {
                         day: "2-digit", month: "2-digit", year: "numeric",
                         hour: "2-digit", minute: "2-digit",
@@ -112,7 +113,9 @@ export function AdminUsersList({ users }: { users: UserEntry[] }) {
                 <div className="h-1.5 w-full overflow-hidden rounded-full bg-foreground/8">
                   <div
                     className={`h-full rounded-full bg-gradient-to-r transition-all duration-500 ${
-                      tier ? tier.color : "from-foreground/20 to-foreground/30"
+                      tier
+                        ? tier.color
+                        : "from-white via-slate-200 to-slate-400 dark:from-white dark:via-slate-300 dark:to-slate-500"
                     }`}
                     style={{ width: `${progress}%` }}
                   />
