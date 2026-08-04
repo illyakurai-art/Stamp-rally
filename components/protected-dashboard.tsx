@@ -10,6 +10,7 @@ import { ArtistCards } from "@/components/artist-cards";
 import { PrizeInfoCard } from "@/components/prize-info-card";
 import { RedeemNotification } from "@/components/redeem-notification";
 import { StampRealtimeRefresh } from "@/components/stamp-realtime-refresh";
+import { ChevronDown } from "lucide-react";
 
 type ArtistData = {
   id: string;
@@ -19,6 +20,8 @@ type ArtistData = {
   display_id?: string | null;
   scanned: boolean;
 };
+
+type ArtistSort = "alpha" | "scanned";
 
 export function ProtectedDashboard() {
   const { t } = useI18n();
@@ -31,8 +34,22 @@ export function ProtectedDashboard() {
   const [loading, setLoading] = useState(true);
   const [qrMode, setQrMode] = useState(false);
   const [stampTick, setStampTick] = useState(0); // incrementato per forzare re-fetch stamps
+  const [artistSort, setArtistSort] = useState<ArtistSort>("alpha");
+  const [sortOpen, setSortOpen] = useState(false);
+  const sortRef = useRef<HTMLDivElement>(null);
   const userDisplayIdRef = useRef<string | null>(null);
   const userIdRef = useRef<string | null>(null);
+
+  // Chiudi la tendina al click fuori
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (sortRef.current && !sortRef.current.contains(e.target as Node)) {
+        setSortOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
 
   useEffect(() => {
     const handler = (e: CustomEvent) => setQrMode(e.detail);
@@ -176,6 +193,15 @@ export function ProtectedDashboard() {
 
   if (loading) return null;
 
+  const sortedArtists = [...artists].sort((a, b) =>
+    artistSort === "alpha"
+      ? a.name.localeCompare(b.name, "it", { sensitivity: "base" })
+      : Number(b.scanned) - Number(a.scanned)
+  );
+
+  const sortLabel =
+    artistSort === "alpha" ? t("sort_alpha") : t("sort_scanned");
+
   return (
     <section className="mx-auto w-full max-w-5xl px-5 py-6">
       <ScanToast />
@@ -190,9 +216,9 @@ export function ProtectedDashboard() {
         </h1>
         <Link
           href="/mappa"
-          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md border-2 border-green-500 bg-green-700 transition-colors hover:bg-green-600"
+          className="flex h-14 w-14 shrink-0 items-center justify-center rounded-md border-2 border-green-500 bg-green-700 transition-colors hover:bg-green-600"
         >
-          <img src="/map-icon.png" alt={t("map")} className="h-6 w-6" />
+          <img src="/map-icon.png" alt={t("map")} className="h-8 w-8" />
         </Link>
       </div>
 
@@ -212,12 +238,48 @@ export function ProtectedDashboard() {
       </div>
 
       {artists.length > 0 && (
-        <div className="mt-10 text-center">
-          <h2 className="text-lg font-semibold">{t("artists")}</h2>
-          <p className="mt-1 text-sm text-foreground/60">
-            {t("select_card")}
-          </p>
-          <ArtistCards artists={artists} />
+        <div className="mt-10">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <h2 className="text-lg font-semibold">{t("artists")}</h2>
+              <p className="mt-1 text-sm text-foreground/60">
+                {t("select_card")}
+              </p>
+            </div>
+            <div className="relative shrink-0" ref={sortRef}>
+              <button
+                onClick={() => setSortOpen((o) => !o)}
+                className="flex h-10 items-center gap-2 rounded-md border border-foreground/15 bg-background px-3 text-sm font-medium transition-colors hover:bg-foreground/5"
+              >
+                <span className="text-foreground/60">{t("sort_by")}:</span>
+                <span>{sortLabel}</span>
+                <ChevronDown
+                  className={`h-4 w-4 text-foreground/50 transition-transform ${sortOpen ? "rotate-180" : ""}`}
+                />
+              </button>
+              {sortOpen && (
+                <div className="absolute right-0 z-20 mt-1 w-56 overflow-hidden rounded-md border border-foreground/15 bg-background shadow-lg">
+                  <button
+                    onClick={() => { setArtistSort("alpha"); setSortOpen(false); }}
+                    className={`flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm transition-colors hover:bg-foreground/5 ${
+                      artistSort === "alpha" ? "bg-foreground/5 font-medium" : ""
+                    }`}
+                  >
+                    {t("sort_alpha")}
+                  </button>
+                  <button
+                    onClick={() => { setArtistSort("scanned"); setSortOpen(false); }}
+                    className={`flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm transition-colors hover:bg-foreground/5 ${
+                      artistSort === "scanned" ? "bg-foreground/5 font-medium" : ""
+                    }`}
+                  >
+                    {t("sort_scanned")}
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+          <ArtistCards artists={sortedArtists} />
         </div>
       )}
     </section>

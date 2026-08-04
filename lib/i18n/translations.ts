@@ -128,6 +128,9 @@ export const translations = {
   // Artists
   "artists": { ITA: "Artisti", ENG: "Artists" },
   "select_card": { ITA: "Seleziona una card per vedere i dettagli dell'artista", ENG: "Select a card to see artist details" },
+  "sort_by": { ITA: "Ordina", ENG: "Sort" },
+  "sort_alpha": { ITA: "Ordine alfabetico", ENG: "Alphabetical order" },
+  "sort_scanned": { ITA: "Timbri già ottenuti", ENG: "Stamps already collected" },
   "scanned": { ITA: "Scansionato", ENG: "Scanned" },
   "not_visited": { ITA: "Non visitato", ENG: "Not visited" },
   "to_visit": { ITA: "Da visitare", ENG: "To visit" },
