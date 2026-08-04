@@ -16,6 +16,7 @@ export const translations = {
 
   // Settings
   "settings": { ITA: "Impostazioni", ENG: "Settings" },
+  "rules": { ITA: "Regole", ENG: "Rules" },
   "language": { ITA: "Lingua", ENG: "Language" },
   "manual_qr_reader": { ITA: "Lettore QR manuale", ENG: "Manual QR reader" },
   "manual_qr_desc": { ITA: "Attiva questa funzione se il tuo telefono non dispone di modulo NFC", ENG: "Enable if your phone doesn't have an NFC module" },

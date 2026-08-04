@@ -37,7 +37,7 @@ export function ScanResultClient({ artist, error }: Props) {
         }
         return c - 1;
       });
-    }, 1000);
+    }, 600);
 
     return () => clearInterval(timer);
   // solo al mount — dipendenze vuote intenzionali
@@ -60,7 +60,9 @@ export function ScanResultClient({ artist, error }: Props) {
 
         {/* Testo */}
         <div className="flex flex-col gap-2">
-          <h1 className="text-2xl font-bold">
+          <h1 className={`text-4xl font-extrabold ${
+            isSuccess ? "text-emerald-600 dark:text-emerald-400" : "text-red-500 dark:text-red-400"
+          }`}>
             {isSuccess ? t("stamp_added") : t("stamp_not_registered")}
           </h1>
           {isSuccess && artist && (

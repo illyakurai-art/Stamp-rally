@@ -8,17 +8,20 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
+import { useI18n } from "@/lib/i18n/context";
 
 export function GameRules() {
+  const { t } = useI18n();
   const [open, setOpen] = useState(false);
 
   return (
     <>
       <button
         onClick={() => setOpen(true)}
-        className="rounded-md border border-foreground/20 p-2 text-foreground/60 transition-colors hover:bg-foreground/5 hover:text-foreground"
+        className="flex items-center gap-2 rounded-md border border-foreground/20 px-3 py-2 text-sm font-medium text-foreground/60 transition-colors hover:bg-foreground/5 hover:text-foreground"
       >
         <Menu className="h-4 w-4" />
+        {t("rules")}
       </button>
 
       <Dialog open={open} onOpenChange={setOpen}>
