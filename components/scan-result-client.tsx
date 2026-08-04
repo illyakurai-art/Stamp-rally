@@ -8,11 +8,13 @@ import { useI18n } from "@/lib/i18n/context";
 interface Props {
   artist: string | null;
   error: string | null;
+  image?: string | null;
 }
 
-export function ScanResultClient({ artist, error }: Props) {
+export function ScanResultClient({ artist, error, image }: Props) {
   const { t } = useI18n();
   const [countdown, setCountdown] = useState(3);
+  const [stamped, setStamped] = useState(false);
   const [closed, setClosed] = useState(false);
   const doneRef = useRef(false); // evita doppia esecuzione in StrictMode o re-render
 
@@ -20,6 +22,11 @@ export function ScanResultClient({ artist, error }: Props) {
 
   useEffect(() => {
     if (doneRef.current) return;
+
+    // Ritardo 400ms poi stampa animata sopra l'immagine
+    const stampTimer = setTimeout(() => {
+      setStamped(true);
+    }, 400);
 
     const timer = setInterval(() => {
       setCountdown((c) => {
@@ -39,7 +46,7 @@ export function ScanResultClient({ artist, error }: Props) {
       });
     }, 600);
 
-    return () => clearInterval(timer);
+    return () => { clearInterval(timer); clearTimeout(stampTimer); };
   // solo al mount — dipendenze vuote intenzionali
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -47,6 +54,31 @@ export function ScanResultClient({ artist, error }: Props) {
   return (
     <main className="min-h-screen flex items-center justify-center px-4 bg-background">
       <div className="flex flex-col items-center gap-6 text-center max-w-xs w-full">
+
+        {/* Card artista scansionata */}
+        {isSuccess && image && (
+          <div className="relative w-full max-w-[220px] overflow-hidden rounded-3xl border-2 border-green-500 shadow-lg shadow-green-500/20">
+            <img
+              src={image}
+              alt={artist ?? "Artist"}
+              className="w-full aspect-square object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+            <div className="absolute bottom-0 left-0 right-0 p-4 text-left">
+              <p className="text-base font-bold text-white truncate">{artist}</p>
+              <p className="text-xs text-white/80 mt-0.5">{t("stamp_added")}</p>
+            </div>
+
+            {/* Timbro animato che "stampa" il pallino verde con ✓ */}
+            {stamped && (
+              <div className="absolute top-3 right-3 stamp-pop">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-500 border-4 border-white/90 text-white shadow-xl">
+                  <span className="text-2xl leading-none">✓</span>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Icona risultato */}
         <div className={`flex h-24 w-24 items-center justify-center rounded-full ${

@@ -67,6 +67,28 @@
   }
 }
 
+/* ── Animazione timbro scan risultato: "stampa" dall'alto con rimbalzo ── */
+@keyframes stamp-pop {
+  0% {
+    transform: translateY(-320%) scale(1.6);
+    opacity: 0;
+  }
+  55% {
+    transform: translateY(6%) scale(0.95);
+    opacity: 1;
+  }
+  70% {
+    transform: translateY(-4%) scale(1.02);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+.stamp-pop {
+  animation: stamp-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
 /* ── html5-qrcode: rimuove elementi duplicati su mobile ── */
 #qr-reader {
   border: none !important;

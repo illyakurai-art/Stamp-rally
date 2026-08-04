@@ -4,7 +4,7 @@ import { ScanResultClient } from "@/components/scan-result-client";
 export default function ScanResultPage({
   searchParams,
 }: {
-  searchParams: Promise<{ artist?: string; error?: string }>;
+  searchParams: Promise<{ artist?: string; error?: string; image?: string }>;
 }) {
   return (
     <Suspense fallback={null}>
@@ -16,13 +16,14 @@ export default function ScanResultPage({
 async function ScanResultContent({
   searchParams,
 }: {
-  searchParams: Promise<{ artist?: string; error?: string }>;
+  searchParams: Promise<{ artist?: string; error?: string; image?: string }>;
 }) {
   const params = await searchParams;
   return (
     <ScanResultClient
       artist={params.artist ?? null}
       error={params.error ?? null}
+      image={params.image ?? null}
     />
   );
 }

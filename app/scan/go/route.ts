@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
   // 2. Cerca l'artista per qr_token esatto
   const { data: artistExact } = await supabase
     .from("artists")
-    .select("id, name, display_id, qr_token")
+    .select("id, name, display_id, qr_token, image_url")
     .eq("qr_token", token)
     .eq("active", true)
     .maybeSingle();
@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
     const searchName = token.toLowerCase().replace("-stamp", "").replace("stamp-", "");
     const { data: artistsByName } = await supabase
       .from("artists")
-      .select("id, name, display_id, qr_token")
+      .select("id, name, display_id, qr_token, image_url")
       .eq("active", true)
       .ilike("name", `%${searchName}%`);
     artist = artistsByName?.[0] ?? null;
@@ -84,6 +84,9 @@ export async function GET(request: NextRequest) {
   const redirectUrl = new URL("/scan/result", base);
   if (artist.name) {
     redirectUrl.searchParams.set("artist", artist.name);
+  }
+  if (artist.image_url) {
+    redirectUrl.searchParams.set("image", artist.image_url);
   }
 
   return NextResponse.redirect(redirectUrl);
