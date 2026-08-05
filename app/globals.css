@@ -89,6 +89,45 @@
   animation: stamp-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
 
+/* ── Bordo verde cangiante per artisti scansionati ── */
+@keyframes scanned-gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+.scanned-ring {
+  position: relative;
+}
+.scanned-ring::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 5px; /* spessore bordo (~+past border-2 passtato a ~5px = più spesso) */
+  background: linear-gradient(
+    120deg,
+    #14532d,
+    #22c55e,
+    #86efac,
+    #15803d,
+    #22c55e,
+    #14532d
+  );
+  background-size: 300% 300%;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: scanned-gradient 4s ease infinite;
+  pointer-events: none;
+  z-index: 10;
+}
+
 /* ── html5-qrcode: rimuove elementi duplicati su mobile ── */
 #qr-reader {
   border: none !important;
