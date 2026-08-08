@@ -13,18 +13,36 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useI18n } from "@/lib/i18n/context";
 
+function nicknameToFakeEmail(nickname: string): string {
+  const safe = nickname.trim().toLowerCase().replace(/[^a-z0-9_.-]/g, "_");
+  return `${safe}@stamprally.local`;
+}
+
 export function ForgotPasswordForm({
+  searchParams,
   className,
   ...props
-}: React.ComponentPropsWithoutRef<"div">) {
+}: React.ComponentPropsWithoutRef<"div"> & {
+  searchParams?: Promise<{ nickname?: string }>;
+}) {
   const { t } = useI18n();
   const [email, setEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Precompila l'email dal nickname se passato (es. da "ho scordato la password")
+  useEffect(() => {
+    if (!searchParams) return;
+    searchParams.then((params) => {
+      if (params?.nickname) {
+        setEmail(nicknameToFakeEmail(params.nickname));
+      }
+    });
+  }, [searchParams]);
 
   const handleForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault();

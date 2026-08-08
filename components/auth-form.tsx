@@ -6,7 +6,6 @@ import { checkNicknameAvailable } from "@/app/actions/check-nickname";
 import { useRouter } from "next/navigation";
 import { useI18n } from "@/lib/i18n/context";
 import { Eye, EyeOff } from "lucide-react";
-import Link from "next/link";
 
 function nicknameToFakeEmail(nickname: string): string {
   const safe = nickname.trim().toLowerCase().replace(/[^a-z0-9_.-]/g, "_");
@@ -14,13 +13,11 @@ function nicknameToFakeEmail(nickname: string): string {
 }
 
 type NicknameStatus = "idle" | "checking" | "available" | "taken";
-type Mode = "login" | "register";
 
 export function AuthForm() {
   const { t } = useI18n();
   const router = useRouter();
 
-  const [mode, setMode] = useState<Mode>("login");
   const [nickname, setNickname] = useState("");
   const [password, setPassword] = useState("");
   const [repeatPassword, setRepeatPassword] = useState("");
@@ -28,39 +25,38 @@ export function AuthForm() {
   const [showRepeat, setShowRepeat] = useState(false);
   const [nicknameStatus, setNicknameStatus] = useState<NicknameStatus>("idle");
   const [error, setError] = useState<string | null>(null);
+  const [wrongPassword, setWrongPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Nickname check debounced — solo in modalità registrazione
+  // Nickname check debounced — determina se è un utente esistente o nuovo
   useEffect(() => {
-    if (mode !== "register") return;
     if (debounceRef.current) clearTimeout(debounceRef.current);
     if (nickname.trim().length < 2) {
       setNicknameStatus("idle");
+      setWrongPassword(false);
       return;
     }
     setNicknameStatus("checking");
     debounceRef.current = setTimeout(async () => {
       const available = await checkNicknameAvailable(nickname);
       setNicknameStatus(available ? "available" : "taken");
+      setWrongPassword(false);
     }, 500);
     return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
-  }, [nickname, mode]);
+  }, [nickname]);
 
-  const switchToRegister = () => {
-    setMode("register");
-    setError(null);
-    setNicknameStatus("idle");
-  };
+  const isNewUser = nicknameStatus === "available";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setWrongPassword(false);
     setIsLoading(true);
     const supabase = createClient();
 
-    if (mode === "login") {
-      // ── LOGIN ──
+    if (!isNewUser) {
+      // ── LOGIN (utente esistente o non ancora determinato) ──
       try {
         const { error } = await supabase.auth.signInWithPassword({
           email: nicknameToFakeEmail(nickname),
@@ -71,7 +67,9 @@ export function AuthForm() {
             error.message.toLowerCase().includes("invalid login") ||
             error.message.toLowerCase().includes("invalid credentials")
           ) {
-            throw new Error(t("wrong_nickname_or_password"));
+            setWrongPassword(nicknameStatus === "taken");
+            setIsLoading(false);
+            return;
           }
           throw error;
         }
@@ -82,12 +80,7 @@ export function AuthForm() {
         setIsLoading(false);
       }
     } else {
-      // ── REGISTRAZIONE ──
-      if (nicknameStatus === "taken") {
-        setError(t("nickname_unavailable"));
-        setIsLoading(false);
-        return;
-      }
+      // ── REGISTRAZIONE (nickname nuovo) ──
       if (password !== repeatPassword) {
         setError(t("passwords_dont_match"));
         setIsLoading(false);
@@ -102,7 +95,7 @@ export function AuthForm() {
       const available = await checkNicknameAvailable(nickname);
       if (!available) {
         setNicknameStatus("taken");
-        setError(t("nickname_unavailable"));
+        setError(t("error_occurred"));
         setIsLoading(false);
         return;
       }
@@ -144,11 +137,15 @@ export function AuthForm() {
   };
 
   const nicknameHint = () => {
-    if (mode !== "register" || nickname.trim().length < 2) return null;
+    if (nickname.trim().length < 2) return null;
     if (nicknameStatus === "checking")
       return <p className="text-xs text-foreground/50">{t("checking_availability")}</p>;
     if (nicknameStatus === "taken")
-      return <p className="text-xs text-red-500">{t("nickname_unavailable")}</p>;
+      return (
+        <p className="text-xs text-emerald-600 dark:text-emerald-400">
+          {t("welcome_back")} <span className="font-semibold">{nickname.trim()}</span>
+        </p>
+      );
     if (nicknameStatus === "available")
       return <p className="text-xs text-emerald-600 dark:text-emerald-400">{t("nickname_available")}</p>;
     return null;
@@ -156,12 +153,7 @@ export function AuthForm() {
 
   const canSubmit =
     !isLoading &&
-    nickname.trim().length >= 2 &&
-    password.length >= 1 &&
-    (mode === "login" ||
-      (nicknameStatus !== "taken" &&
-        nicknameStatus !== "checking" &&
-        password === repeatPassword));
+    (isNewUser ? password === repeatPassword : true);
 
   return (
     <div className="flex flex-col gap-4 w-full max-w-sm mx-auto">
@@ -169,7 +161,7 @@ export function AuthForm() {
       <div className="text-center mb-2">
         <h1 className="text-3xl font-bold tracking-tight">Stamp Rally</h1>
         <p className="text-sm text-foreground/50 mt-1">
-          {mode === "login" ? t("login_subtitle") : t("register_subtitle")}
+          {isNewUser ? t("register_subtitle") : t("login_subtitle")}
         </p>
       </div>
 
@@ -188,14 +180,23 @@ export function AuthForm() {
             value={nickname}
             onChange={(e) => setNickname(e.target.value)}
             className={`h-10 w-full rounded-lg border bg-background px-3 text-sm outline-none transition-all focus:ring-2 focus:ring-foreground/20 ${
-              mode === "register" && nicknameStatus === "taken"
-                ? "border-red-500 focus:border-red-500"
-                : mode === "register" && nicknameStatus === "available"
+              isNewUser
                 ? "border-emerald-500 focus:border-emerald-500"
                 : "border-foreground/15 focus:border-foreground/30"
             }`}
           />
           {nicknameHint()}
+          {wrongPassword && (
+            <>
+              <p className="text-xs text-red-500">{t("wrong_password_hint")}</p>
+              <a
+                href={`/auth/forgot-password?nickname=${encodeURIComponent(nickname.trim())}`}
+                className="text-xs underline underline-offset-2 text-foreground/60 hover:text-foreground"
+              >
+                {t("forgot_my_password")}
+              </a>
+            </>
+          )}
         </div>
 
         {/* Password */}
@@ -208,7 +209,7 @@ export function AuthForm() {
               id="password"
               type={showPassword ? "text" : "password"}
               required
-              autoComplete={mode === "login" ? "current-password" : "new-password"}
+              autoComplete={isNewUser ? "new-password" : "current-password"}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="h-10 w-full rounded-lg border border-foreground/15 bg-background px-3 pr-10 text-sm outline-none transition-all focus:border-foreground/30 focus:ring-2 focus:ring-foreground/20"
@@ -224,8 +225,8 @@ export function AuthForm() {
           </div>
         </div>
 
-        {/* Ripeti password — solo in modalità registrazione */}
-        {mode === "register" && (
+        {/* Ripeti password — solo per nuovi utenti */}
+        {isNewUser && (
           <div className="flex flex-col gap-1.5">
             <label htmlFor="repeat-password" className="text-sm font-medium">
               {t("repeat_password")}
@@ -263,48 +264,27 @@ export function AuthForm() {
 
         {error && <p className="text-sm text-red-500">{error}</p>}
 
-        {/* Privacy — solo in modalità registrazione */}
-        {mode === "register" && (
+        {/* Privacy — solo per nuovi utenti */}
+        {isNewUser && (
           <p className="text-xs text-foreground/50 text-center">
             {t("privacy_consent")}{" "}
-            <Link href="/privacy" className="underline underline-offset-2 hover:text-foreground">
+            <a href="/privacy" className="underline underline-offset-2 hover:text-foreground">
               {t("privacy_policy")}
-            </Link>
+            </a>
           </p>
         )}
 
-        {/* Bottone principale */}
+        {/* Bottone principale — sempre cliccabile per il login, attivo solo a
+            password corrispondenti per la registrazione */}
         <button
           type="submit"
           disabled={!canSubmit}
           className="h-11 w-full rounded-xl bg-foreground text-background text-sm font-semibold transition-opacity hover:opacity-90 disabled:opacity-40"
         >
           {isLoading
-            ? mode === "login" ? t("logging_in") : t("creating_account")
-            : mode === "login" ? t("login") : t("register")}
+            ? isNewUser ? t("creating_account") : t("logging_in")
+            : isNewUser ? t("register") : t("login")}
         </button>
-
-        {/* Bottone "Non sono ancora registrato" — solo in modalità login */}
-        {mode === "login" && (
-          <button
-            type="button"
-            onClick={switchToRegister}
-            className="h-11 w-full rounded-xl border border-foreground/15 text-sm font-medium text-foreground/70 transition-colors hover:bg-foreground/5 hover:text-foreground"
-          >
-            Non sono ancora registrato
-          </button>
-        )}
-
-        {/* Torna al login — solo in modalità registrazione */}
-        {mode === "register" && (
-          <button
-            type="button"
-            onClick={() => { setMode("login"); setError(null); setRepeatPassword(""); }}
-            className="text-xs text-foreground/50 text-center hover:text-foreground transition-colors"
-          >
-            {t("have_account")} <span className="underline underline-offset-2">{t("login")}</span>
-          </button>
-        )}
       </form>
     </div>
   );

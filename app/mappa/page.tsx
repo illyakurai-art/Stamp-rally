@@ -124,13 +124,26 @@ export default function MappaPage() {
                           <ArtistHoverCard artist={a} side="top">
                             <div className="transition-transform hover:scale-110">
                               <div
-                              className={`flex h-7 w-7 items-center justify-center rounded-full text-[10px] font-bold shadow-lg border-2 border-white ${
+                              className={`overflow-hidden rounded-full flex items-center justify-center ${
                                 a.scanned
-                                  ? "bg-green-500 text-white shadow-green-500/30"
-                                  : "bg-[#27272a] text-white/80"
+                                  ? "ring-[3px] ring-green-500 border-2 border-green-300 shadow-[0_0_0_2px_rgba(0,0,0,0.75),0_0_6px_4px_rgba(0,0,0,0.35)]"
+                                  : "border-2 border-white/90 shadow-[0_2px_6px_rgba(0,0,0,0.5)]"
                               }`}
+                              style={{ width: 28, height: 28 }}
                               >
-                                {a.name.charAt(0)}
+                                {a.image_url ? (
+                                  <img
+                                    src={a.image_url}
+                                    alt={a.name}
+                                    className="h-full w-full object-cover"
+                                  />
+                                ) : (
+                                  <span className={`flex h-full w-full items-center justify-center text-[10px] font-bold ${
+                                    a.scanned ? "bg-green-600 text-white" : "bg-[#27272a] text-white/80"
+                                  }`}>
+                                    {a.name.charAt(0)}
+                                  </span>
+                                )}
                               </div>
                             </div>
                           </ArtistHoverCard>
