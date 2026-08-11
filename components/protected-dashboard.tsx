@@ -216,9 +216,9 @@ export function ProtectedDashboard() {
         </h1>
         <Link
           href="/mappa"
-          className="flex h-20 w-20 shrink-0 items-center justify-center"
+          className="flex h-26 w-26 shrink-0 items-center justify-center"
         >
-          <img src="/map-icon.png" alt={t("map")} className="h-18 w-18 rounded-md p-1 shadow-sm" />
+          <img src="/map-icon.png" alt={t("map")} className="h-24 w-24 rounded-md p-1 shadow-sm" />
         </Link>
       </div>
 

@@ -191,7 +191,7 @@ export function AdminUserModal({ userId, nickname, stampCount, open, initialView
         )}
 
         {/* ── CONFIRM VIEW ── */}
-        {view === "confirm" && tier && (
+        {view === "confirm" && (
           <div>
             <div className="bg-foreground/[0.04] px-6 pt-8 pb-4 border-b border-foreground/10">
               <button onClick={() => setView("main")} className="text-xs text-foreground/50 hover:text-foreground mb-3 flex items-center gap-1">
@@ -201,44 +201,73 @@ export function AdminUserModal({ userId, nickname, stampCount, open, initialView
               <p className="text-sm text-foreground/50 mt-0.5">{nickname}</p>
             </div>
             <div className="px-6 py-5 flex flex-col gap-4">
-              {/* Riepilogo premio */}
-              <div className="rounded-xl bg-emerald-500/8 border border-emerald-500/20 p-4">
-                <p className="text-xs font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 mb-3">Premio da consegnare</p>
-                {tier.gacha !== null ? (
-                  <div className="flex flex-col gap-1.5">
-                    <div className="flex items-center gap-2 text-lg font-bold">
-                      <Trophy className="h-5 w-5 text-emerald-500" />
-                      {tier.gacha} Gacha
-                    </div>
-                    {tier.extra !== null && tier.extra > 0 && (
-                      <div className="flex items-center gap-2 text-sm text-foreground/70">
-                        <Gift className="h-4 w-4 text-emerald-500/70" />
-                        + {tier.extra} extra a scelta
+              {tier ? (
+                <>
+                  {/* Riepilogo premio */}
+                  <div className="rounded-xl bg-emerald-500/8 border border-emerald-500/20 p-4">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 mb-3">Premio da consegnare</p>
+                    {tier.gacha !== null ? (
+                      <div className="flex flex-col gap-1.5">
+                        <div className="flex items-center gap-2 text-lg font-bold">
+                          <Trophy className="h-5 w-5 text-emerald-500" />
+                          {tier.gacha} Gacha
+                        </div>
+                        {tier.extra !== null && tier.extra > 0 && (
+                          <div className="flex items-center gap-2 text-sm text-foreground/70">
+                            <Gift className="h-4 w-4 text-emerald-500/70" />
+                            + {tier.extra} extra a scelta
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2 text-lg font-bold">
+                        <Trophy className="h-5 w-5 text-emerald-500" />
+                        Full Collection
                       </div>
                     )}
                   </div>
-                ) : (
-                  <div className="flex items-center gap-2 text-lg font-bold">
-                    <Trophy className="h-5 w-5 text-emerald-500" />
-                    Full Collection
+
+                  {/* Info rimozione */}
+                  <div className="rounded-lg bg-foreground/[0.03] border border-foreground/10 px-4 py-3 text-sm text-foreground/60">
+                    <p>Verranno rimossi i <span className="font-semibold text-foreground">{tier.stamps} timbri più vecchi</span> di {nickname}.</p>
+                    <p className="mt-1">Timbri rimanenti dopo il riscatto: <span className="font-semibold text-foreground">{stampCount - tier.stamps}</span></p>
                   </div>
-                )}
-              </div>
 
-              {/* Info rimozione */}
-              <div className="rounded-lg bg-foreground/[0.03] border border-foreground/10 px-4 py-3 text-sm text-foreground/60">
-                <p>Verranno rimossi i <span className="font-semibold text-foreground">{tier.stamps} timbri più vecchi</span> di {nickname}.</p>
-                <p className="mt-1">Timbri rimanenti dopo il riscatto: <span className="font-semibold text-foreground">{stampCount - tier.stamps}</span></p>
-              </div>
+                  <button
+                    onClick={handleRedeem}
+                    disabled={isPending}
+                    className="w-full rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 flex items-center justify-center gap-2 transition-colors"
+                  >
+                    {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trophy className="h-4 w-4" />}
+                    {isPending ? "Riscatto in corso…" : "Conferma e consegna premio"}
+                  </button>
+                </>
+              ) : (
+                <>
+                  {/* Timbri collezionati */}
+                  <div className="rounded-xl bg-red-500/8 border border-red-500/20 p-4">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-red-600 dark:text-red-400 mb-3">Timbri collezionati</p>
+                    <div className="flex items-center gap-2 text-lg font-bold">
+                      <Stamp className="h-5 w-5 text-red-500" />
+                      <span className="text-2xl font-extrabold">{stampCount}</span>
+                      <span className="text-sm text-foreground/60">timbri</span>
+                    </div>
+                  </div>
 
-              <button
-                onClick={handleRedeem}
-                disabled={isPending}
-                className="w-full rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 flex items-center justify-center gap-2 transition-colors"
-              >
-                {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trophy className="h-4 w-4" />}
-                {isPending ? "Riscatto in corso…" : "Conferma e consegna premio"}
-              </button>
+                  {/* Messaggio insufficienza */}
+                  <div className="rounded-lg bg-red-500/10 border border-red-500/30 px-4 py-3.5 text-center">
+                    <p className="font-bold text-red-600 dark:text-red-400 text-base">Non hai abbastanza timbri</p>
+                    <p className="mt-1 text-sm text-foreground/60">Il primo premio è disponibile con almeno {TIERS[TIERS.length - 1].stamps} timbri.</p>
+                  </div>
+
+                  <button
+                    onClick={() => setView("main")}
+                    className="w-full rounded-xl border border-foreground/15 py-3 text-sm font-medium hover:bg-foreground/5 transition-colors"
+                  >
+                    Torna indietro
+                  </button>
+                </>
+              )}
             </div>
           </div>
         )}
