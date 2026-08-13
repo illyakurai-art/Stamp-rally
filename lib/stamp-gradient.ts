@@ -48,3 +48,20 @@ export function getStampsTenueGradient(n: number): string {
   const i = getStampsGradientIndex(n);
   return i >= 0 ? TENUE_GRADIENTS[i] : "linear-gradient(135deg, rgba(139,92,246,0.2), rgba(99,102,241,0.12))";
 }
+
+// Versioni leggermente scurite e marcate, usate per le tile utenti in /admin/users.
+export const DARK_STAMP_GRADIENTS: string[] = [
+  "linear-gradient(135deg, #33A90B 0%, #A6952F 100%)", // 5
+  "linear-gradient(135deg, #A6952F 0%, #B67D38 100%)", // 10
+  "linear-gradient(135deg, #B67D38 0%, #B95A3A 100%)", // 15
+  "linear-gradient(135deg, #B95A3A 0%, #B34040 100%)", // 20
+  "linear-gradient(135deg, #B34040 0%, #A55AA0 100%)", // 25
+  "linear-gradient(135deg, #A55AA0 0%, #7A55A0 100%)", // 30
+  "linear-gradient(135deg, #7A55A0 0%, #4D6F9E 100%)", // 35
+  "linear-gradient(135deg, #4D6F9E 0%, #4D9E8C 100%)", // 40
+];
+
+export function getStampsDarkGradient(n: number): string {
+  const i = getStampsGradientIndex(n);
+  return i >= 0 ? DARK_STAMP_GRADIENTS[i] : "linear-gradient(135deg, #5A3A66 0%, #4A2F55 100%)";
+}

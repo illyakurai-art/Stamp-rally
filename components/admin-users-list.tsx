@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Search, QrCode } from "lucide-react";
 import { AdminUserModal } from "@/components/admin-user-modal";
 import { AdminQrScanner } from "@/components/admin-qr-scanner";
-import { getStampsGradient } from "@/lib/stamp-gradient";
+import { getStampsDarkGradient } from "@/lib/stamp-gradient";
 
 const TIERS = [
   { stamps: 40, label: "Full collection", color: "from-purple-500 to-indigo-500" },
@@ -86,7 +86,7 @@ export function AdminUsersList({ users }: { users: UserEntry[] }) {
                 key={user.id}
                 onClick={() => setSelected(user)}
                 className="rounded-2xl border border-foreground/10 p-5 flex flex-col gap-4 hover:border-foreground/25 hover:shadow-lg active:scale-[0.98] transition-all text-left"
-                style={{ background: getStampsGradient(user.stamps) }}
+                style={{ background: getStampsDarkGradient(user.stamps) }}
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">

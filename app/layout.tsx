@@ -3,7 +3,6 @@ import { Geist } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { ToasterProvider } from "@/components/toaster-provider";
 import { I18nProvider } from "@/lib/i18n/context";
-import { PostHogProvider } from "@/components/posthog-provider";
 import "./globals.css";
 
 const defaultUrl =
@@ -42,9 +41,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <I18nProvider>
-            <PostHogProvider>
-              {children}
-            </PostHogProvider>
+            {children}
           </I18nProvider>
         </ThemeProvider>
         <ToasterProvider />
