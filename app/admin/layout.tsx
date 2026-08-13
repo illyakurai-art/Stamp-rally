@@ -16,9 +16,7 @@ export default async function AdminLayout({
     data: { user },
   } = await supabase.auth.getUser();
 
-  const isLogin = (await headers()).get("x-pathname") === "/admin/login";
-
-  // Senza sessione renderizza comunque i children (es. la pagina di login admin)
+  // Senza sessione renderizza i children (es. pagina di login admin)
   if (!user) {
     return <main className="min-h-screen flex flex-col">{children}</main>;
   }
@@ -33,7 +31,13 @@ export default async function AdminLayout({
     redirect("/admin/login?error=unauthorized");
   }
 
-  if (isLogin) {
+  // Se siamo sulla pagina di login admin, nascondi la nav (ma l'utente è
+  // già autenticato, quindi mostriamo lo stesso la nav per evitare che
+  // su Android il header x-pathname non venga propagato correttamente).
+  const pathname = (await headers()).get("x-pathname") ?? "";
+  const isLoginPage = pathname === "/admin/login";
+
+  if (isLoginPage) {
     return <main className="min-h-screen flex flex-col">{children}</main>;
   }
 
