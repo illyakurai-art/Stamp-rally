@@ -149,7 +149,7 @@ export function ArtistHoverCard({
               <span className="text-[#71717a]">{t("stamp_status")}</span>
               <span
                 className={`font-semibold ${
-                  artist.scanned ? "text-green-400" : "text-[#a1a1aa]"
+                  artist.scanned ? "text-green-400" : "text-yellow-400"
                 }`}
               >
                 {artist.scanned ? t("stamp_collected") : t("awaiting_scan")}
