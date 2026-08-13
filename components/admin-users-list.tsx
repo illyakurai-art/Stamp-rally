@@ -63,7 +63,7 @@ export function AdminUsersList({ users }: { users: UserEntry[] }) {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Cerca nickname…"
-            className="h-10 w-full rounded-lg border border-foreground/15 bg-background pl-9 pr-4 text-sm text-foreground outline-none placeholder:text-foreground/60 focus:border-foreground/30 focus:ring-2 focus:ring-foreground/20 transition-all"
+            className="h-10 w-full rounded-lg border border-foreground/15 bg-[#C5A3C9] pl-9 pr-4 text-sm text-foreground outline-none placeholder:text-foreground/60 focus:border-foreground/30 focus:ring-2 focus:ring-foreground/20 transition-all"
             style={{ boxShadow: "6px 6px 0 rgba(0, 0, 0, 0.25)" }}
           />
         </div>

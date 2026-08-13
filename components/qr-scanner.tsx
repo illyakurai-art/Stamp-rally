@@ -19,6 +19,7 @@ export function QrScanner() {
   const rafRef = useRef<number | null>(null);
   const mountedRef = useRef(true);
   const foundRef = useRef(false);
+  const lastAttemptRef = useRef<{ data: string; time: number } | null>(null);
 
   useEffect(() => {
     mountedRef.current = true;
@@ -101,32 +102,34 @@ export function QrScanner() {
             inversionAttempts: "dontInvert",
           });
           if (code?.data) {
-            foundRef.current = true;
-            let token: string | null = code.data.trim();
-            try {
-              // Se il QR contiene un URL, estrai il token
-              if (code.data.startsWith("http")) {
-                const url = new URL(code.data);
-                const t = url.searchParams.get("token");
-                if (t) {
-                  token = t;
-                } else {
-                  // URL senza token in query → usa l'ultimo segmento del path
-                  const seg = url.pathname.split("/").filter(Boolean).pop();
-                  if (seg) token = decodeURIComponent(seg);
-                  else token = null;
-                }
-              }
-            } catch {
-              // codice non parsato come URL → token = codice grezzo
-            }
-            if (token) {
-              stopAll();
-              router.push(`/scan/go?token=${encodeURIComponent(token)}`);
+            const data = code.data.trim();
+            const now = Date.now();
+            const last = lastAttemptRef.current;
+            if (last && last.data === data && now - last.time < 1500) {
+              // Stesso QR già tentato: aspetta, non risolverlo di nuovo
+              foundRef.current = false;
+              rafRef.current = requestAnimationFrame(tick);
               return;
             }
-            // QR trovato ma senza token valido — continua a scansionare
-            foundRef.current = false;
+            foundRef.current = true;
+            lastAttemptRef.current = { data, time: now };
+            void extractToken(data)
+              .then((token) => {
+                if (!mountedRef.current) return;
+                if (token) {
+                  stopAll();
+                  router.push(`/scan/go?token=${encodeURIComponent(token)}`);
+                } else {
+                  // QR trovato ma senza token valido — continua a scansionare
+                  foundRef.current = false;
+                  rafRef.current = requestAnimationFrame(tick);
+                }
+              })
+              .catch(() => {
+                foundRef.current = false;
+                rafRef.current = requestAnimationFrame(tick);
+              });
+            return;
           }
         }
         rafRef.current = requestAnimationFrame(tick);
@@ -155,6 +158,45 @@ export function QrScanner() {
     }
     if (videoRef.current) {
       videoRef.current.srcObject = null;
+    }
+  };
+
+  // Estrae il token dal contenuto del QR. Se è un link abbreviato (es. qr.link),
+  // lo risolve lato server seguendo i redirect per ottenere l'URL finale.
+  const extractToken = async (data: string): Promise<string | null> => {
+    const raw = data.trim();
+    if (!/^https?:\/\//i.test(raw)) return raw;
+
+    try {
+      const url = new URL(raw);
+      const t = url.searchParams.get("token");
+      if (t) return t;
+
+      const isAppHost =
+        url.hostname === "localhost" ||
+        url.hostname === "stamprally-nvgr.vercel.app" ||
+        url.hostname.endsWith(".vercel.app");
+
+      // Host dell'app senza ?token= in query → usa l'ultimo segmento del path
+      if (isAppHost) {
+        const seg = url.pathname.split("/").filter(Boolean).pop();
+        return seg ? decodeURIComponent(seg) : null;
+      }
+
+      // Link esterno (abbreviatore) → risolvi i redirect e leggi il token
+      try {
+        const res = await fetch(`/api/resolve-url?url=${encodeURIComponent(url.toString())}`);
+        const json = (await res.json()) as { url: string | null };
+        if (json?.url) {
+          const finalUrl = new URL(json.url);
+          return finalUrl.searchParams.get("token") ?? null;
+        }
+      } catch {
+        return null;
+      }
+      return null;
+    } catch {
+      return raw;
     }
   };
 
