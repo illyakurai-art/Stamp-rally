@@ -137,9 +137,63 @@ export function RedeemNotification({ userId }: { userId: string }) {
       )
       .subscribe();
 
+    // ── Canale 3: postgres_changes per obiettivo segreto sbloccato ──
+    const secretChannel = supabase
+      .channel(`secret-notify-${userId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "notifications",
+          filter: `user_id=eq.${userId}`,
+        },
+        (event) => {
+          const row = event.new as { type: string; payload: { label?: string } };
+          if (row.type !== "kk_unlock") return;
+
+          const label = row.payload?.label ?? "K&K";
+
+          toast.custom((id) => (
+            <div className="w-full max-w-sm rounded-2xl overflow-hidden shadow-2xl border border-yellow-400/50"
+              style={{ fontFamily: "inherit" }}>
+              {/* Header oro */}
+              <div style={{ background: "linear-gradient(135deg, #a16207 0%, #facc15 50%, #f59e0b 100%)" }}
+                className="px-4 pt-4 pb-3 relative">
+                <button
+                  onClick={() => toast.dismiss(id)}
+                  className="absolute top-2 right-2 rounded-full bg-black/20 p-1 hover:bg-black/30 transition-colors"
+                >
+                  <X className="h-3 w-3 text-white" />
+                </button>
+                <div className="flex items-center gap-2 mb-1">
+                  <Trophy className="h-5 w-5 text-white shrink-0" style={{ filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.4))" }} />
+                  <span className="text-white font-black text-base tracking-wide"
+                    style={{ textShadow: "0 1px 3px rgba(0,0,0,0.3)" }}>
+                    {t("secret_objective_unlocked")}
+                  </span>
+                </div>
+                <p className="text-yellow-950 font-extrabold text-2xl font-black tracking-tight leading-tight">
+                  {label}
+                </p>
+              </div>
+              {/* Body scuro */}
+              <div className="bg-zinc-900 px-4 pb-3 pt-2.5">
+                <p className="text-yellow-300 text-xs font-semibold">✨ {t("secret_kk_unlocked")}</p>
+              </div>
+            </div>
+          ), { duration: 10000 });
+
+          window.dispatchEvent(new CustomEvent("stampsUpdated"));
+          window.dispatchEvent(new CustomEvent("kkUnlocked"));
+        }
+      )
+      .subscribe();
+
     return () => {
       supabase.removeChannel(redeemChannel);
       supabase.removeChannel(stampChannel);
+      supabase.removeChannel(secretChannel);
     };
   }, [userId, router]);
 

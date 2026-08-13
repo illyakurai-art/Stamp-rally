@@ -10,12 +10,14 @@ import { ArtistCards } from "@/components/artist-cards";
 import { PrizeInfoCard } from "@/components/prize-info-card";
 import { RedeemNotification } from "@/components/redeem-notification";
 import { StampRealtimeRefresh } from "@/components/stamp-realtime-refresh";
-import { ChevronDown } from "lucide-react";
+import { SECRET_PAIRS } from "@/lib/secret-pairs";
+import { ChevronDown, QrCode } from "lucide-react";
 
 type ArtistData = {
   id: string;
   name: string;
   image_url?: string | null;
+  prize_image_url?: string | null;
   active: boolean;
   display_id?: string | null;
   scanned: boolean;
@@ -36,6 +38,7 @@ export function ProtectedDashboard() {
   const [stampTick, setStampTick] = useState(0); // incrementato per forzare re-fetch stamps
   const [artistSort, setArtistSort] = useState<ArtistSort>("alpha");
   const [sortOpen, setSortOpen] = useState(false);
+  const [mapZoom, setMapZoom] = useState(false);
   const sortRef = useRef<HTMLDivElement>(null);
   const userDisplayIdRef = useRef<string | null>(null);
   const userIdRef = useRef<string | null>(null);
@@ -126,7 +129,7 @@ export function ProtectedDashboard() {
           .in("user_id", userIdsToMatch),
         supabase
           .from("artists")
-          .select("id, name, image_url, active, display_id")
+          .select("id, name, image_url, prize_image_url, active, display_id")
           .eq("active", true),
       ]);
 
@@ -202,6 +205,16 @@ export function ProtectedDashboard() {
   const sortLabel =
     artistSort === "alpha" ? t("sort_alpha") : t("sort_scanned");
 
+  // Obiettivo segreto: tutti i membri di una coppia scansionati → corona + nome oro
+  const kkLabel =
+    SECRET_PAIRS.find((pair) =>
+      pair.members.every((name) =>
+        artists.some(
+          (a) => a.name.toLowerCase() === name.toLowerCase() && a.scanned
+        )
+      )
+    )?.label ?? false;
+
   return (
     <section className="mx-auto w-full max-w-5xl px-5 py-6">
       <ScanToast />
@@ -209,31 +222,66 @@ export function ProtectedDashboard() {
       <StampRealtimeRefresh userId={userId!} userDisplayId={userDisplayId ?? null} />
 
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold leading-snug">
+        <h1 className="text-2xl font-bold leading-snug">
           {t("welcome_prefix")}
           <br />
           <span className="text-nowrap">{t("welcome_event_name")}</span>
         </h1>
         <Link
           href="/mappa"
+          onClick={(e) => {
+            e.preventDefault();
+            setMapZoom(true);
+            setTimeout(() => {
+              router.push("/mappa");
+            }, 260);
+          }}
           className="flex h-26 w-26 shrink-0 items-center justify-center"
         >
-          <img src="/map-icon.png" alt={t("map")} className="h-24 w-24 rounded-md p-1 shadow-sm" />
+          <img
+            src="/map-icon.png"
+            alt={t("map")}
+            className={`h-24 w-24 rounded-md border border-foreground/20 object-cover transition-all duration-300 ease-out ${
+              mapZoom ? "scale-[3] opacity-0" : ""
+            }`}
+            style={{ boxShadow: "6px 6px 0 rgba(0, 0, 0, 0.25)" }}
+          />
         </Link>
       </div>
 
       <div className="mt-8">
-        <PrizeInfoCard stampCount={activeStampsCount} nickname={nickname} userDisplayId={userDisplayId} />
+        <PrizeInfoCard stampCount={activeStampsCount} nickname={nickname} userDisplayId={userDisplayId} kkUnlocked={kkLabel} />
       </div>
 
-      <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-        {qrMode && (
+      <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
+        {qrMode ? (
           <Link
             href="/scan"
-            className="min-h-12 rounded-md bg-foreground px-5 py-3 text-center text-sm font-medium text-background transition-opacity hover:opacity-90 flex items-center justify-center"
+            className="w-full min-h-12 rounded-md bg-foreground px-5 py-4 text-center text-sm font-medium text-background transition-opacity hover:opacity-90 flex items-center justify-center gap-3 sm:w-auto sm:min-w-[340px]"
+            style={{ boxShadow: "6px 6px 0 rgba(0, 0, 0, 0.25)" }}
           >
-            {t("scan_stand")}
+            <QrCode className="h-12 w-12 shrink-0" strokeWidth={1.2} />
+            <span className="text-center leading-snug">
+              {t("scan_stand_qr_line1")}
+              <br />
+              {t("scan_stand_qr_line2")}
+            </span>
           </Link>
+        ) : (
+          <button
+            aria-disabled="true"
+            className="w-full min-h-12 rounded-md bg-[#996C9E] px-5 py-4 text-center text-sm font-medium text-white flex items-center justify-center gap-3 cursor-not-allowed select-none sm:w-auto sm:min-w-[340px]"
+            style={{ boxShadow: "6px 6px 0 rgba(0, 0, 0, 0.25)" }}
+          >
+            <img src="/nfc-icon.png" alt="" className="h-12 w-12 shrink-0 object-contain" />
+            <span className="text-center leading-snug">
+              {t("scan_nfc_line1")}
+              <br />
+              {t("scan_nfc_line2")}
+              <br />
+              {t("scan_nfc_line3")}
+            </span>
+          </button>
         )}
       </div>
 
@@ -242,7 +290,7 @@ export function ProtectedDashboard() {
           <div className="flex items-center justify-between gap-3">
             <div>
               <h2 className="text-lg font-semibold">{t("artists")}</h2>
-              <p className="mt-1 text-sm text-foreground/60">
+              <p className="mt-1 text-sm text-foreground/80">
                 {t("select_card")}
               </p>
             </div>
@@ -251,7 +299,7 @@ export function ProtectedDashboard() {
                 onClick={() => setSortOpen((o) => !o)}
                 className="flex h-10 items-center gap-2 rounded-md border border-foreground/15 bg-background px-3 text-sm font-medium transition-colors hover:bg-foreground/5"
               >
-                <span className="text-foreground/60">{t("sort_by")}:</span>
+                <span className="text-foreground/80">{t("sort_by")}:</span>
                 <span>{sortLabel}</span>
                 <ChevronDown
                   className={`h-4 w-4 text-foreground/50 transition-transform ${sortOpen ? "rotate-180" : ""}`}

@@ -13,6 +13,7 @@ interface MapArtist {
   name: string;
   display_id?: string | null;
   image_url?: string | null;
+  prize_image_url?: string | null;
   map_x?: number | null;
   map_y?: number | null;
   scanned: boolean;
@@ -41,7 +42,7 @@ export default function MappaPage() {
       const [artistsRes, stampsRes] = await Promise.all([
         supabase
           .from("artists")
-          .select("id, name, display_id, image_url, map_x, map_y")
+          .select("id, name, display_id, image_url, prize_image_url, map_x, map_y")
           .eq("active", true),
         supabase
           .from("stamps")
@@ -139,7 +140,7 @@ export default function MappaPage() {
                                   />
                                 ) : (
                                   <span className={`flex h-full w-full items-center justify-center text-[10px] font-bold ${
-                                    a.scanned ? "bg-green-600 text-white" : "bg-[#27272a] text-white/80"
+                                    a.scanned ? "bg-green-600 text-white" : "bg-secondary text-foreground/70"
                                   }`}>
                                     {a.name.charAt(0)}
                                   </span>
@@ -158,7 +159,7 @@ export default function MappaPage() {
                     <span className="text-foreground/70">{t("scanned")}</span>
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <span className="inline-block h-3 w-3 rounded-full bg-[#27272a] border border-white" />
+                    <span className="inline-block h-3 w-3 rounded-full bg-secondary border border-border" />
                     <span className="text-foreground/70">{t("to_visit")}</span>
                   </div>
                 </div>

@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import { adminRedeem, getUserStamps } from "@/app/actions/admin-redeem";
 import type { RedeemResult } from "@/app/actions/admin-redeem";
+import { getStampsGradient } from "@/lib/stamp-gradient";
 
 const TIERS = [
   { stamps: 40, label: "Full collection", gacha: null, extra: null },
@@ -101,13 +102,16 @@ export function AdminUserModal({ userId, nickname, stampCount, open, initialView
         {view === "main" && (
           <div>
             {/* Header */}
-            <div className="bg-foreground/[0.04] px-6 pt-8 pb-6 border-b border-foreground/10">
-              <p className="text-xs font-semibold uppercase tracking-widest text-foreground/50 mb-1">Utente</p>
-              <h2 className="text-2xl font-bold">{nickname}</h2>
+            <div
+              className="px-6 pt-8 pb-6 border-b border-foreground/10"
+              style={{ background: getStampsGradient(stampCount) }}
+            >
+              <p className="text-xs font-semibold uppercase tracking-widest text-white/70 mb-1">Utente</p>
+              <h2 className="text-2xl font-bold text-white drop-shadow-sm">{nickname}</h2>
               <div className="mt-3 flex items-center gap-2">
-                <Stamp className="h-4 w-4 text-foreground/50" />
-                <span className="text-sm text-foreground/70">
-                  <span className="font-bold text-foreground text-lg">{stampCount}</span> timbri attivi
+                <Stamp className="h-4 w-4 text-white/80" />
+                <span className="text-sm text-white/90">
+                  <span className="font-bold text-white text-lg">{stampCount}</span> timbri attivi
                 </span>
               </div>
             </div>
@@ -161,12 +165,15 @@ export function AdminUserModal({ userId, nickname, stampCount, open, initialView
         {/* ── STAMPS VIEW ── */}
         {view === "stamps" && (
           <div>
-            <div className="bg-foreground/[0.04] px-6 pt-8 pb-4 border-b border-foreground/10">
-              <button onClick={() => setView("main")} className="text-xs text-foreground/50 hover:text-foreground mb-3 flex items-center gap-1">
+            <div
+              className="px-6 pt-8 pb-4 border-b border-foreground/10"
+              style={{ background: getStampsGradient(stampCount) }}
+            >
+              <button onClick={() => setView("main")} className="text-xs text-white/70 hover:text-white mb-3 flex items-center gap-1">
                 ← Indietro
               </button>
-              <h2 className="text-xl font-bold">{nickname}</h2>
-              <p className="text-sm text-foreground/50 mt-0.5">{stamps?.length ?? 0} timbri raccolti</p>
+              <h2 className="text-xl font-bold text-white drop-shadow-sm">{nickname}</h2>
+              <p className="text-sm text-white/80 mt-0.5">{stamps?.length ?? 0} timbri raccolti</p>
             </div>
             <div className="px-6 py-4 max-h-80 overflow-y-auto flex flex-col gap-2">
               {stamps && stamps.length > 0 ? stamps.map((s, i) => (

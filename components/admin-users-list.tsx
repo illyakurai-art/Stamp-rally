@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Search, QrCode } from "lucide-react";
 import { AdminUserModal } from "@/components/admin-user-modal";
 import { AdminQrScanner } from "@/components/admin-qr-scanner";
+import { getStampsDarkGradient } from "@/lib/stamp-gradient";
 
 const TIERS = [
   { stamps: 40, label: "Full collection", color: "from-purple-500 to-indigo-500" },
@@ -44,15 +45,26 @@ export function AdminUsersList({ users }: { users: UserEntry[] }) {
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Barra ricerca + bottone QR */}
+      {/* Bottone scanner QR — sopra la ricerca, stessa larghezza */}
+      <button
+        onClick={() => setScannerOpen(true)}
+        className="flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-[#996C9E] px-4 text-sm font-medium text-white shadow-sm hover:bg-[#8a5f8e] transition-colors"
+        style={{ boxShadow: "6px 6px 0 rgba(0, 0, 0, 0.25)" }}
+      >
+        <QrCode className="h-4 w-4 shrink-0" />
+        Scansiona QR utente
+      </button>
+
+      {/* Barra ricerca */}
       <div className="flex items-center gap-3">
-        <div className="relative flex-1 max-w-xs">
+        <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground/40" />
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Cerca nickname…"
-            className="h-10 w-full rounded-lg border border-foreground/15 bg-background pl-9 pr-4 text-sm outline-none focus:border-foreground/30 focus:ring-2 focus:ring-foreground/20 transition-all"
+            className="h-10 w-full rounded-lg border border-foreground/15 bg-[#C5A3C9] pl-9 pr-4 text-sm text-foreground outline-none placeholder:text-foreground/60 focus:border-foreground/30 focus:ring-2 focus:ring-foreground/20 transition-all"
+            style={{ boxShadow: "6px 6px 0 rgba(0, 0, 0, 0.25)" }}
           />
         </div>
         {query && (
@@ -60,14 +72,6 @@ export function AdminUsersList({ users }: { users: UserEntry[] }) {
             {filtered.length} risultat{filtered.length === 1 ? "o" : "i"}
           </span>
         )}
-        {/* Bottone scanner QR */}
-        <button
-          onClick={() => setScannerOpen(true)}
-          title="Scansiona QR utente"
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-foreground/15 bg-background text-foreground/60 hover:bg-foreground/5 hover:text-foreground transition-colors"
-        >
-          <QrCode className="h-4 w-4" />
-        </button>
       </div>
 
       {/* Griglia card — cliccabili */}
@@ -81,13 +85,13 @@ export function AdminUsersList({ users }: { users: UserEntry[] }) {
               <button
                 key={user.id}
                 onClick={() => setSelected(user)}
-                className="rounded-2xl border border-foreground/10 bg-background p-5 flex flex-col gap-4 hover:border-foreground/25 hover:shadow-sm active:scale-[0.98] transition-all text-left"
+                className="rounded-2xl border border-foreground/10 p-5 flex flex-col gap-4 hover:border-foreground/25 hover:shadow-lg active:scale-[0.98] transition-all text-left"
+                style={{ background: getStampsDarkGradient(user.stamps) }}
               >
-                {/* Nome + badge timbri */}
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
-                    <p className="font-semibold truncate text-base">{user.nickname}</p>
-                    <p className="text-xs text-foreground/40 mt-0.5">
+                    <p className="font-semibold truncate text-base text-white drop-shadow-sm">{user.nickname}</p>
+                    <p className="text-xs text-white/80 mt-0.5">
                       {user.display_id ?? "—"} ·{" "}
                       {new Date(user.created_at).toLocaleString("it-IT", {
                         day: "2-digit", month: "2-digit", year: "numeric",
@@ -95,34 +99,22 @@ export function AdminUsersList({ users }: { users: UserEntry[] }) {
                       })}
                     </p>
                   </div>
-                  <span className={`shrink-0 inline-flex items-baseline gap-1 rounded-full px-2.5 py-1 text-sm font-bold ${
-                    user.stamps >= 40
-                      ? "bg-purple-500/15 text-purple-600 dark:text-purple-400"
-                      : user.stamps >= 20
-                      ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
-                      : user.stamps >= 5
-                      ? "bg-blue-500/15 text-blue-600 dark:text-blue-400"
-                      : "bg-foreground/8 text-foreground/50"
-                  }`}>
+                  <span className="shrink-0 inline-flex items-baseline gap-1 rounded-full bg-white/25 px-2.5 py-1 text-sm font-bold text-white">
                     {user.stamps}
-                    <span className="text-xs font-normal opacity-60">/{max}</span>
+                    <span className="text-xs font-normal opacity-70">/{max}</span>
                   </span>
                 </div>
 
                 {/* Barra progresso */}
-                <div className="h-1.5 w-full overflow-hidden rounded-full bg-foreground/8">
+                <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/30">
                   <div
-                    className={`h-full rounded-full bg-gradient-to-r transition-all duration-500 ${
-                      tier
-                        ? tier.color
-                        : "from-white via-slate-200 to-slate-400 dark:from-white dark:via-slate-300 dark:to-slate-500"
-                    }`}
+                    className="h-full rounded-full bg-white/80 transition-all duration-500"
                     style={{ width: `${progress}%` }}
                   />
                 </div>
 
                 {/* Premio attuale */}
-                <div className="rounded-lg bg-foreground/[0.03] px-3 py-2 text-xs text-foreground/60 text-center">
+                <div className="rounded-lg bg-white/20 px-3 py-2 text-xs text-white text-center font-medium backdrop-blur-sm">
                   {tier ? tier.label : "Nessun premio ancora"}
                 </div>
               </button>

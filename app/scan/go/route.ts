@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { SECRET_PAIRS } from "@/lib/secret-pairs";
 
 function getBaseUrl(request: NextRequest): string {
   // Usa sempre l'host reale dalla request per evitare che Next.js normalizzi a localhost
@@ -81,6 +82,9 @@ export async function GET(request: NextRequest) {
     },
   });
 
+  // Obiettivo segreto: completa una coppia → notifica "kk_unlock" (una sola volta)
+  await checkAndUnlockSecret(user.id);
+
   const redirectUrl = new URL("/scan/result", base);
   if (artist.name) {
     redirectUrl.searchParams.set("artist", artist.name);
@@ -90,4 +94,53 @@ export async function GET(request: NextRequest) {
   }
 
   return NextResponse.redirect(redirectUrl);
+}
+
+// Controlla se l'utente ha appena completato una coppia segreta.
+// Se sì e non è già stato notificato, inserisce una notifica "kk_unlock".
+async function checkAndUnlockSecret(userId: string) {
+  const supabase = await createClient();
+
+  // Display id dell'utente (i timbri sono salvati con il display_id)
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("display_id")
+    .eq("id", userId)
+    .maybeSingle();
+
+  const userDisplayId = profile?.display_id;
+  if (!userDisplayId) return;
+
+  for (const pair of SECRET_PAIRS) {
+    const { data: artists } = await supabase
+      .from("artists")
+      .select("display_id")
+      .in("name", pair.members);
+
+    const artistIds = (artists ?? []).map((a) => a.display_id).filter((x): x is string => !!x);
+    if (artistIds.length !== pair.members.length) continue;
+
+    const { count } = await supabase
+      .from("stamps")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", userDisplayId)
+      .in("artist_id", artistIds);
+
+    if (count !== artistIds.length) continue;
+
+    // Già notificato? Salta.
+    const { count: existing } = await supabase
+      .from("notifications")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", userId)
+      .eq("type", "kk_unlock");
+
+    if (existing && existing > 0) continue;
+
+    await supabase.from("notifications").insert({
+      user_id: userId,
+      type: "kk_unlock",
+      payload: { label: pair.label },
+    });
+  }
 }

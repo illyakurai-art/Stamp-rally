@@ -85,13 +85,16 @@ export function AdminStandsList({ stands }: { stands: StandEntry[] }) {
           {sorted.map((stand) => (
             <div
               key={stand.id}
-              className="rounded-2xl border border-foreground/10 bg-background p-5 flex flex-col gap-4 transition-colors hover:border-foreground/25 hover:shadow-sm"
+              className="rounded-2xl border border-foreground/10 p-5 flex flex-col gap-4 transition-colors hover:border-foreground/25 hover:shadow-sm bg-gradient-to-br"
+              style={{
+                backgroundImage: `linear-gradient(135deg, rgba(153,108,158,0.35) 0%, rgba(153,108,158,0.15) 55%, rgba(153,108,158,0.03) 100%)`,
+              }}
             >
               {/* Nome + badge contatore */}
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
                   <p className="font-semibold truncate text-base">{stand.name}</p>
-                  <p className="text-xs text-foreground/40 mt-0.5 flex items-center gap-1.5">
+                  <p className="text-xs text-foreground/60 mt-0.5 flex items-center gap-1.5">
                     <span>{stand.display_id ?? "—"}</span>
                     <span
                       className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${
@@ -111,7 +114,7 @@ export function AdminStandsList({ stands }: { stands: StandEntry[] }) {
                     ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
                     : stand.stamps >= 5
                     ? "bg-blue-500/15 text-blue-600 dark:text-blue-400"
-                    : "bg-foreground/8 text-foreground/50"
+                    : "bg-foreground/10 text-foreground/70"
                 }`}>
                   {stand.stamps}
                 </span>
@@ -128,8 +131,8 @@ export function AdminStandsList({ stands }: { stands: StandEntry[] }) {
               </div>
 
               {/* Timbri elargiti */}
-              <div className="rounded-lg bg-foreground/[0.03] px-3 py-2 text-xs text-foreground/60 text-center flex items-center justify-center gap-1.5">
-                <Stamp className="h-3.5 w-3.5 text-foreground/40" />
+              <div className="rounded-lg bg-foreground/[0.05] px-3 py-2 text-xs text-foreground/80 text-center flex items-center justify-center gap-1.5">
+                <Stamp className="h-3.5 w-3.5 text-foreground/50" />
                 {stand.stamps === 1 ? "1 timbro elargito" : `${stand.stamps} timbri elargiti`}
               </div>
             </div>
