@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState } from "react"
-import { CalendarDays, MapPin, Link2, Check, HelpCircle } from "lucide-react"
+import { CalendarDays, MapPin, Link2, Check, HelpCircle, Gift, ChevronDown } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useI18n } from "@/lib/i18n/context"
 import {
@@ -14,6 +14,7 @@ export interface Artist {
   id: string
   name: string
   image_url?: string | null
+  prize_image_url?: string | null
   scanned: boolean
   active?: boolean
   bio?: string | null
@@ -40,6 +41,7 @@ export function ArtistHoverCard({
 }: ArtistHoverCardProps) {
   const { t } = useI18n()
   const [open, setOpen] = useState(false)
+  const [prizeOpen, setPrizeOpen] = useState(false)
 
   // Genera le iniziali dall'artista
   const initials = artist.name
@@ -155,6 +157,38 @@ export function ArtistHoverCard({
                 {artist.scanned ? t("stamp_collected") : t("awaiting_scan")}
               </span>
             </div>
+
+            {/* Bottone premio dell'artista */}
+            <button
+              onClick={() => setPrizeOpen((prev) => !prev)}
+              className="flex w-full items-center justify-center gap-2 rounded-lg border border-[#3f3f46] bg-[#27272a] px-3 py-2 text-xs font-medium text-white transition-colors hover:bg-[#3f3f46]"
+            >
+              <Gift className="h-3.5 w-3.5 text-amber-400" />
+              <span>{t("show_artist_prize")}</span>
+              <ChevronDown
+                className={`h-3.5 w-3.5 text-[#a1a1aa] transition-transform ${
+                  prizeOpen ? "rotate-180" : ""
+                }`}
+              />
+            </button>
+
+            {/* Tendina premio */}
+            {prizeOpen && (
+              <div className="mt-1 overflow-hidden rounded-lg border border-[#3f3f46] bg-[#27272a] animate-in slide-in-from-top-1 fade-in duration-150">
+                {artist.prize_image_url ? (
+                  <img
+                    src={artist.prize_image_url}
+                    alt={`${artist.name} prize`}
+                    className="w-full object-cover"
+                  />
+                ) : (
+                  <div className="flex flex-col items-center justify-center gap-1.5 py-6 text-center">
+                    <Gift className="h-6 w-6 text-[#52525b]" />
+                    <p className="text-xs text-[#71717a]">{t("prize_not_available")}</p>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </HoverCardContent>

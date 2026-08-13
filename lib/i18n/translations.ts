@@ -141,6 +141,8 @@ export const translations = {
   "stamp_status": { ITA: "Stato timbro", ENG: "Stamp status" },
   "stamp_collected": { ITA: "Timbro Raccolto ✓", ENG: "Stamp Collected ✓" },
   "awaiting_scan": { ITA: "In attesa di scan", ENG: "Awaiting scan" },
+  "show_artist_prize": { ITA: "Mostra premio dell'artista", ENG: "Show artist prize" },
+  "prize_not_available": { ITA: "Premio non ancora disponibile", ENG: "Prize not yet available" },
 
   // Map
   "artist_stands": { ITA: "Stand Artisti", ENG: "Artist Stands" },

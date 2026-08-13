@@ -16,6 +16,7 @@ type ArtistData = {
   id: string;
   name: string;
   image_url?: string | null;
+  prize_image_url?: string | null;
   active: boolean;
   display_id?: string | null;
   scanned: boolean;
@@ -126,7 +127,7 @@ export function ProtectedDashboard() {
           .in("user_id", userIdsToMatch),
         supabase
           .from("artists")
-          .select("id, name, image_url, active, display_id")
+          .select("id, name, image_url, prize_image_url, active, display_id")
           .eq("active", true),
       ]);
 

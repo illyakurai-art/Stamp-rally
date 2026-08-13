@@ -13,6 +13,7 @@ interface MapArtist {
   name: string;
   display_id?: string | null;
   image_url?: string | null;
+  prize_image_url?: string | null;
   map_x?: number | null;
   map_y?: number | null;
   scanned: boolean;
@@ -41,7 +42,7 @@ export default function MappaPage() {
       const [artistsRes, stampsRes] = await Promise.all([
         supabase
           .from("artists")
-          .select("id, name, display_id, image_url, map_x, map_y")
+          .select("id, name, display_id, image_url, prize_image_url, map_x, map_y")
           .eq("active", true),
         supabase
           .from("stamps")
