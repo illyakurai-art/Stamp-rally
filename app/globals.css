@@ -67,6 +67,30 @@
   }
 }
 
+/* ── Auto-fill (Chrome/Safari/Face ID): mantiene sfondo e testo dei campi,
+       invece dello sfondo giallo/bianco imposto dal browser ── */
+@keyframes onAutoFillStart {
+  from {
+    background-color: transparent;
+  }
+  to {
+    background-color: transparent;
+  }
+}
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px #d4b3e3 inset !important;
+  box-shadow: 0 0 0 1000px #d4b3e3 inset !important;
+  -webkit-text-fill-color: currentColor !important;
+  caret-color: currentColor;
+  animation-name: onAutoFillStart;
+  transition: background-color 999999s ease-in-out 0s;
+}
+
 /* ── Animazione timbro scan risultato: "stampa" dall'alto con rimbalzo ── */
 @keyframes stamp-pop {
   0% {

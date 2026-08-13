@@ -240,6 +240,9 @@ export function AuthForm() {
             autoComplete="username"
             value={nickname}
             onChange={(e) => setNickname(e.target.value)}
+            onAnimationStart={(e) => {
+              if (e.animationName === "onAutoFillStart") setNickname(e.currentTarget.value);
+            }}
             className={`h-12 w-full rounded-lg border bg-[#D4B3E3] px-4 text-base text-foreground outline-none transition-all focus:ring-2 focus:ring-foreground/20 placeholder:text-foreground/60 ${
               isNewUser
                 ? "border-emerald-500 focus:border-emerald-500"
@@ -274,6 +277,9 @@ export function AuthForm() {
               autoComplete={isNewUser ? "new-password" : "current-password"}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              onAnimationStart={(e) => {
+                if (e.animationName === "onAutoFillStart") setPassword(e.currentTarget.value);
+              }}
               className="h-12 w-full rounded-lg border border-foreground/15 bg-[#D4B3E3] px-4 pr-11 text-base text-foreground outline-none transition-all focus:border-foreground/30 focus:ring-2 focus:ring-foreground/20 placeholder:text-foreground/60"
             />
             <button
@@ -302,6 +308,9 @@ export function AuthForm() {
                 autoComplete="new-password"
                 value={repeatPassword}
                 onChange={(e) => setRepeatPassword(e.target.value)}
+                onAnimationStart={(e) => {
+                  if (e.animationName === "onAutoFillStart") setRepeatPassword(e.currentTarget.value);
+                }}
                 className={`h-12 w-full rounded-lg border bg-[#D4B3E3] px-4 pr-11 text-base text-foreground outline-none transition-all focus:ring-2 focus:ring-foreground/20 placeholder:text-foreground/60 ${
                   repeatPassword.length > 0 && password !== repeatPassword
                     ? "border-red-500"

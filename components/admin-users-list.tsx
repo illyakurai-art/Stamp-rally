@@ -48,7 +48,7 @@ export function AdminUsersList({ users }: { users: UserEntry[] }) {
       {/* Bottone scanner QR — sopra la ricerca, stessa larghezza */}
       <button
         onClick={() => setScannerOpen(true)}
-        className="flex h-10 w-full max-w-xs items-center justify-center gap-2 rounded-lg bg-[#996C9E] px-4 text-sm font-medium text-white shadow-sm hover:bg-[#8a5f8e] transition-colors"
+        className="flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-[#996C9E] px-4 text-sm font-medium text-white shadow-sm hover:bg-[#8a5f8e] transition-colors"
         style={{ boxShadow: "6px 6px 0 rgba(0, 0, 0, 0.25)" }}
       >
         <QrCode className="h-4 w-4 shrink-0" />
@@ -57,7 +57,7 @@ export function AdminUsersList({ users }: { users: UserEntry[] }) {
 
       {/* Barra ricerca */}
       <div className="flex items-center gap-3">
-        <div className="relative flex-1 max-w-xs">
+        <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground/40" />
           <input
             value={query}

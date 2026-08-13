@@ -33,10 +33,20 @@ export function AdminLoginForm({ className }: { className?: string }) {
     setIsLoading(true);
     const supabase = createClient();
 
+    // L'auto-fill (Face ID / password manager) scrive il campo ma NON
+    // triggera onChange: leggiamo i valori reali dal DOM al momento del submit.
+    const form = e.currentTarget as HTMLFormElement;
+    const formData = new FormData(form);
+    const domNickname = (formData.get("nickname") as string)?.trim() ?? "";
+    const domPassword = (formData.get("password") as string) ?? "";
+
+    const effectiveNickname = domNickname || nickname.trim();
+    const effectivePassword = domPassword || password;
+
     try {
       const { data, error: loginError } = await supabase.auth.signInWithPassword({
-        email: nicknameToFakeEmail(nickname),
-        password,
+        email: nicknameToFakeEmail(effectiveNickname),
+        password: effectivePassword,
       });
 
       if (loginError) {
@@ -95,6 +105,9 @@ export function AdminLoginForm({ className }: { className?: string }) {
                   autoComplete="username"
                   value={nickname}
                   onChange={(e) => setNickname(e.target.value)}
+                  onAnimationStart={(e) => {
+                    if (e.animationName === "onAutoFillStart") setNickname(e.currentTarget.value);
+                  }}
                   className="h-12 w-full rounded-lg border border-foreground/15 bg-[#D4B3E3] px-4 text-base text-foreground outline-none transition-all focus:border-foreground/30 focus:ring-2 focus:ring-foreground/20 placeholder:text-foreground/60"
                 />
               </div>
@@ -110,6 +123,9 @@ export function AdminLoginForm({ className }: { className?: string }) {
                   autoComplete="current-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  onAnimationStart={(e) => {
+                    if (e.animationName === "onAutoFillStart") setPassword(e.currentTarget.value);
+                  }}
                   className="h-12 w-full rounded-lg border border-foreground/15 bg-[#D4B3E3] px-4 text-base text-foreground outline-none transition-all focus:border-foreground/30 focus:ring-2 focus:ring-foreground/20 placeholder:text-foreground/60"
                 />
               </div>
