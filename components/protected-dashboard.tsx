@@ -222,7 +222,7 @@ export function ProtectedDashboard() {
       <StampRealtimeRefresh userId={userId!} userDisplayId={userDisplayId ?? null} />
 
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold leading-snug">
+        <h1 className="text-2xl font-bold leading-snug">
           {t("welcome_prefix")}
           <br />
           <span className="text-nowrap">{t("welcome_event_name")}</span>

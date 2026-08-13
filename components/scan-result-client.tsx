@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import { CheckCircle2, AlertCircle, X } from "lucide-react";
-import Link from "next/link";
 import { useI18n } from "@/lib/i18n/context";
 
 interface Props {
@@ -16,6 +15,7 @@ export function ScanResultClient({ artist, error, image }: Props) {
   const [countdown, setCountdown] = useState(3);
   const [stamped, setStamped] = useState(false);
   const [closed, setClosed] = useState(false);
+  const [showManualClose, setShowManualClose] = useState(false);
   const doneRef = useRef(false); // evita doppia esecuzione in StrictMode o re-render
 
   const isSuccess = !error;
@@ -36,6 +36,9 @@ export function ScanResultClient({ artist, error, image }: Props) {
             doneRef.current = true;
             setClosed(true);
             try { window.close(); } catch {}
+            // Il tasto manuale appare 1s dopo la fine del countdown, come
+            // fallback nel caso in cui la chiusura automatica non parta.
+            setTimeout(() => setShowManualClose(true), 1000);
             setTimeout(() => {
               window.location.href = "/protected?refresh=1";
             }, 500);
@@ -115,7 +118,7 @@ export function ScanResultClient({ artist, error, image }: Props) {
         )}
 
         {/* Fallback se window.close() non funziona */}
-        {closed && (
+        {closed && showManualClose && (
           <div className="flex flex-col gap-3 w-full">
             <p className="text-sm text-foreground/50">
               {t("close_tab_manually")}
@@ -127,12 +130,6 @@ export function ScanResultClient({ artist, error, image }: Props) {
               <X className="h-4 w-4" />
               {t("close_tab")}
             </button>
-            <Link
-              href="/protected"
-              className="min-h-12 rounded-xl border border-foreground/15 px-4 py-3 text-center text-sm font-medium transition-colors hover:bg-foreground/5 flex items-center justify-center"
-            >
-              {t("go_to_my_area")}
-            </Link>
           </div>
         )}
 
