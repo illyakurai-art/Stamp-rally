@@ -1,6 +1,7 @@
 "use client";
 
-import { Trophy, Stamp, Gift, Star, ChevronRight } from "lucide-react";
+import { useState } from "react";
+import { Trophy, Stamp, Gift, Star, ChevronRight, Crown } from "lucide-react";
 import { UserQrCode } from "@/components/user-qr-code";
 import { useI18n } from "@/lib/i18n/context";
 
@@ -56,12 +57,15 @@ export function PrizeInfoCard({
   stampCount,
   nickname,
   userDisplayId,
+  kkUnlocked = false,
 }: {
   stampCount: number;
   nickname: string;
   userDisplayId?: string | null;
+  kkUnlocked?: string | boolean;
 }) {
   const { t } = useI18n();
+  const [allTiersOpen, setAllTiersOpen] = useState(false);
   const currentTier = getCurrentTier(stampCount);
   const isMax = currentTier >= TIERS.length - 1;
   const current = TIERS[currentTier];
@@ -69,6 +73,9 @@ export function PrizeInfoCard({
   const hasPrize = currentTier > 0;
   const hasExtra = current.extra !== "-" && current.extra !== "0";
   const earnedTiers = TIERS.slice(1, currentTier + 1);
+
+  // All remaining tiers up to the end (excluding tier 0)
+  const futureTiers = isMax ? [] : TIERS.slice(currentTier + 1);
 
   const gradient = GRADIENTS[Math.max(0, currentTier - 1)] || GRADIENTS[0];
 
@@ -80,13 +87,28 @@ export function PrizeInfoCard({
       );
 
   return (
-    <div className="overflow-hidden rounded-lg border border-foreground/10 flex flex-col">
+    <div className="overflow-hidden rounded-lg border border-foreground/10 flex flex-col" style={{ boxShadow: "6px 6px 0 rgba(0, 0, 0, 0.25)" }}>
       <div
         className="px-5 pt-6 pb-5 text-white"
         style={{ background: hasPrize ? gradient : "hsl(var(--foreground) / 0.08)" }}
       >
         <div className="flex items-center justify-between mb-4 min-h-12">
-          <p className="text-3xl font-bold leading-tight">{nickname}</p>
+          <div>
+            {kkUnlocked && (
+              <div className="mb-1 flex justify-center">
+                <Crown
+                  className="gold-crown h-6 w-6 fill-current"
+                />
+              </div>
+            )}
+            <p
+              className={`inline-block text-3xl font-bold leading-tight ${
+                kkUnlocked ? "gold-text" : ""
+              }`}
+            >
+              {nickname}
+            </p>
+          </div>
           {userDisplayId && (
             <UserQrCode displayId={userDisplayId} nickname={nickname} />
           )}
@@ -221,20 +243,65 @@ export function PrizeInfoCard({
             )}
 
             {!isMax && next && (
-              <div className="mt-3 flex items-center justify-between rounded-lg border border-dashed border-foreground/15 px-3.5 py-2.5 text-sm text-foreground/60">
-                <span>{t("next_milestone")} {next.stamps} {t("stamps")}</span>
-                <div className="flex items-center gap-1 font-medium text-foreground/80">
-                  <span>
-                    {next.isAll
-                      ? t("full_collection")
-                      : `${next.gacha} ${t("gacha")}${
-                          next.extra !== "-" && next.extra !== "0"
-                            ? ` + ${next.extra} extra`
-                            : ""
-                        }`}
-                  </span>
-                  <ChevronRight className="h-3.5 w-3.5" />
-                </div>
+              <div className="mt-3">
+                <button
+                  type="button"
+                  onClick={() => setAllTiersOpen((o) => !o)}
+                  className="flex w-full items-center justify-between rounded-lg border border-dashed border-foreground/15 px-3.5 py-2.5 text-sm text-foreground/60 transition-colors hover:bg-foreground/5"
+                >
+                  <span>{t("next_milestone")} {next.stamps} {t("stamps")}</span>
+                  <div className="flex items-center gap-1 font-medium text-foreground/80">
+                    <span>
+                      {next.isAll
+                        ? t("full_collection")
+                        : `${next.gacha} ${t("gacha")}${
+                            next.extra !== "-" && next.extra !== "0"
+                              ? ` + ${next.extra} extra`
+                              : ""
+                          }`}
+                    </span>
+                    <ChevronRight className={`h-3.5 w-3.5 transition-transform ${allTiersOpen ? "rotate-90" : ""}`} />
+                  </div>
+                </button>
+
+                {allTiersOpen && (
+                  <div className="mt-2 flex flex-col gap-1">
+                    {futureTiers.map((tier, i) => {
+                      const tierGradient = GRADIENTS[Math.min(currentTier + i, GRADIENTS.length - 1)];
+                      const tierHasExtra = tier.extra !== "-" && tier.extra !== "0";
+                      return (
+                        <div
+                          key={tier.stamps}
+                          className="flex items-center justify-between rounded-lg bg-foreground/[0.03] px-3 py-2"
+                        >
+                          <div className="flex items-center gap-2.5">
+                            <div
+                              className="h-2 w-2 rounded-full flex-shrink-0"
+                              style={{ background: tierGradient }}
+                            />
+                            <span className="text-sm font-medium text-foreground/70">
+                              {tier.stamps} {t("stamps")}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2 text-sm text-foreground/70">
+                            {tier.isAll ? (
+                              <span className="font-semibold text-foreground">{t("full_collection")}</span>
+                            ) : (
+                              <>
+                                <span className="font-semibold text-foreground">{tier.gacha} {t("gacha")}</span>
+                                {tierHasExtra && (
+                                  <span className="text-xs text-foreground/50">
+                                    +{tier.extra} extra
+                                  </span>
+                                )}
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             )}
           </>

@@ -102,15 +102,29 @@ export function QrScanner() {
           });
           if (code?.data) {
             foundRef.current = true;
+            let token: string | null = code.data.trim();
             try {
-              const url = code.data.startsWith("http") ? new URL(code.data) : null;
-              const token = url?.searchParams.get("token");
-              if (token) {
-                stopAll();
-                router.push(`/scan/go?token=${encodeURIComponent(token)}`);
-                return;
+              // Se il QR contiene un URL, estrai il token
+              if (code.data.startsWith("http")) {
+                const url = new URL(code.data);
+                const t = url.searchParams.get("token");
+                if (t) {
+                  token = t;
+                } else {
+                  // URL senza token in query → usa l'ultimo segmento del path
+                  const seg = url.pathname.split("/").filter(Boolean).pop();
+                  if (seg) token = decodeURIComponent(seg);
+                  else token = null;
+                }
               }
-            } catch {}
+            } catch {
+              // codice non parsato come URL → token = codice grezzo
+            }
+            if (token) {
+              stopAll();
+              router.push(`/scan/go?token=${encodeURIComponent(token)}`);
+              return;
+            }
             // QR trovato ma senza token valido — continua a scansionare
             foundRef.current = false;
           }

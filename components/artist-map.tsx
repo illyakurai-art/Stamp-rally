@@ -35,7 +35,7 @@ export function ArtistMap({ artists }: { artists: MapArtist[] }) {
                     className={`flex h-9 w-9 items-center justify-center rounded-full text-xs font-bold shadow-lg transition-all ${
                       a.scanned
                         ? "bg-green-500 text-white shadow-green-500/40 border-[3px] border-green-300 ring-2 ring-green-500/30"
-                        : "bg-[#27272a] text-white/80 border-2 border-white/20"
+                        : "bg-secondary text-foreground/80 border-2 border-border"
                     }`}
                   >
                     {a.name.charAt(0)}

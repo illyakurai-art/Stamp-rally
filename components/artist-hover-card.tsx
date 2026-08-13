@@ -58,7 +58,15 @@ export function ArtistHoverCard({
   const website = artist.website_url
 
   return (
-    <HoverCard open={open} onOpenChange={setOpen} openDelay={0} closeDelay={150}>
+    <HoverCard
+      open={open}
+      onOpenChange={(o) => {
+        setOpen(o)
+        if (!o) setPrizeOpen(false)
+      }}
+      openDelay={0}
+      closeDelay={150}
+    >
       <HoverCardTrigger
         asChild
         onClick={(e) => {
@@ -72,15 +80,15 @@ export function ArtistHoverCard({
       <HoverCardContent
         align={align}
         side={side}
-        className="w-80 bg-[#18181b] border-[#27272a] text-white p-4 rounded-xl shadow-2xl z-50 animate-in fade-in duration-150"
+        className="comic-pop comic-bubble w-80 bg-foreground text-background border-2 border-white/60 p-4 rounded-2xl shadow-2xl z-50"
       >
         <div className="flex space-x-4">
           {/* Avatar dell'artista */}
-          <Avatar className="h-12 w-12 border border-[#3f3f46] shrink-0">
+          <Avatar className="h-12 w-12 border border-white/15 shrink-0">
             {artist.image_url ? (
               <AvatarImage src={artist.image_url} alt={artist.name} />
             ) : null}
-            <AvatarFallback className="bg-[#27272a] text-white font-semibold">
+            <AvatarFallback className="bg-white/10 text-background font-semibold">
               {initials}
             </AvatarFallback>
           </Avatar>
@@ -117,28 +125,28 @@ export function ArtistHoverCard({
             </div>
 
             {/* Descrizione / Bio */}
-            <p className="text-xs text-[#a1a1aa] leading-relaxed line-clamp-3">
+            <p className="text-xs text-background/70 leading-relaxed line-clamp-3">
               {bio}
             </p>
 
             {/* Informazioni aggiuntive (Data, Luogo, Sito) */}
-            <div className="space-y-1.5 pt-1 text-xs text-[#71717a]">
+            <div className="space-y-1.5 pt-1 text-xs text-background/70">
               <div className="flex items-center">
-                <MapPin className="mr-2 h-3.5 w-3.5 shrink-0 stroke-[1.5] text-[#a1a1aa]" />
+                <MapPin className="mr-2 h-3.5 w-3.5 shrink-0 stroke-[1.5] text-background/60" />
                 <span className="truncate">{location}</span>
               </div>
               <div className="flex items-center">
-                <CalendarDays className="mr-2 h-3.5 w-3.5 shrink-0 stroke-[1.5] text-[#a1a1aa]" />
+                <CalendarDays className="mr-2 h-3.5 w-3.5 shrink-0 stroke-[1.5] text-background/60" />
                 <span>{joinedDate}</span>
               </div>
               {website && (
                 <div className="flex items-center">
-                  <Link2 className="mr-2 h-3.5 w-3.5 shrink-0 stroke-[1.5] text-[#a1a1aa]" />
+                  <Link2 className="mr-2 h-3.5 w-3.5 shrink-0 stroke-[1.5] text-background/60" />
                   <a
                     href={website.startsWith("http") ? website : `https://${website}`}
                     target="_blank"
                     rel="noreferrer"
-                    className="hover:underline text-[#a1a1aa] truncate"
+                    className="hover:underline text-background/60 truncate"
                   >
                     {website.replace(/^https?:\/\//, "")}
                   </a>
@@ -147,8 +155,8 @@ export function ArtistHoverCard({
             </div>
 
             {/* Stato Timbro Footer */}
-            <div className="flex items-center justify-between pt-2.5 border-t border-[#27272a] text-xs">
-              <span className="text-[#71717a]">{t("stamp_status")}</span>
+            <div className="flex items-center justify-between pt-2.5 border-t border-white/15 text-xs">
+              <span className="text-background/70">{t("stamp_status")}</span>
               <span
                 className={`font-semibold ${
                   artist.scanned ? "text-green-400" : "text-yellow-400"
@@ -161,12 +169,12 @@ export function ArtistHoverCard({
             {/* Bottone premio dell'artista */}
             <button
               onClick={() => setPrizeOpen((prev) => !prev)}
-              className="flex w-full items-center justify-center gap-2 rounded-lg border border-[#3f3f46] bg-[#27272a] px-3 py-2 text-xs font-medium text-white transition-colors hover:bg-[#3f3f46]"
+              className="flex w-full items-center justify-center gap-2 rounded-lg border border-white/25 bg-white/10 px-3 py-2 text-xs font-medium text-background transition-colors hover:bg-white/20"
             >
-              <Gift className="h-3.5 w-3.5 text-amber-400" />
+              <Gift className="h-3.5 w-3.5 text-white/80" />
               <span>{t("show_artist_prize")}</span>
               <ChevronDown
-                className={`h-3.5 w-3.5 text-[#a1a1aa] transition-transform ${
+                className={`h-3.5 w-3.5 text-background/60 transition-transform ${
                   prizeOpen ? "rotate-180" : ""
                 }`}
               />
@@ -174,7 +182,7 @@ export function ArtistHoverCard({
 
             {/* Tendina premio */}
             {prizeOpen && (
-              <div className="mt-1 overflow-hidden rounded-lg border border-[#3f3f46] bg-[#27272a] animate-in slide-in-from-top-1 fade-in duration-150">
+              <div className="mt-1 overflow-hidden rounded-lg border border-white/15 bg-white/5 animate-in slide-in-from-top-1 fade-in duration-150">
                 {artist.prize_image_url ? (
                   <img
                     src={artist.prize_image_url}
@@ -183,8 +191,8 @@ export function ArtistHoverCard({
                   />
                 ) : (
                   <div className="flex flex-col items-center justify-center gap-1.5 py-6 text-center">
-                    <Gift className="h-6 w-6 text-[#52525b]" />
-                    <p className="text-xs text-[#71717a]">{t("prize_not_available")}</p>
+                    <Gift className="h-6 w-6 text-background/60" />
+                    <p className="text-xs text-background/70">{t("prize_not_available")}</p>
                   </div>
                 )}
               </div>

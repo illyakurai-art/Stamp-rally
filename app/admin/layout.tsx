@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { AdminNav } from "@/components/admin-nav";
 import { AdminRealtimeRefresh } from "@/components/admin-realtime-refresh";
@@ -15,7 +16,12 @@ export default async function AdminLayout({
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) return null;
+  const isLogin = (await headers()).get("x-pathname") === "/admin/login";
+
+  // Senza sessione renderizza comunque i children (es. la pagina di login admin)
+  if (!user) {
+    return <main className="min-h-screen flex flex-col">{children}</main>;
+  }
 
   const { data: profile } = await supabase
     .from("profiles")
@@ -25,6 +31,10 @@ export default async function AdminLayout({
 
   if (profile?.role !== "staff") {
     redirect("/admin/login?error=unauthorized");
+  }
+
+  if (isLogin) {
+    return <main className="min-h-screen flex flex-col">{children}</main>;
   }
 
   return (

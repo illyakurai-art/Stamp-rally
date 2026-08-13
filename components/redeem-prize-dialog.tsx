@@ -60,6 +60,7 @@ export function RedeemPrizeDialog({
   children,
 }: RedeemPrizeDialogProps) {
   const [open, setOpen] = useState(false);
+  const [allTiersOpen, setAllTiersOpen] = useState(false);
   const { t } = useI18n();
 
   const currentTier = getCurrentTier(stampCount);
@@ -81,8 +82,11 @@ export function RedeemPrizeDialog({
   // All earned tiers (excluding tier 0)
   const earnedTiers = TIERS.slice(1, currentTier + 1);
 
+  // All remaining tiers up to the end (excluding tier 0)
+  const futureTiers = isMax ? [] : TIERS.slice(currentTier + 1);
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) setAllTiersOpen(false); }}>
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="overflow-hidden max-w-sm sm:max-w-md" aria-describedby={undefined}>
         <VisuallyHidden.Root>
@@ -238,20 +242,69 @@ export function RedeemPrizeDialog({
 
               {/* Prossimo traguardo */}
               {!isMax && next && (
-                <div className="mt-4 flex items-center justify-between rounded-lg border border-dashed border-foreground/15 px-4 py-3 text-sm text-foreground/60">
-                  <span>{t("next_milestone")} {next.stamps} {t("stamps")}</span>
-                  <div className="flex items-center gap-1 font-medium text-foreground/80">
-                    <span>
-                      {next.isAll
-                        ? t("full_collection")
-                        : `${next.gacha} ${t("gacha")}${
-                            next.extra !== "-" && next.extra !== "0"
-                              ? ` + ${next.extra} extra`
-                              : ""
-                          }`}
-                    </span>
-                    <ChevronRight className="h-3.5 w-3.5" />
-                  </div>
+                <div className="mt-4">
+                  <button
+                    type="button"
+                    onClick={() => setAllTiersOpen((o) => !o)}
+                    className="flex w-full items-center justify-between rounded-lg border border-dashed border-foreground/15 px-4 py-3 text-sm text-foreground/60 transition-colors hover:bg-foreground/5"
+                  >
+                    <span>{t("next_milestone")} {next.stamps} {t("stamps")}</span>
+                    <div className="flex items-center gap-1 font-medium text-foreground/80">
+                      <span>
+                        {next.isAll
+                          ? t("full_collection")
+                          : `${next.gacha} ${t("gacha")}${
+                              next.extra !== "-" && next.extra !== "0"
+                                ? ` + ${next.extra} extra`
+                                : ""
+                            }`}
+                      </span>
+                      <ChevronRight
+                        className={`h-3.5 w-3.5 transition-transform ${
+                          allTiersOpen ? "rotate-90" : ""
+                        }`}
+                      />
+                    </div>
+                  </button>
+
+                  {allTiersOpen && (
+                    <div className="mt-2 flex flex-col gap-1.5">
+                      {futureTiers.map((tier, i) => {
+                        const tierGradient = GRADIENTS[Math.min(currentTier + i, GRADIENTS.length - 1)];
+                        const tierHasExtra = tier.extra !== "-" && tier.extra !== "0";
+                        return (
+                          <div
+                            key={tier.stamps}
+                            className="flex items-center justify-between rounded-lg bg-foreground/[0.03] px-3.5 py-2.5"
+                          >
+                            <div className="flex items-center gap-3">
+                              <div
+                                className="h-2 w-2 rounded-full flex-shrink-0"
+                                style={{ background: tierGradient }}
+                              />
+                              <span className="text-sm font-medium text-foreground/70">
+                                {tier.stamps} {t("stamps")}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2 text-sm text-foreground/70">
+                              {tier.isAll ? (
+                                <span className="font-semibold text-foreground">{t("full_collection")}</span>
+                              ) : (
+                                <>
+                                  <span className="font-semibold text-foreground">{tier.gacha} {t("gacha")}</span>
+                                  {tierHasExtra && (
+                                    <span className="text-xs text-foreground/50">
+                                      +{tier.extra} extra
+                                    </span>
+                                  )}
+                                </>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
               )}
             </>

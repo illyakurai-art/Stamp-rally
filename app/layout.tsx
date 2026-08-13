@@ -33,12 +33,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="it" className="dark" style={{ colorScheme: "dark" }} suppressHydrationWarning>
+    <html lang="it" suppressHydrationWarning>
       <body className={`${geistSans.className} antialiased bg-background text-foreground`}>
         <ThemeProvider
           attribute="class"
-          defaultTheme="dark"
-          enableSystem
+          defaultTheme="light"
+          enableSystem={false}
           disableTransitionOnChange
         >
           <I18nProvider>

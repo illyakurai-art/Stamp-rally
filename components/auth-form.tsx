@@ -27,7 +27,42 @@ export function AuthForm() {
   const [error, setError] = useState<string | null>(null);
   const [wrongPassword, setWrongPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [otherTabOpen, setOtherTabOpen] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Rileva se un'altra scheda sta visitando la stessa pagina di auth:
+  // su iPadOS/Safari il prompt Face ID di auto-fill fallisce quando la
+  // stessa pagina di login è già aperta in un'altra scheda.
+  useEffect(() => {
+    if (typeof BroadcastChannel === "undefined") return;
+    let bc: BroadcastChannel | null = null;
+    let disposed = false;
+    try {
+      bc = new BroadcastChannel("stamprally-auth");
+      const onMessage = (e: MessageEvent) => {
+        if (e.data?.type === "auth-heartbeat") setOtherTabOpen(true);
+      };
+      const hb = setInterval(() => {
+        try { bc?.postMessage({ type: "auth-heartbeat" }); } catch {}
+      }, 3000);
+      bc.addEventListener("message", onMessage);
+      try { bc.postMessage({ type: "auth-heartbeat" }); } catch {}
+      // Beccherà anche le altre schede già aperte al mount
+      setTimeout(() => {
+        if (!disposed && bc) {
+          try { bc.postMessage({ type: "auth-heartbeat" }); } catch {}
+        }
+      }, 250);
+      return () => {
+        disposed = true;
+        clearInterval(hb);
+        bc?.removeEventListener("message", onMessage);
+        bc?.close();
+      };
+    } catch {
+      return;
+    }
+  }, []);
 
   // Nickname check debounced — determina se è un utente esistente o nuovo
   useEffect(() => {
@@ -52,6 +87,23 @@ export function AuthForm() {
     e.preventDefault();
     setError(null);
     setWrongPassword(false);
+
+    // L'auto-fill (Face ID / password manager) scrive il campo ma NON
+    // triggera onChange: leggiamo i valori reali dal DOM al momento del submit.
+    const form = e.currentTarget as HTMLFormElement;
+    const formData = new FormData(form);
+    const domNickname = (formData.get("nickname") as string)?.trim() ?? "";
+    const domPassword = (formData.get("password") as string) ?? "";
+    const domRepeatPassword = (formData.get("repeat-password") as string) ?? "";
+
+    // Usa i valori DOM se lo state è rimasto vuoto (caso auto-fill Face ID)
+    const effectiveNickname = domNickname || nickname.trim();
+    const effectivePassword = domPassword || password;
+    const effectiveRepeat = domRepeatPassword || repeatPassword;
+
+    if (!effectiveNickname || !effectivePassword) return;
+    setNickname(effectiveNickname);
+
     setIsLoading(true);
     const supabase = createClient();
 
@@ -59,8 +111,8 @@ export function AuthForm() {
       // ── LOGIN (utente esistente o non ancora determinato) ──
       try {
         const { error } = await supabase.auth.signInWithPassword({
-          email: nicknameToFakeEmail(nickname),
-          password,
+          email: nicknameToFakeEmail(effectiveNickname),
+          password: effectivePassword,
         });
         if (error) {
           if (
@@ -81,18 +133,18 @@ export function AuthForm() {
       }
     } else {
       // ── REGISTRAZIONE (nickname nuovo) ──
-      if (password !== repeatPassword) {
+      if (effectivePassword !== effectiveRepeat) {
         setError(t("passwords_dont_match"));
         setIsLoading(false);
         return;
       }
-      if (nickname.trim().length < 2) {
+      if (effectiveNickname.length < 2) {
         setError(t("nickname_too_short"));
         setIsLoading(false);
         return;
       }
 
-      const available = await checkNicknameAvailable(nickname);
+      const available = await checkNicknameAvailable(effectiveNickname);
       if (!available) {
         setNicknameStatus("taken");
         setError(t("error_occurred"));
@@ -100,19 +152,19 @@ export function AuthForm() {
         return;
       }
 
-      const fakeEmail = nicknameToFakeEmail(nickname);
+      const fakeEmail = nicknameToFakeEmail(effectiveNickname);
       try {
         const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
           email: fakeEmail,
-          password,
-          options: { data: { nickname: nickname.trim() } },
+          password: effectivePassword,
+          options: { data: { nickname: effectiveNickname.trim() } },
         });
         if (signUpError) throw signUpError;
 
         if (!signUpData.session) {
           const { error: retryError } = await supabase.auth.signInWithPassword({
             email: fakeEmail,
-            password,
+            password: effectivePassword,
           });
           if (!retryError) {
             router.push("/protected");
@@ -124,7 +176,7 @@ export function AuthForm() {
 
         const { error: loginError } = await supabase.auth.signInWithPassword({
           email: fakeEmail,
-          password,
+          password: effectivePassword,
         });
         if (loginError) throw loginError;
         router.push("/protected");
@@ -157,29 +209,38 @@ export function AuthForm() {
 
   return (
     <div className="flex flex-col gap-4 w-full max-w-sm mx-auto">
+      {/* Avviso: altra scheda di login aperta (Face ID/iPadOS può fallire) */}
+      {otherTabOpen && (
+        <div className="flex items-start gap-2 rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-2.5 text-xs text-amber-700 dark:text-amber-400">
+          <span className="leading-snug">{t("login_other_tab_warning")}</span>
+        </div>
+      )}
+
       {/* Header */}
-      <div className="text-center mb-2">
-        <h1 className="text-3xl font-bold tracking-tight">Stamp Rally</h1>
-        <p className="text-sm text-foreground/50 mt-1">
-          {isNewUser ? t("register_subtitle") : t("login_subtitle")}
-        </p>
+      <div className="mb-2 flex justify-center">
+        <img
+          src="/stamprally-banner.png"
+          alt="Stamp Rally"
+          className="w-full max-w-[260px] rounded-lg object-contain"
+        />
       </div>
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-5">
         {/* Nickname */}
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="nickname" className="text-sm font-medium">
+        <div className="flex flex-col gap-2">
+          <label htmlFor="nickname" className="text-lg font-bold text-[#7d4d7f]">
             {t("nickname")}
           </label>
           <input
             id="nickname"
+            name="nickname"
             type="text"
             placeholder={t("nickname_placeholder")}
             required
             autoComplete="username"
             value={nickname}
             onChange={(e) => setNickname(e.target.value)}
-            className={`h-10 w-full rounded-lg border bg-background px-3 text-sm outline-none transition-all focus:ring-2 focus:ring-foreground/20 ${
+            className={`h-12 w-full rounded-lg border bg-[#D4B3E3] px-4 text-base text-foreground outline-none transition-all focus:ring-2 focus:ring-foreground/20 placeholder:text-foreground/60 ${
               isNewUser
                 ? "border-emerald-500 focus:border-emerald-500"
                 : "border-foreground/15 focus:border-foreground/30"
@@ -200,19 +261,20 @@ export function AuthForm() {
         </div>
 
         {/* Password */}
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="password" className="text-sm font-medium">
+        <div className="flex flex-col gap-2">
+          <label htmlFor="password" className="text-lg font-bold text-[#7d4d7f]">
             {t("password")}
           </label>
           <div className="relative">
             <input
               id="password"
+              name="password"
               type={showPassword ? "text" : "password"}
               required
               autoComplete={isNewUser ? "new-password" : "current-password"}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="h-10 w-full rounded-lg border border-foreground/15 bg-background px-3 pr-10 text-sm outline-none transition-all focus:border-foreground/30 focus:ring-2 focus:ring-foreground/20"
+              className="h-12 w-full rounded-lg border border-foreground/15 bg-[#D4B3E3] px-4 pr-11 text-base text-foreground outline-none transition-all focus:border-foreground/30 focus:ring-2 focus:ring-foreground/20 placeholder:text-foreground/60"
             />
             <button
               type="button"
@@ -227,19 +289,20 @@ export function AuthForm() {
 
         {/* Ripeti password — solo per nuovi utenti */}
         {isNewUser && (
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="repeat-password" className="text-sm font-medium">
+          <div className="flex flex-col gap-2">
+            <label htmlFor="repeat-password" className="text-lg font-bold text-[#7d4d7f]">
               {t("repeat_password")}
             </label>
             <div className="relative">
               <input
                 id="repeat-password"
+                name="repeat-password"
                 type={showRepeat ? "text" : "password"}
                 required
                 autoComplete="new-password"
                 value={repeatPassword}
                 onChange={(e) => setRepeatPassword(e.target.value)}
-                className={`h-10 w-full rounded-lg border bg-background px-3 pr-10 text-sm outline-none transition-all focus:ring-2 focus:ring-foreground/20 ${
+                className={`h-12 w-full rounded-lg border bg-[#D4B3E3] px-4 pr-11 text-base text-foreground outline-none transition-all focus:ring-2 focus:ring-foreground/20 placeholder:text-foreground/60 ${
                   repeatPassword.length > 0 && password !== repeatPassword
                     ? "border-red-500"
                     : repeatPassword.length > 0 && password === repeatPassword
@@ -279,7 +342,8 @@ export function AuthForm() {
         <button
           type="submit"
           disabled={!canSubmit}
-          className="h-11 w-full rounded-xl bg-foreground text-background text-sm font-semibold transition-opacity hover:opacity-90 disabled:opacity-40"
+          className="h-11 w-full rounded-xl bg-foreground text-background text-base font-semibold transition-all hover:opacity-90 disabled:opacity-40"
+          style={{ boxShadow: "6px 6px 0 rgba(0, 0, 0, 0.25)" }}
         >
           {isLoading
             ? isNewUser ? t("creating_account") : t("logging_in")

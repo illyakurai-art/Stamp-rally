@@ -12,6 +12,10 @@ const NAV_ITEMS = [
   { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard, exact: true },
 ];
 
+function isActive(pathname: string, exact: boolean, href: string) {
+  return exact ? pathname === href : pathname.startsWith(href);
+}
+
 export function AdminNav({ nickname }: { nickname: string }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -32,7 +36,7 @@ export function AdminNav({ nickname }: { nickname: string }) {
           </Link>
           <div className="hidden sm:flex items-center gap-1">
             {NAV_ITEMS.map(({ href, label, icon: Icon, exact }) => {
-              const active = exact ? pathname === href : pathname.startsWith(href);
+              const active = isActive(pathname, exact, href);
               return (
                 <Link
                   key={href}
@@ -40,7 +44,7 @@ export function AdminNav({ nickname }: { nickname: string }) {
                   className={cn(
                     "flex items-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium transition-colors",
                     active
-                      ? "bg-foreground/8 text-foreground"
+                      ? "bg-[#996C9E] text-white shadow-sm"
                       : "text-foreground/60 hover:bg-foreground/5 hover:text-foreground"
                   )}
                 >
@@ -69,14 +73,14 @@ export function AdminNav({ nickname }: { nickname: string }) {
       {/* Nav mobile */}
       <div className="flex sm:hidden border-t border-foreground/10">
         {NAV_ITEMS.map(({ href, label, icon: Icon, exact }) => {
-          const active = exact ? pathname === href : pathname.startsWith(href);
+          const active = isActive(pathname, exact, href);
           return (
             <Link
               key={href}
               href={href}
               className={cn(
                 "flex flex-1 flex-col items-center gap-1 py-2 text-xs font-medium transition-colors",
-                active ? "text-foreground" : "text-foreground/50"
+                active ? "text-[#996C9E] border-t-2 border-[#996C9E] -mt-px" : "text-foreground/50"
               )}
             >
               <Icon className="h-5 w-5" />

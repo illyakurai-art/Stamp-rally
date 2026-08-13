@@ -3,10 +3,11 @@ import { NextResponse, type NextRequest } from "next/server";
 import { hasEnvVars } from "../utils";
 
 export async function updateSession(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+  request.headers.set("x-pathname", pathname);
   let supabaseResponse = NextResponse.next({ request });
 
   // Cache-control per risorse non-sensibili
-  const { pathname } = request.nextUrl;
   if (
     pathname === "/mappa.jpg" ||
     pathname === "/map-icon.png" ||
@@ -53,7 +54,8 @@ export async function updateSession(request: NextRequest) {
     !user &&
     pathname !== "/" &&
     !pathname.startsWith("/auth") &&
-    !pathname.startsWith("/admin/login")
+    !pathname.startsWith("/admin/login") &&
+    pathname !== "/privacy"
   ) {
     const url = request.nextUrl.clone();
     url.pathname = "/auth/sign-up";
