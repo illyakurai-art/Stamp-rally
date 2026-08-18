@@ -309,6 +309,17 @@ select:-webkit-autofill {
 #qr-reader canvas {
   display: none !important;
 }
+
+/* ── Traguardo non ancora raggiunto: bordo seghettato tipo francobollo ── */
+.stamp-notched {
+  border: 1px dashed #A58CA9;
+  -webkit-mask:
+    linear-gradient(#000 0 0) 0 0 / 100% 100% no-repeat,
+    radial-gradient(4px at 2px 8px, transparent 97%, #000 101%) 0 0 / 14px 16px repeat-y,
+    radial-gradient(4px at calc(100% - 2px) 8px, transparent 97%, #000 101%) 0 0 / 14px 16px repeat-y;
+  -webkit-mask-composite: source-over, xor, xor;
+          mask-composite: add, exclude, exclude;
+}
 /* Nasconde altri elementi extra */
 #qr-reader > img,
 #qr-reader__dashboard,

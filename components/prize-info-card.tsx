@@ -204,15 +204,15 @@ export function PrizeInfoCard({
                     <p className="text-xs font-semibold uppercase tracking-widest text-foreground/50 mb-2">
                       {t("milestones_reached")}
                     </p>
-                    <div className="flex flex-col gap-[5px] mx-1.5 pb-1.5">
+                    <div className="flex flex-col gap-[8px] mx-1.5 pb-1.5">
                       {pastTiers.map((tier, i) => {
                         const tierGradient = GRADIENTS[Math.min(i, GRADIENTS.length - 1)];
                         const tierHasExtra = tier.extra !== "-" && tier.extra !== "0";
                         return (
                           <div
                             key={tier.stamps}
-                            className="flex items-center justify-between rounded-lg bg-foreground/[0.03] border border-[#A58CA9]/45 px-3 py-2"
-                            style={{ boxShadow: "3px 3px 0 rgba(0, 0, 0, 0.25)" }}
+                            className="flex items-center justify-between rounded-lg border border-[#A58CA9]/45 px-3 py-2"
+                            style={{ background: `${tierBaseColor(tierGradient)}1A`, boxShadow: "3px 3px 0 rgba(0, 0, 0, 0.25)" }}
                           >
                             <div className="flex items-center gap-2.5">
                               <div
@@ -230,7 +230,7 @@ export function PrizeInfoCard({
                                 <>
                                   <span className="font-semibold text-foreground">{tier.gacha} {t("gacha")}</span>
                                   {tierHasExtra && (
-                                    <span className="text-xs text-foreground/50">
+                                    <span className="text-xs font-semibold text-foreground">
                                       +{tier.extra} {t("extra_choice")}
                                     </span>
                                   )}
@@ -242,8 +242,8 @@ export function PrizeInfoCard({
                       })}
 
                       <div
-                        className="flex items-center justify-between rounded-lg border border-[#A58CA9]/45 px-3 py-2"
-                        style={{ background: `${tierBaseColor(gradient)}33`, boxShadow: "6px 6px 0 rgba(0, 0, 0, 0.25)" }}
+                        className="flex items-center justify-between rounded-lg border border-[#A58CA9]/45 px-3 py-2 -m-px"
+                        style={{ background: `${tierBaseColor(gradient)}4D`, boxShadow: "6px 6px 0 rgba(0, 0, 0, 0.25)" }}
                       >
                         <div className="flex items-center gap-2.5">
                           <div
@@ -261,17 +261,47 @@ export function PrizeInfoCard({
                             <>
                               <span className="font-semibold text-foreground">{current.gacha} {t("gacha")}</span>
                               {hasExtra && (
-                                <span className="text-xs text-foreground/50">
+                                <span className="text-xs font-semibold text-foreground">
                                   +{current.extra} {t("extra_choice")}
                                 </span>
                               )}
                             </>
                           )}
-                          <span className="ml-0.5 rounded-full bg-foreground/10 px-1.5 py-0.5 text-xs font-medium text-foreground/60">
+                          <span className="ml-0.5 rounded-full bg-[#D9C1E0] px-1.5 py-0.5 text-xs font-semibold text-foreground/80">
                             {t("current")}
                           </span>
                         </div>
                       </div>
+
+                      {!isMax && next && (
+                        <div className="rounded-lg" style={{ boxShadow: "3px 3px 0 rgba(0, 0, 0, 0.12)" }}>
+                          <div className="stamp-notched flex items-center justify-between rounded-lg px-3 py-2">
+                            <div className="flex items-center gap-2.5">
+                              <div
+                                className="h-2 w-2 rounded-full flex-shrink-0"
+                                style={{ background: GRADIENTS[Math.min(currentTier, GRADIENTS.length - 1)] }}
+                              />
+                              <span className="text-sm font-medium text-foreground/50">
+                                {next.stamps} {t("stamps")}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2 text-sm text-foreground/50">
+                              {next.isAll ? (
+                                <span className="font-semibold text-foreground/60">{t("full_collection")}</span>
+                              ) : (
+                                <>
+                                  <span className="font-semibold text-foreground/60">{next.gacha} {t("gacha")}</span>
+                                  {next.extra !== "-" && next.extra !== "0" && (
+                                    <span className="text-xs font-semibold text-foreground/60">
+                                      +{next.extra} {t("extra_choice")}
+                                    </span>
+                                  )}
+                                </>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
