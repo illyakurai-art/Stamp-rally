@@ -17,31 +17,38 @@ export function ArtistCards({ artists }: { artists: Artist[] }) {
   const tiles: GroupedTile[] = []
 
   const used = new Set<string>()
-  for (const pair of PAIRS) {
-    const members = pair
-      .map((name) => artists.find((a) => a.name.toLowerCase() === name.toLowerCase()))
-      .filter((a): a is Artist => !!a)
-    if (members.length === pair.length) {
-      tiles.push({
-        id: `pair-${pair.map((n) => n.toLowerCase()).join("-")}`,
-        artists: members,
-        isPair: true,
-      })
-      for (const m of members) used.add(m.id)
-    }
-  }
 
   for (const artist of artists) {
-    if (!used.has(artist.id)) {
-      tiles.push({ id: artist.id, artists: [artist], isPair: false })
-    }
-  }
+    if (used.has(artist.id)) continue
 
-  const tileName = (tile: GroupedTile) =>
-    tile.isPair
-      ? `${tile.artists[0].name}&${tile.artists[1].name}`
-      : tile.artists[0].name
-  tiles.sort((a, b) => tileName(a).localeCompare(tileName(b)))
+    // Artista appartenente a una coppia → raggruppa i membri presenti
+    const pair = PAIRS.find((p) =>
+      p.some((name) => artist.name.toLowerCase() === name.toLowerCase())
+    )
+
+    if (pair) {
+      const members = pair
+        .map((name) => artists.find((a) => a.name.toLowerCase() === name.toLowerCase()))
+        .filter((a): a is Artist => !!a)
+      if (members.length === pair.length) {
+        // Entrambi presenti → tile unica nella posizione del primo membro
+        tiles.push({
+          id: `pair-${pair.map((n) => n.toLowerCase()).join("-")}`,
+          artists: members,
+          isPair: true,
+        })
+        for (const m of members) used.add(m.id)
+        continue
+      }
+      // Solo un membro presente → tile normale
+      tiles.push({ id: artist.id, artists: [artist], isPair: false })
+      used.add(artist.id)
+      continue
+    }
+
+    tiles.push({ id: artist.id, artists: [artist], isPair: false })
+    used.add(artist.id)
+  }
 
   return (
     <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
@@ -90,13 +97,14 @@ function PairArtistCard({ artists }: { artists: Artist[] }) {
   return (
     <ArtistHoverCard artist={merged} side="top">
       <div
-        className={`group relative aspect-square w-full rounded-2xl transition-all hover:scale-105 hover:shadow-lg cursor-pointer [touch-action:pan-y] ${
+        className={`group relative aspect-square w-full rounded-2xl content-visibility-auto transition-[transform,box-shadow] hover:scale-105 hover:shadow-lg cursor-pointer [touch-action:pan-y] ${
           merged.scanned
             ? "gold-ring border-transparent shadow-amber-500/20"
             : scannedCount > 0
               ? "scanned-ring border-transparent shadow-green-500/20"
               : ""
         }`}
+        style={{ containIntrinsicSize: "auto 220px" }}
         onPointerDown={onPointerDown}
         onPointerUp={onPointerUp}
       >
@@ -114,6 +122,8 @@ function PairArtistCard({ artists }: { artists: Artist[] }) {
               key={`${merged.id}-${current}`}
               src={artists[current].image_url}
               alt={artists[current].name}
+              loading="lazy"
+              decoding="async"
               className="h-full w-full object-cover"
             />
           ) : (
@@ -125,7 +135,7 @@ function PairArtistCard({ artists }: { artists: Artist[] }) {
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
 
           <div className="absolute bottom-0 left-0 right-0 p-3 text-left">
-            <p className="text-sm font-semibold text-white truncate">{name}</p>
+            <p className={`text-sm font-semibold text-white truncate ${scannedCount > 0 ? "pr-10" : ""}`}>{name}</p>
             <p className="mt-0.5 text-xs text-white/70">
               {merged.scanned ? t("secret_kk_unlocked") : scannedCount > 0 ? t("scanned") : t("not_visited")}
             </p>
@@ -147,6 +157,18 @@ function PairArtistCard({ artists }: { artists: Artist[] }) {
               />
             ))}
           </div>
+
+          {scannedCount > 0 && (
+            <div className="absolute bottom-2 right-2 w-11 h-11 sm:w-[50px] sm:h-[50px]">
+              <img
+                src="/stamp-badge.png"
+                alt="✓"
+                loading="lazy"
+                decoding="async"
+                className="h-full w-full object-contain drop-shadow-md"
+              />
+            </div>
+          )}
         </div>
       </div>
     </ArtistHoverCard>

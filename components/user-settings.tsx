@@ -13,6 +13,36 @@ import { useRouter } from "next/navigation";
 import { deleteAccount } from "@/app/actions/delete-account";
 import { useI18n } from "@/lib/i18n/context";
 
+function FlagIT({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 3 2" className={className} aria-hidden="true">
+      <rect width="1" height="2" fill="#009246" />
+      <rect x="1" width="1" height="2" fill="#ffffff" />
+      <rect x="2" width="1" height="2" fill="#ce2b37" />
+    </svg>
+  );
+}
+
+function FlagGB({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 60 30" className={className} aria-hidden="true">
+      <clipPath id="gb-a">
+        <path d="M0,0 v30 h60 v-30 z" />
+      </clipPath>
+      <clipPath id="gb-b">
+        <path d="M30,15 h30 v15 z v15 h-30 z h-30 v-15 z v-15 h30 z" />
+      </clipPath>
+      <g clipPath="url(#gb-a)">
+        <path d="M0,0 v30 h60 v-30 z" fill="#012169" />
+        <path d="M0,0 L60,30 M60,0 L0,30" stroke="#ffffff" strokeWidth="6" />
+        <path d="M0,0 L60,30 M60,0 L0,30" clipPath="url(#gb-b)" stroke="#C8102E" strokeWidth="4" />
+        <path d="M30,0 v30 M0,15 h60" stroke="#ffffff" strokeWidth="10" />
+        <path d="M30,0 v30 M0,15 h60" stroke="#C8102E" strokeWidth="6" />
+      </g>
+    </svg>
+  );
+}
+
 export function UserSettings() {
   const { lang, setLang, t } = useI18n();
   const [open, setOpen] = useState(false);
@@ -79,7 +109,7 @@ export function UserSettings() {
 
           {/* Header */}
           <div className="px-6 pt-8 pb-5 border-b border-foreground/10">
-            <p className="text-xs font-semibold uppercase tracking-widest text-foreground/40 mb-1">Account</p>
+            <p className="text-xs font-semibold uppercase tracking-widest text-foreground/60 mb-1">Account</p>
             <h2 className="text-xl font-bold">{t("settings")}</h2>
           </div>
 
@@ -87,7 +117,7 @@ export function UserSettings() {
 
             {/* Lingua */}
             <div className="flex flex-col gap-2.5">
-              <div className="flex items-center gap-2 text-sm font-medium text-foreground/70">
+              <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
                 <Globe className="h-4 w-4" />
                 {t("language")}
               </div>
@@ -97,20 +127,26 @@ export function UserSettings() {
                   className={`flex-1 py-2 text-sm font-medium transition-colors ${
                     lang === "ITA"
                       ? "bg-foreground text-background"
-                      : "text-foreground/50 hover:text-foreground hover:bg-foreground/5"
+                      : "text-foreground/80 hover:text-foreground hover:bg-foreground/5"
                   }`}
                 >
-                  Italiano
+                  <span className="flex items-center justify-center gap-1.5">
+                    <FlagIT className="h-4 w-4 rounded-[2px]" />
+                    Italiano
+                  </span>
                 </button>
                 <button
                   onClick={() => setLang("ENG")}
                   className={`flex-1 py-2 text-sm font-medium transition-colors ${
                     lang === "ENG"
                       ? "bg-foreground text-background"
-                      : "text-foreground/50 hover:text-foreground hover:bg-foreground/5"
+                      : "text-foreground/80 hover:text-foreground hover:bg-foreground/5"
                   }`}
                 >
-                  English
+                  <span className="flex items-center justify-center gap-1.5">
+                    <FlagGB className="h-4 w-4 rounded-[2px]" />
+                    English
+                  </span>
                 </button>
               </div>
             </div>
@@ -118,10 +154,10 @@ export function UserSettings() {
             {/* QR Toggle */}
             <div className="flex items-center justify-between gap-4 rounded-xl border border-foreground/10 bg-foreground/[0.02] px-4 py-3.5">
               <div className="flex items-start gap-3 min-w-0">
-                <QrCode className="h-4 w-4 mt-0.5 text-foreground/50 shrink-0" />
+                <QrCode className="h-4 w-4 mt-0.5 text-foreground/70 shrink-0" />
                 <div className="min-w-0">
                   <p className="text-sm font-medium">{t("manual_qr_reader")}</p>
-                  <p className="text-xs text-foreground/50 mt-0.5 leading-snug">
+                  <p className="text-xs text-foreground/70 mt-0.5 leading-snug">
                     {t("manual_qr_desc")}
                   </p>
                 </div>
@@ -145,7 +181,7 @@ export function UserSettings() {
             {/* Logout */}
             <button
               onClick={handleLogout}
-              className="flex items-center justify-center gap-2 w-full rounded-xl border border-foreground/15 px-4 py-3 text-sm font-medium transition-colors hover:bg-foreground/5"
+              className="flex items-center justify-center gap-2 w-full rounded-xl border border-green-500/20 bg-green-500/10 px-4 py-3 text-sm font-semibold text-green-600 transition-colors hover:bg-green-500/20 dark:text-green-500"
             >
               <LogOut className="h-4 w-4" />
               {t("logout")}
@@ -163,7 +199,7 @@ export function UserSettings() {
             ) : (
               <div className="flex flex-col gap-3 rounded-xl border border-red-500/20 bg-red-500/5 p-4">
                 <p className="text-sm font-medium text-red-500">{t("delete_account")}</p>
-                <p className="text-xs text-foreground/60 leading-snug">
+                <p className="text-xs text-foreground/80 leading-snug">
                   {t("delete_account_warning")}
                 </p>
                 <input

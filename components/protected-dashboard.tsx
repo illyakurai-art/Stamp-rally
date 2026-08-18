@@ -20,7 +20,10 @@ type ArtistData = {
   prize_image_url?: string | null;
   active: boolean;
   display_id?: string | null;
+  map_x?: number | null;
+  map_y?: number | null;
   scanned: boolean;
+  stampedAt?: string | null;
 };
 
 type ArtistSort = "alpha" | "scanned";
@@ -36,7 +39,11 @@ export function ProtectedDashboard() {
   const [loading, setLoading] = useState(true);
   const [qrMode, setQrMode] = useState(false);
   const [stampTick, setStampTick] = useState(0); // incrementato per forzare re-fetch stamps
-  const [artistSort, setArtistSort] = useState<ArtistSort>("alpha");
+  const [artistSort, setArtistSort] = useState<ArtistSort>(() => {
+    if (typeof window === "undefined") return "alpha";
+    const saved = localStorage.getItem("stamp_rally_artist_sort");
+    return saved === "scanned" ? "scanned" : "alpha";
+  });
   const [sortOpen, setSortOpen] = useState(false);
   const [mapZoom, setMapZoom] = useState(false);
   const sortRef = useRef<HTMLDivElement>(null);
@@ -53,6 +60,13 @@ export function ProtectedDashboard() {
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, []);
+
+  // Memorizza la scelta di ordinamento
+  useEffect(() => {
+    try {
+      localStorage.setItem("stamp_rally_artist_sort", artistSort);
+    } catch {}
+  }, [artistSort]);
 
   useEffect(() => {
     const handler = (e: CustomEvent) => setQrMode(e.detail);
@@ -125,11 +139,11 @@ export function ProtectedDashboard() {
       const [stampsResult, artistsResult] = await Promise.all([
         supabase
           .from("stamps")
-          .select("artist_id")
+          .select("artist_id, stamped_at")
           .in("user_id", userIdsToMatch),
         supabase
           .from("artists")
-          .select("id, name, image_url, prize_image_url, active, display_id")
+          .select("id, name, image_url, prize_image_url, active, display_id, map_x, map_y")
           .eq("active", true),
       ]);
 
@@ -137,11 +151,22 @@ export function ProtectedDashboard() {
         stampsResult.data?.map((s) => s.artist_id) ?? []
       );
 
+      // Prima data di timbratura per ogni artista (serve per l'ordine cronologico)
+      const stampedAtById = new Map<string, string | null>();
+      for (const s of stampsResult.data ?? []) {
+        const key = s.artist_id;
+        const cur = stampedAtById.get(key);
+        if (!cur || (s.stamped_at && s.stamped_at < cur)) {
+          stampedAtById.set(key, s.stamped_at ?? null);
+        }
+      }
+
       const artistList = (artistsResult.data ?? []).map((a) => ({
         ...a,
         scanned:
           scannedIdentifiers.has(a.id) ||
           (a.display_id ? scannedIdentifiers.has(a.display_id) : false),
+        stampedAt: stampedAtById.get(a.id) ?? stampedAtById.get(a.display_id ?? "") ?? null,
       }));
 
       setUserId(user.id);
@@ -179,14 +204,23 @@ export function ProtectedDashboard() {
       if (artists.length > 0) {
         const { data: newStamps } = await supabase
           .from("stamps")
-          .select("artist_id")
+          .select("artist_id, stamped_at")
           .in("user_id", userIdsToMatch);
 
         const scannedIds = new Set(newStamps?.map((s) => s.artist_id) ?? []);
+        const stampedAtById = new Map<string, string | null>();
+        for (const s of newStamps ?? []) {
+          const key = s.artist_id;
+          const cur = stampedAtById.get(key);
+          if (!cur || (s.stamped_at && s.stamped_at < cur)) {
+            stampedAtById.set(key, s.stamped_at ?? null);
+          }
+        }
         setArtists((prev) =>
           prev.map((a) => ({
             ...a,
             scanned: scannedIds.has(a.id) || (a.display_id ? scannedIds.has(a.display_id) : false),
+            stampedAt: stampedAtById.get(a.id) ?? stampedAtById.get(a.display_id ?? "") ?? a.stampedAt ?? null,
           }))
         );
       }
@@ -196,11 +230,17 @@ export function ProtectedDashboard() {
 
   if (loading) return null;
 
-  const sortedArtists = [...artists].sort((a, b) =>
-    artistSort === "alpha"
-      ? a.name.localeCompare(b.name, "it", { sensitivity: "base" })
-      : Number(b.scanned) - Number(a.scanned)
-  );
+  const sortedArtists = [...artists].sort((a, b) => {
+    if (artistSort === "alpha") {
+      return a.name.localeCompare(b.name, "it", { sensitivity: "base" });
+    }
+    // Ordine di timbratura: prima i timbrati (dal più vecchio), poi i non timbrati
+    if (a.scanned !== b.scanned) return a.scanned ? -1 : 1;
+    if (a.scanned && b.scanned) {
+      return (a.stampedAt ?? "").localeCompare(b.stampedAt ?? "");
+    }
+    return 0;
+  });
 
   const sortLabel =
     artistSort === "alpha" ? t("sort_alpha") : t("sort_scanned");

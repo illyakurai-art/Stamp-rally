@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
+import { useEffect, useRef, useState } from "react";
+import { TransformWrapper, TransformComponent, type ReactZoomPanPinchRef } from "react-zoom-pan-pinch";
 import { createClient } from "@/lib/supabase/client";
 import { useI18n } from "@/lib/i18n/context";
 import { ArrowLeft, ZoomIn, ZoomOut, RotateCcw } from "lucide-react";
@@ -23,6 +23,16 @@ export default function MappaPage() {
   const { t } = useI18n();
   const [artists, setArtists] = useState<MapArtist[]>([]);
   const [loading, setLoading] = useState(true);
+  const transformRef = useRef<ReactZoomPanPinchRef | null>(null);
+  const viewportRef = useRef<HTMLDivElement | null>(null);
+  const imgRef = useRef<HTMLImageElement | null>(null);
+  const targetIdRef = useRef<string | null>(null);
+  const centeredRef = useRef(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    targetIdRef.current = params.get("artist");
+  }, []);
 
   useEffect(() => {
     const supabase = createClient();
@@ -63,6 +73,35 @@ export default function MappaPage() {
 
   const positioned = artists.filter((a) => a.map_x != null && a.map_y != null);
 
+  const centerOnTarget = () => {
+    if (centeredRef.current) return;
+    const targetId = targetIdRef.current;
+    if (!targetId) return;
+    const artist = artists.find((a) => a.display_id === targetId || a.id === targetId);
+    if (!artist || artist.map_x == null || artist.map_y == null) return;
+    const api = transformRef.current;
+    const viewport = viewportRef.current;
+    const img = imgRef.current;
+    if (!api || !viewport || !img) return;
+    const nw = img.naturalWidth;
+    const nh = img.naturalHeight;
+    if (!nw || !nh) return;
+    const contentW = 1200;
+    const contentH = (1200 * nh) / nw;
+    const scale = 2;
+    const cx = (artist.map_x / 100) * contentW;
+    const cy = (artist.map_y / 100) * contentH;
+    const vw = viewport.clientWidth;
+    const vh = viewport.clientHeight;
+    api.setTransform(vw / 2 - cx * scale, vh / 2 - cy * scale, scale, 600);
+    centeredRef.current = true;
+  };
+
+  useEffect(() => {
+    if (loading || artists.length === 0) return;
+    centerOnTarget();
+  }, [loading, artists]);
+
   return (
     <main className="min-h-screen px-4 py-6 sm:px-6">
       <div className="mx-auto w-full max-w-5xl">
@@ -73,6 +112,7 @@ export default function MappaPage() {
       </div>
       <div className="mt-6 mx-auto w-full max-w-5xl">
         <TransformWrapper
+          ref={transformRef}
           initialScale={1}
           minScale={0.5}
           maxScale={4}
@@ -102,10 +142,12 @@ export default function MappaPage() {
                   <RotateCcw className="h-4 w-4" />
                 </button>
               </div>
-              <div className="relative overflow-hidden rounded-xl border border-foreground/10 bg-foreground/[0.02]">
+              <div ref={viewportRef} className="relative overflow-hidden rounded-xl border border-foreground/10 bg-foreground/[0.02]">
                 <TransformComponent wrapperClass="!w-full">
                   <div className="relative" style={{ width: 1200 }}>
                     <img
+                      ref={imgRef}
+                      onLoad={centerOnTarget}
                       src="/mappa.jpg"
                       alt="Mappa"
                       className="max-w-none block"

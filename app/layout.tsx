@@ -44,6 +44,19 @@ export default function RootLayout({
             {children}
           </I18nProvider>
         </ThemeProvider>
+        <footer className="w-full pb-6 pt-4 text-center">
+          <p className="text-xs text-foreground/50">
+            WebApp realizzata da{" "}
+            <a
+              href="https://www.instagram.com/illya.cosph?igsh=d3g4azVmcGUxMW82"
+              target="_blank"
+              rel="noreferrer"
+              className="font-semibold text-foreground/70 hover:text-foreground hover:underline"
+            >
+              @IllyA
+            </a>
+          </p>
+        </footer>
         <ToasterProvider />
       </body>
     </html>

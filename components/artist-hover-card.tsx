@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useState } from "react"
+import Link from "next/link"
 import { CalendarDays, MapPin, Link2, Check, HelpCircle, Gift, ChevronDown } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useI18n } from "@/lib/i18n/context"
@@ -24,6 +25,8 @@ export interface Artist {
   followers_count?: number
   following_count?: number
   display_id?: string | null
+  map_x?: number | null
+  map_y?: number | null
 }
 
 interface ArtistHoverCardProps {
@@ -52,7 +55,6 @@ export function ArtistHoverCard({
     .toUpperCase()
 
   // Default o dati reali
-  const location = artist.location || t("stand_location")
   const joinedDate = artist.joined_date || `${t("edition")} 2026`
   const bio = artist.bio || t("visit_stand_bio").replace("{name}", artist.name)
   const website = artist.website_url
@@ -133,7 +135,13 @@ export function ArtistHoverCard({
             <div className="space-y-1.5 pt-1 text-xs text-background/70">
               <div className="flex items-center">
                 <MapPin className="mr-2 h-3.5 w-3.5 shrink-0 stroke-[1.5] text-background/60" />
-                <span className="truncate">{location}</span>
+                <Link
+                  href={`/mappa?artist=${encodeURIComponent(artist.display_id ?? artist.id)}`}
+                  onClick={(e) => e.stopPropagation()}
+                  className="underline decoration-[#7EB8FF] decoration-2 underline-offset-2 text-[#7EB8FF] hover:text-[#9CC9FF] font-medium truncate"
+                >
+                  {t("take_me_to_stand")}
+                </Link>
               </div>
               <div className="flex items-center">
                 <CalendarDays className="mr-2 h-3.5 w-3.5 shrink-0 stroke-[1.5] text-background/60" />

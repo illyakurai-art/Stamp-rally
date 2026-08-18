@@ -141,7 +141,7 @@ export const translations = {
   "select_card": { ITA: "Seleziona una card per vedere i dettagli dell'artista", ENG: "Select a card to see artist details" },
   "sort_by": { ITA: "Ordina", ENG: "Sort" },
   "sort_alpha": { ITA: "Ordine alfabetico", ENG: "Alphabetical order" },
-  "sort_scanned": { ITA: "Timbri già ottenuti", ENG: "Stamps already collected" },
+  "sort_scanned": { ITA: "Ordine di timbratura", ENG: "Stamping order" },
   "scanned": { ITA: "Scansionato", ENG: "Scanned" },
   "not_visited": { ITA: "Non visitato", ENG: "Not visited" },
   "to_visit": { ITA: "Da visitare", ENG: "To visit" },
@@ -208,6 +208,7 @@ export const translations = {
 
   // Hover card
   "stand_location": { ITA: "Stand Stamp Rally", ENG: "Stamp Rally Stand" },
+  "take_me_to_stand": { ITA: "Portami a questo stand", ENG: "Take me to this stand" },
   "edition": { ITA: "Edizione", ENG: "Edition" },
   "visit_stand_bio": { ITA: "Visita lo stand di {name} per collezionare il timbro unico!", ENG: "Visit {name}'s stand to collect the unique stamp!" },
 } as const;

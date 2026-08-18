@@ -8,11 +8,12 @@ export function ArtistCard({ artist }: { artist: Artist }) {
   return (
     <ArtistHoverCard artist={artist} side="top">
       <div
-        className={`group relative aspect-square w-full rounded-2xl transition-all hover:scale-105 hover:shadow-lg cursor-pointer ${
+        className={`group relative aspect-square w-full rounded-2xl content-visibility-auto transition-[transform,box-shadow] hover:scale-105 hover:shadow-lg cursor-pointer ${
           artist.scanned
             ? "scanned-ring shadow-green-500/20"
             : ""
         }`}
+        style={{ containIntrinsicSize: "auto 220px" }}
       >
         <div
           className={`absolute inset-0 overflow-hidden rounded-2xl border-2 ${
@@ -25,6 +26,8 @@ export function ArtistCard({ artist }: { artist: Artist }) {
             <img
               src={artist.image_url}
               alt={artist.name}
+              loading="lazy"
+              decoding="async"
               className="h-full w-full object-cover"
             />
           ) : (

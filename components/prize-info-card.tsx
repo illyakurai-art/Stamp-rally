@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Trophy, Stamp, Gift, Star, ChevronRight, Crown } from "lucide-react";
+import { Stamp, Gift, Star, ChevronDown, Crown } from "lucide-react";
 import { UserQrCode } from "@/components/user-qr-code";
 import { useI18n } from "@/lib/i18n/context";
 
@@ -35,22 +35,15 @@ const GRADIENTS = [
   "linear-gradient(135deg, #4D7DB8 0%, #4DB8A0 100%)",
 ];
 
-const OPPOSITE_GRADIENTS = [
-  "linear-gradient(135deg, #C4B239 0%, #3ABF0A 100%)",
-  "linear-gradient(135deg, #E8963E 0%, #C4B239 100%)",
-  "linear-gradient(135deg, #E85D3E 0%, #E8963E 100%)",
-  "linear-gradient(135deg, #D93D3D 0%, #E85D3E 100%)",
-  "linear-gradient(135deg, #C44DB8 0%, #D93D3D 100%)",
-  "linear-gradient(135deg, #8B4DB8 0%, #C44DB8 100%)",
-  "linear-gradient(135deg, #4D7DB8 0%, #8B4DB8 100%)",
-  "linear-gradient(135deg, #4DB8A0 0%, #4D7DB8 100%)",
-];
-
 function getCurrentTier(count: number) {
   for (let i = TIERS.length - 1; i >= 0; i--) {
     if (count >= TIERS[i].stamps) return i;
   }
   return 0;
+}
+
+function tierBaseColor(gradient: string) {
+  return gradient.match(/#[0-9A-Fa-f]{6}/)?.[0] ?? "#000000";
 }
 
 export function PrizeInfoCard({
@@ -65,7 +58,20 @@ export function PrizeInfoCard({
   kkUnlocked?: string | boolean;
 }) {
   const { t } = useI18n();
-  const [allTiersOpen, setAllTiersOpen] = useState(false);
+  const [milestonesOpen, setMilestonesOpen] = useState(() => {
+    if (typeof window === "undefined") return true;
+    return localStorage.getItem("stamp_rally_milestones_open") !== "false";
+  });
+
+  const toggleMilestones = () => {
+    setMilestonesOpen((o) => {
+      const next = !o;
+      try {
+        localStorage.setItem("stamp_rally_milestones_open", String(next));
+      } catch {}
+      return next;
+    });
+  };
   const currentTier = getCurrentTier(stampCount);
   const isMax = currentTier >= TIERS.length - 1;
   const current = TIERS[currentTier];
@@ -73,9 +79,7 @@ export function PrizeInfoCard({
   const hasPrize = currentTier > 0;
   const hasExtra = current.extra !== "-" && current.extra !== "0";
   const earnedTiers = TIERS.slice(1, currentTier + 1);
-
-  // All remaining tiers up to the end (excluding tier 0)
-  const futureTiers = isMax ? [] : TIERS.slice(currentTier + 1);
+  const pastTiers = earnedTiers.slice(0, -1);
 
   const gradient = GRADIENTS[Math.max(0, currentTier - 1)] || GRADIENTS[0];
 
@@ -114,17 +118,6 @@ export function PrizeInfoCard({
           )}
         </div>
 
-        <div
-          className="rounded-xl px-4 py-3 flex items-center justify-between"
-          style={{ background: hasPrize ? OPPOSITE_GRADIENTS[Math.max(0, currentTier - 1)] : "hsl(var(--foreground) / 0.08)" }}
-        >
-          <div className="flex items-center gap-2">
-            <Stamp className="h-4 w-4 opacity-90" />
-            <span className="text-xs font-medium opacity-90">{t("stamps_collected")}</span>
-          </div>
-          <span className="text-2xl font-extrabold tracking-tight">{stampCount}</span>
-        </div>
-
         {!isMax && next && (
           <div className="mt-3">
             <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/20">
@@ -153,155 +146,135 @@ export function PrizeInfoCard({
               <p className="text-xs font-semibold uppercase tracking-widest text-foreground/50 mb-2">
                 {t("current_prize")}
               </p>
-              <div
-                className="rounded-xl p-3.5 text-white"
-                style={{ background: gradient }}
+              <button
+                type="button"
+                onClick={toggleMilestones}
+                className="w-full rounded-xl p-3.5 text-white text-left transition-transform active:scale-[0.99]"
+                style={{ background: gradient, boxShadow: `6px 6px 0 ${tierBaseColor(gradient)}33` }}
               >
                 <div className="flex items-center justify-between">
-                  <div>
+                  <div className="flex items-center gap-2">
+                    <Stamp className="h-6 w-6 opacity-90" />
                     <div className="flex items-baseline gap-1.5">
-                      {current.isAll ? (
-                        <span className="text-xl font-extrabold">{t("full_collection")}</span>
-                      ) : (
-                        <>
-                          <span className="text-3xl font-extrabold">{current.gacha}</span>
-                          <span className="text-sm font-medium opacity-80">{t("gacha")}</span>
-                        </>
+                      <span className="text-3xl font-extrabold">{stampCount}</span>
+                      <span className="text-sm font-medium opacity-80">{t("stamps")}</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="text-right">
+                      <div className="flex items-baseline justify-end gap-1.5">
+                        {current.isAll ? (
+                          <span className="text-xl font-extrabold">{t("full_collection")}</span>
+                        ) : (
+                          <>
+                            <span className="text-3xl font-extrabold">{current.gacha}</span>
+                            <span className="text-sm font-medium opacity-80">{t("gacha")}</span>
+                          </>
+                        )}
+                      </div>
+                      {hasExtra && (
+                        <div className="mt-1.5 flex items-center justify-end gap-1">
+                          <Gift className="h-3 w-3 opacity-80" />
+                          <span className="text-xs font-medium opacity-90">
+                            +{current.extra} {t("extra_choice")}
+                          </span>
+                        </div>
                       )}
                     </div>
-                    {hasExtra && (
-                      <div className="mt-1.5 flex items-center gap-1">
-                        <Gift className="h-3 w-3 opacity-80" />
-                        <span className="text-xs font-medium opacity-90">
-                          +{current.extra} {t("extra_choice")}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                  <div className="rounded-full bg-white/20 p-2">
-                    <Trophy className="h-5 w-5" />
+                    <div
+                      className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-white/25 border border-white/40 shadow-md transition-transform duration-300 ${
+                        milestonesOpen ? "rotate-180" : ""
+                      }`}
+                    >
+                      <ChevronDown className="h-4 w-4 text-white" />
+                    </div>
                   </div>
                 </div>
-              </div>
+              </button>
             </div>
 
             {earnedTiers.length > 0 && (
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-widest text-foreground/50 mb-2">
-                  {t("milestones_reached")}
-                </p>
-                <div className="flex flex-col gap-1">
-                  {earnedTiers.map((tier, i) => {
-                    const isCurrentTier = tier.stamps === current.stamps;
-                    const tierGradient = GRADIENTS[Math.min(i, GRADIENTS.length - 1)];
-                    const tierHasExtra = tier.extra !== "-" && tier.extra !== "0";
-                    return (
+              <div
+                className={`grid transition-all duration-300 ease-in-out ${
+                  milestonesOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+                }`}
+              >
+                <div className="min-h-0 overflow-hidden">
+                  <div className="pt-2">
+                    <p className="text-xs font-semibold uppercase tracking-widest text-foreground/50 mb-2">
+                      {t("milestones_reached")}
+                    </p>
+                    <div className="flex flex-col gap-[5px] mx-1.5 pb-1.5">
+                      {pastTiers.map((tier, i) => {
+                        const tierGradient = GRADIENTS[Math.min(i, GRADIENTS.length - 1)];
+                        const tierHasExtra = tier.extra !== "-" && tier.extra !== "0";
+                        return (
+                          <div
+                            key={tier.stamps}
+                            className="flex items-center justify-between rounded-lg bg-foreground/[0.03] border border-[#A58CA9]/45 px-3 py-2"
+                            style={{ boxShadow: "3px 3px 0 rgba(0, 0, 0, 0.25)" }}
+                          >
+                            <div className="flex items-center gap-2.5">
+                              <div
+                                className="h-2 w-2 rounded-full flex-shrink-0"
+                                style={{ background: tierGradient }}
+                              />
+                              <span className="text-sm font-medium text-foreground/70">
+                                {tier.stamps} {t("stamps")}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2 text-sm text-foreground/70">
+                              {tier.isAll ? (
+                                <span className="font-semibold text-foreground">{t("full_collection")}</span>
+                              ) : (
+                                <>
+                                  <span className="font-semibold text-foreground">{tier.gacha} {t("gacha")}</span>
+                                  {tierHasExtra && (
+                                    <span className="text-xs text-foreground/50">
+                                      +{tier.extra} {t("extra_choice")}
+                                    </span>
+                                  )}
+                                </>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+
                       <div
-                        key={tier.stamps}
-                        className={`flex items-center justify-between rounded-lg px-3 py-2 ${
-                          isCurrentTier ? "ring-1 ring-foreground/20" : ""
-                        }`}
-                        style={{
-                          background: isCurrentTier
-                            ? "hsl(var(--foreground) / 0.05)"
-                            : "hsl(var(--foreground) / 0.03)",
-                        }}
+                        className="flex items-center justify-between rounded-lg border border-[#A58CA9]/45 px-3 py-2"
+                        style={{ background: `${tierBaseColor(gradient)}33`, boxShadow: "6px 6px 0 rgba(0, 0, 0, 0.25)" }}
                       >
                         <div className="flex items-center gap-2.5">
                           <div
                             className="h-2 w-2 rounded-full flex-shrink-0"
-                            style={{ background: tierGradient }}
+                            style={{ background: gradient }}
                           />
                           <span className="text-sm font-medium">
-                            {tier.stamps} {t("stamps")}
+                            {current.stamps} {t("stamps")}
                           </span>
                         </div>
                         <div className="flex items-center gap-2 text-sm text-foreground/70">
-                          {tier.isAll ? (
+                          {current.isAll ? (
                             <span className="font-semibold text-foreground">{t("full_collection")}</span>
                           ) : (
                             <>
-                              <span className="font-semibold text-foreground">{tier.gacha} {t("gacha")}</span>
-                              {tierHasExtra && (
+                              <span className="font-semibold text-foreground">{current.gacha} {t("gacha")}</span>
+                              {hasExtra && (
                                 <span className="text-xs text-foreground/50">
-                                  +{tier.extra} extra
+                                  +{current.extra} {t("extra_choice")}
                                 </span>
                               )}
                             </>
                           )}
-                          {isCurrentTier && (
-                            <span className="ml-0.5 rounded-full bg-foreground/10 px-1.5 py-0.5 text-xs font-medium text-foreground/60">
-                              {t("current")}
-                            </span>
-                          )}
+                          <span className="ml-0.5 rounded-full bg-foreground/10 px-1.5 py-0.5 text-xs font-medium text-foreground/60">
+                            {t("current")}
+                          </span>
                         </div>
                       </div>
-                    );
-                  })}
+                    </div>
+                  </div>
                 </div>
-              </div>
-            )}
-
-            {!isMax && next && (
-              <div className="mt-3">
-                <button
-                  type="button"
-                  onClick={() => setAllTiersOpen((o) => !o)}
-                  className="flex w-full items-center justify-between rounded-lg border border-dashed border-foreground/15 px-3.5 py-2.5 text-sm text-foreground/60 transition-colors hover:bg-foreground/5"
-                >
-                  <span>{t("next_milestone")} {next.stamps} {t("stamps")}</span>
-                  <div className="flex items-center gap-1 font-medium text-foreground/80">
-                    <span>
-                      {next.isAll
-                        ? t("full_collection")
-                        : `${next.gacha} ${t("gacha")}${
-                            next.extra !== "-" && next.extra !== "0"
-                              ? ` + ${next.extra} extra`
-                              : ""
-                          }`}
-                    </span>
-                    <ChevronRight className={`h-3.5 w-3.5 transition-transform ${allTiersOpen ? "rotate-90" : ""}`} />
-                  </div>
-                </button>
-
-                {allTiersOpen && (
-                  <div className="mt-2 flex flex-col gap-1">
-                    {futureTiers.map((tier, i) => {
-                      const tierGradient = GRADIENTS[Math.min(currentTier + i, GRADIENTS.length - 1)];
-                      const tierHasExtra = tier.extra !== "-" && tier.extra !== "0";
-                      return (
-                        <div
-                          key={tier.stamps}
-                          className="flex items-center justify-between rounded-lg bg-foreground/[0.03] px-3 py-2"
-                        >
-                          <div className="flex items-center gap-2.5">
-                            <div
-                              className="h-2 w-2 rounded-full flex-shrink-0"
-                              style={{ background: tierGradient }}
-                            />
-                            <span className="text-sm font-medium text-foreground/70">
-                              {tier.stamps} {t("stamps")}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-2 text-sm text-foreground/70">
-                            {tier.isAll ? (
-                              <span className="font-semibold text-foreground">{t("full_collection")}</span>
-                            ) : (
-                              <>
-                                <span className="font-semibold text-foreground">{tier.gacha} {t("gacha")}</span>
-                                {tierHasExtra && (
-                                  <span className="text-xs text-foreground/50">
-                                    +{tier.extra} extra
-                                  </span>
-                                )}
-                              </>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
               </div>
             )}
           </>
