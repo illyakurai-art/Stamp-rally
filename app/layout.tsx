@@ -3,6 +3,7 @@ import { Geist } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { ToasterProvider } from "@/components/toaster-provider";
 import { I18nProvider } from "@/lib/i18n/context";
+import { ImageProtection } from "@/components/image-protection";
 import "./globals.css";
 
 const defaultUrl =
@@ -44,6 +45,7 @@ export default function RootLayout({
             {children}
           </I18nProvider>
         </ThemeProvider>
+        <ImageProtection />
         <footer className="w-full pb-6 pt-4 text-center">
           <p className="text-xs text-foreground/50">
             WebApp realizzata da{" "}

@@ -14,9 +14,11 @@ export function ArtistCard({ artist }: { artist: Artist }) {
             : ""
         }`}
         style={{ containIntrinsicSize: "auto 220px" }}
+        onContextMenu={(e) => e.preventDefault()}
+        onDragStart={(e) => e.preventDefault()}
       >
         <div
-          className={`absolute inset-0 overflow-hidden rounded-2xl border-2 ${
+          className={`absolute inset-0 overflow-hidden rounded-2xl border-2 bg-white ${
             artist.scanned
               ? "border-transparent"
               : "border-foreground/10 group-hover:border-foreground/30"
@@ -28,7 +30,7 @@ export function ArtistCard({ artist }: { artist: Artist }) {
               alt={artist.name}
               loading="lazy"
               decoding="async"
-              className="h-full w-full object-cover"
+              className="tile-fade h-full w-full bg-white object-cover"
             />
           ) : (
             <div className="flex h-full w-full items-center justify-center bg-muted text-3xl font-bold text-foreground/30">

@@ -83,6 +83,7 @@ export function ArtistHoverCard({
         align={align}
         side={side}
         className="comic-pop comic-bubble w-80 bg-foreground text-background border-2 border-white/60 p-4 rounded-2xl shadow-2xl z-50"
+        onContextMenu={(e) => e.preventDefault()}
       >
         <div className="flex space-x-4">
           {/* Avatar dell'artista */}

@@ -313,7 +313,7 @@ export function ProtectedDashboard() {
             className="w-full min-h-12 rounded-md bg-[#996C9E] px-5 py-4 text-center text-sm font-medium text-white flex items-center justify-center gap-3 cursor-not-allowed select-none sm:w-auto sm:min-w-[340px]"
             style={{ boxShadow: "6px 6px 0 rgba(0, 0, 0, 0.25)" }}
           >
-            <img src="/nfc-icon.png" alt="" className="h-12 w-12 shrink-0 object-contain" />
+            <img src="/nfc-icon.png" alt="" className="h-12 w-12 shrink-0 object-contain" style={{ filter: "brightness(0) invert(1)" }} />
             <span className="text-center leading-snug">
               {t("scan_nfc_line1")}
               <br />

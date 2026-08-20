@@ -65,7 +65,21 @@ export function ArtistCards({ artists }: { artists: Artist[] }) {
 
 function PairArtistCard({ artists }: { artists: Artist[] }) {
   const { t } = useI18n()
-  const [current, setCurrent] = useState(0)
+  const pairKey = `stamp_rally_pair_${artists.map((a) => a.id).sort().join("-")}`
+  // All'avvio: se uno solo è scansionato mostra l'altro (per suggerire cosa manca);
+  // se entrambi o nessuno, mantiene l'ultimo visualizzato
+  const [current, setCurrent] = useState(() => {
+    const unscanned = artists.findIndex((a) => !a.scanned)
+    if (unscanned !== -1 && artists.some((a) => a.scanned)) {
+      return unscanned
+    }
+    try {
+      const saved = Number(localStorage.getItem(pairKey))
+      return Number.isInteger(saved) && saved >= 0 && saved < artists.length ? saved : 0
+    } catch {
+      return 0
+    }
+  })
   const dragStart = useRef<{ x: number; y: number } | null>(null)
 
   const name = `${artists[0].name}&${artists[1].name}`
@@ -78,7 +92,13 @@ function PairArtistCard({ artists }: { artists: Artist[] }) {
     scanned: scannedCount === artists.length,
   }
 
-  const select = (i: number) => setCurrent((i + artists.length) % artists.length)
+  const select = (i: number) => {
+    const next = (i + artists.length) % artists.length
+    setCurrent(next)
+    try {
+      localStorage.setItem(pairKey, String(next))
+    } catch {}
+  }
 
   const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     dragStart.current = { x: e.clientX, y: e.clientY }
@@ -105,11 +125,13 @@ function PairArtistCard({ artists }: { artists: Artist[] }) {
               : ""
         }`}
         style={{ containIntrinsicSize: "auto 220px" }}
+        onContextMenu={(e) => e.preventDefault()}
+        onDragStart={(e) => e.preventDefault()}
         onPointerDown={onPointerDown}
         onPointerUp={onPointerUp}
       >
         <div
-          className={`absolute inset-0 overflow-hidden rounded-2xl border-2 ${
+          className={`absolute inset-0 overflow-hidden rounded-2xl border-2 bg-white ${
             scannedCount === artists.length
               ? "border-transparent"
               : scannedCount > 0
@@ -124,7 +146,7 @@ function PairArtistCard({ artists }: { artists: Artist[] }) {
               alt={artists[current].name}
               loading="lazy"
               decoding="async"
-              className="h-full w-full object-cover"
+              className="tile-fade h-full w-full bg-white object-cover"
             />
           ) : (
             <div className="flex h-full w-full items-center justify-center bg-muted text-3xl font-bold text-foreground/30">
@@ -135,7 +157,7 @@ function PairArtistCard({ artists }: { artists: Artist[] }) {
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
 
           <div className="absolute bottom-0 left-0 right-0 p-3 text-left">
-            <p className={`text-sm font-semibold text-white truncate ${scannedCount > 0 ? "pr-10" : ""}`}>{name}</p>
+            <p className={`text-sm font-semibold text-white truncate ${artists[current].scanned ? "pr-10" : ""}`}>{name}</p>
             <p className="mt-0.5 text-xs text-white/70">
               {merged.scanned ? t("secret_kk_unlocked") : scannedCount > 0 ? t("scanned") : t("not_visited")}
             </p>
@@ -158,7 +180,7 @@ function PairArtistCard({ artists }: { artists: Artist[] }) {
             ))}
           </div>
 
-          {scannedCount > 0 && (
+          {artists[current].scanned && (
             <div className="absolute bottom-2 right-2 w-11 h-11 sm:w-[50px] sm:h-[50px]">
               <img
                 src="/stamp-badge.png"

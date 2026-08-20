@@ -165,7 +165,7 @@ export default function MappaPage() {
                           }}
                         >
                           <ArtistHoverCard artist={a} side="top">
-                            <div className="transition-transform hover:scale-110">
+                            <div className="transition-transform hover:scale-110" onContextMenu={(e) => e.preventDefault()} onDragStart={(e) => e.preventDefault()}>
                               <div
                               className={`overflow-hidden rounded-full flex items-center justify-center ${
                                 a.scanned
