@@ -52,7 +52,7 @@ export default function MappaPage() {
       const [artistsRes, stampsRes] = await Promise.all([
         supabase
           .from("artists")
-          .select("id, name, display_id, image_url, prize_image_url, map_x, map_y")
+          .select("id, name, display_id, image_url, prize_image_url, map_x, map_y, instagram")
           .eq("active", true),
         supabase
           .from("stamps")

@@ -24,6 +24,7 @@ type ArtistData = {
   map_y?: number | null;
   scanned: boolean;
   stampedAt?: string | null;
+  instagram?: string | null;
 };
 
 type ArtistSort = "alpha" | "scanned";
@@ -143,7 +144,7 @@ export function ProtectedDashboard() {
           .in("user_id", userIdsToMatch),
         supabase
           .from("artists")
-          .select("id, name, image_url, prize_image_url, active, display_id, map_x, map_y")
+          .select("id, name, image_url, prize_image_url, active, display_id, map_x, map_y, instagram")
           .eq("active", true),
       ]);
 
@@ -234,12 +235,12 @@ export function ProtectedDashboard() {
     if (artistSort === "alpha") {
       return a.name.localeCompare(b.name, "it", { sensitivity: "base" });
     }
-    // Ordine di timbratura: prima i timbrati (dal più vecchio), poi i non timbrati
+    // Ordine di timbratura: prima i timbrati (dal più vecchio), poi i non timbrati in ordine alfabetico
     if (a.scanned !== b.scanned) return a.scanned ? -1 : 1;
     if (a.scanned && b.scanned) {
       return (a.stampedAt ?? "").localeCompare(b.stampedAt ?? "");
     }
-    return 0;
+    return a.name.localeCompare(b.name, "it", { sensitivity: "base" });
   });
 
   const sortLabel =

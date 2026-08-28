@@ -2,7 +2,7 @@
 
 import React, { useState } from "react"
 import Link from "next/link"
-import { CalendarDays, MapPin, Link2, Check, HelpCircle, Gift, ChevronDown } from "lucide-react"
+import { MapPin, Link2, Check, HelpCircle, Gift, ChevronDown } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useI18n } from "@/lib/i18n/context"
 import {
@@ -27,6 +27,7 @@ export interface Artist {
   display_id?: string | null
   map_x?: number | null
   map_y?: number | null
+  instagram?: string | null
 }
 
 interface ArtistHoverCardProps {
@@ -55,9 +56,9 @@ export function ArtistHoverCard({
     .toUpperCase()
 
   // Default o dati reali
-  const joinedDate = artist.joined_date || `${t("edition")} 2026`
   const bio = artist.bio || t("visit_stand_bio").replace("{name}", artist.name)
   const website = artist.website_url
+  const instagram = artist.instagram
 
   return (
     <HoverCard
@@ -144,10 +145,27 @@ export function ArtistHoverCard({
                   {t("take_me_to_stand")}
                 </Link>
               </div>
-              <div className="flex items-center">
-                <CalendarDays className="mr-2 h-3.5 w-3.5 shrink-0 stroke-[1.5] text-background/60" />
-                <span>{joinedDate}</span>
-              </div>
+              {instagram && instagram.split(",").map((handle) => {
+                  const h = handle.trim().replace(/^@/, "")
+                  if (!h) return null
+                  return (
+                    <div key={h} className="flex items-center">
+                      <svg className="mr-2 h-3.5 w-3.5 shrink-0 stroke-current fill-none text-green-400" viewBox="0 0 24 24" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="2" y="2" width="20" height="20" rx="5" />
+                        <circle cx="12" cy="12" r="5" />
+                        <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
+                      </svg>
+                      <a
+                        href={`https://www.instagram.com/${h}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="hover:underline text-green-400 hover:text-green-300 font-medium truncate"
+                      >
+                        @{h}
+                      </a>
+                    </div>
+                  )
+                })}
               {website && (
                 <div className="flex items-center">
                   <Link2 className="mr-2 h-3.5 w-3.5 shrink-0 stroke-[1.5] text-background/60" />

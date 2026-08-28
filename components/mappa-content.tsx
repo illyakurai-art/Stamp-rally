@@ -31,7 +31,7 @@ export async function MappaContent() {
   const [artistsResult, stampsResult] = await Promise.all([
     supabase
       .from("artists")
-      .select("id, name, qr_token, image_url, prize_image_url, map_x, map_y, display_id")
+      .select("id, name, qr_token, image_url, prize_image_url, map_x, map_y, display_id, instagram")
       .eq("active", true),
     supabase
       .from("stamps")
