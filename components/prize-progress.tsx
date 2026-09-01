@@ -14,7 +14,9 @@ const TIERS: PrizeTier[] = [
   { stamps: 25, gacha: "8",   extra: "4" },
   { stamps: 30, gacha: "12",  extra: "6" },
   { stamps: 35, gacha: "16",  extra: "8" },
-  { stamps: 40, gacha: "Full collection", extra: "-", isAll: true },
+  { stamps: 40, gacha: "20",  extra: "10" },
+  { stamps: 45, gacha: "24",  extra: "12" },
+  { stamps: 50, gacha: "Full collection", extra: "-", isAll: true },
 ];
 
 const GRADIENTS = [
@@ -26,6 +28,8 @@ const GRADIENTS = [
   "linear-gradient(90deg, #C44DB8 0%, #8B4DB8 100%)",
   "linear-gradient(90deg, #8B4DB8 0%, #4D7DB8 100%)",
   "linear-gradient(90deg, #4D7DB8 0%, #4DB8A0 100%)",
+  "linear-gradient(90deg, #4DB8A0 0%, #3ABF0A 100%)",
+  "linear-gradient(90deg, #3ABF0A 0%, #C4B239 100%)",
 ];
 
 function getCurrentTier(count: number) {

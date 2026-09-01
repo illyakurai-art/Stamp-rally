@@ -21,18 +21,22 @@ const TIERS: PrizeTier[] = [
   { stamps: 25, gacha: "8",   extra: "4" },
   { stamps: 30, gacha: "12",  extra: "6" },
   { stamps: 35, gacha: "16",  extra: "8" },
-  { stamps: 40, gacha: "Full collection", extra: "-", isAll: true },
+  { stamps: 40, gacha: "20",  extra: "10" },
+  { stamps: 45, gacha: "24",  extra: "12" },
+  { stamps: 50, gacha: "Full collection", extra: "-", isAll: true },
 ];
 
 const GRADIENTS = [
-  "linear-gradient(135deg, #3ABF0A 0%, #C4B239 100%)",
-  "linear-gradient(135deg, #C4B239 0%, #E8963E 100%)",
-  "linear-gradient(135deg, #E8963E 0%, #E85D3E 100%)",
-  "linear-gradient(135deg, #E85D3E 0%, #D93D3D 100%)",
-  "linear-gradient(135deg, #D93D3D 0%, #C44DB8 100%)",
-  "linear-gradient(135deg, #C44DB8 0%, #8B4DB8 100%)",
-  "linear-gradient(135deg, #8B4DB8 0%, #4D7DB8 100%)",
-  "linear-gradient(135deg, #4D7DB8 0%, #4DB8A0 100%)",
+  "linear-gradient(135deg, #3ABF0A 0%, #C4B239 100%)", // 5
+  "linear-gradient(135deg, #C4B239 0%, #E8963E 100%)", // 10
+  "linear-gradient(135deg, #E8963E 0%, #E85D3E 100%)", // 15
+  "linear-gradient(135deg, #E85D3E 0%, #D93D3D 100%)", // 20
+  "linear-gradient(135deg, #D93D3D 0%, #C44DB8 100%)", // 25
+  "linear-gradient(135deg, #C44DB8 0%, #8B4DB8 100%)", // 30
+  "linear-gradient(135deg, #8B4DB8 0%, #4D7DB8 100%)", // 35
+  "linear-gradient(135deg, #4D7DB8 0%, #4DB8A0 100%)", // 40
+  "linear-gradient(135deg, #4DB8A0 0%, #3ABF0A 100%)", // 45
+  "linear-gradient(135deg, #3ABF0A 0%, #C4B239 100%)", // 50 full
 ];
 
 function getCurrentTier(count: number) {
@@ -60,6 +64,8 @@ export function PrizeInfoCard({
   const { t } = useI18n();
   const [milestonesOpen, setMilestonesOpen] = useState(() => {
     if (typeof window === "undefined") return true;
+    // Sotto 5 timbri: mostra la tendina dei premi aperta di default
+    if (stampCount < 5) return true;
     return localStorage.getItem("stamp_rally_milestones_open") !== "false";
   });
 
@@ -78,8 +84,6 @@ export function PrizeInfoCard({
   const next = isMax ? null : TIERS[currentTier + 1];
   const hasPrize = currentTier > 0;
   const hasExtra = current.extra !== "-" && current.extra !== "0";
-  const earnedTiers = TIERS.slice(1, currentTier + 1);
-  const pastTiers = earnedTiers.slice(0, -1);
 
   const gradient = GRADIENTS[Math.max(0, currentTier - 1)] || GRADIENTS[0];
 
@@ -193,8 +197,7 @@ export function PrizeInfoCard({
               </button>
             </div>
 
-            {earnedTiers.length > 0 && (
-              <div
+            <div
                 className={`grid transition-all duration-300 ease-in-out ${
                   milestonesOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
                 }`}
@@ -205,119 +208,157 @@ export function PrizeInfoCard({
                       {t("milestones_reached")}
                     </p>
                     <div className="flex flex-col gap-[8px] mx-1.5 pb-1.5">
-                      {pastTiers.map((tier, i) => {
+                      {TIERS.slice(1).map((tier, i) => {
                         const tierGradient = GRADIENTS[Math.min(i, GRADIENTS.length - 1)];
                         const tierHasExtra = tier.extra !== "-" && tier.extra !== "0";
+                        const isReached = i < currentTier;
+                        const isCurrent = i === currentTier - 1 && hasPrize;
+                        const totalTiers = TIERS.length - 2;
+                        const totalFuture = totalTiers - currentTier + 1;
+                        const futureIndex = isReached ? 0 : i - currentTier;
+                        const tiersConquered = currentTier;
+                        const maxOpacityReduction = Math.max(0.1, 0.9 - tiersConquered * 0.1);
+                        const maxBlur = Math.max(0, 4 - tiersConquered * 0.4);
+                        const rowOpacity = isReached ? 1 : Math.max(1 - maxOpacityReduction, 1 - (futureIndex / totalFuture) * maxOpacityReduction);
+                        const rowBlur = isReached ? 0 : (futureIndex / totalFuture) * maxBlur;
                         return (
                           <div
                             key={tier.stamps}
-                            className="flex items-center justify-between rounded-lg border border-[#A58CA9]/45 px-3 py-2"
-                            style={{ background: `${tierBaseColor(tierGradient)}1A`, boxShadow: "3px 3px 0 rgba(0, 0, 0, 0.25)" }}
+                            className={`flex items-center justify-between rounded-lg px-3 ${isReached ? "py-[9px]" : "py-2"} ${
+                              isReached
+                                ? "border border-[#A58CA9]/45"
+                                : "border border-dashed border-[#A58CA9]/45"
+                            }`}
+                            style={{
+                              background: isReached ? `${tierBaseColor(tierGradient)}4D` : `${tierBaseColor(tierGradient)}1A`,
+                              boxShadow: isReached ? "6px 6px 0 rgba(0, 0, 0, 0.25)" : "3px 3px 0 rgba(0, 0, 0, 0.12)",
+                              opacity: rowOpacity,
+                              filter: `blur(${rowBlur}px)`,
+                            }}
                           >
                             <div className="flex items-center gap-2.5">
                               <div
                                 className="h-2 w-2 rounded-full flex-shrink-0"
                                 style={{ background: tierGradient }}
                               />
-                              <span className="text-sm font-medium text-foreground/70">
+                              <span className={`text-sm font-medium ${isReached ? "text-foreground/80" : "text-foreground/50"}`}>
                                 {tier.stamps} {t("stamps")}
                               </span>
                             </div>
-                            <div className="flex items-center gap-2 text-sm text-foreground/70">
+                            <div className={`flex items-center gap-2 text-sm ${isReached ? "text-foreground/80" : "text-foreground/50"}`}>
                               {tier.isAll ? (
-                                <span className="font-semibold text-foreground">{t("full_collection")}</span>
+                                <span className={`font-semibold ${isReached ? "text-foreground" : "text-foreground/60"}`}>{t("full_collection")}</span>
                               ) : (
                                 <>
-                                  <span className="font-semibold text-foreground">{tier.gacha} {t("gacha")}</span>
+                                  <span className={`font-semibold ${isReached ? "text-foreground" : "text-foreground/60"}`}>{tier.gacha} {t("gacha")}</span>
                                   {tierHasExtra && (
-                                    <span className="text-xs font-semibold text-foreground">
+                                    <span className={`text-xs font-semibold ${isReached ? "text-foreground" : "text-foreground/60"}`}>
                                       +{tier.extra} {t("extra_choice")}
                                     </span>
                                   )}
                                 </>
                               )}
+                              {isCurrent && (
+                                <span className="ml-0.5 rounded-full bg-[#D9C1E0] px-1.5 py-0.5 text-xs font-semibold text-foreground/80">
+                                  {t("current")}
+                                </span>
+                              )}
                             </div>
                           </div>
                         );
                       })}
-
-                      <div
-                        className="flex items-center justify-between rounded-lg border border-[#A58CA9]/45 px-3 py-2 -m-px"
-                        style={{ background: `${tierBaseColor(gradient)}4D`, boxShadow: "6px 6px 0 rgba(0, 0, 0, 0.25)" }}
-                      >
-                        <div className="flex items-center gap-2.5">
-                          <div
-                            className="h-2 w-2 rounded-full flex-shrink-0"
-                            style={{ background: gradient }}
-                          />
-                          <span className="text-sm font-medium">
-                            {current.stamps} {t("stamps")}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2 text-sm text-foreground/70">
-                          {current.isAll ? (
-                            <span className="font-semibold text-foreground">{t("full_collection")}</span>
-                          ) : (
-                            <>
-                              <span className="font-semibold text-foreground">{current.gacha} {t("gacha")}</span>
-                              {hasExtra && (
-                                <span className="text-xs font-semibold text-foreground">
-                                  +{current.extra} {t("extra_choice")}
-                                </span>
-                              )}
-                            </>
-                          )}
-                          <span className="ml-0.5 rounded-full bg-[#D9C1E0] px-1.5 py-0.5 text-xs font-semibold text-foreground/80">
-                            {t("current")}
-                          </span>
-                        </div>
-                      </div>
-
-                      {!isMax && next && (
-                        <div className="rounded-lg" style={{ boxShadow: "3px 3px 0 rgba(0, 0, 0, 0.12)" }}>
-                          <div className="stamp-notched flex items-center justify-between rounded-lg px-3 py-2">
-                            <div className="flex items-center gap-2.5">
-                              <div
-                                className="h-2 w-2 rounded-full flex-shrink-0"
-                                style={{ background: GRADIENTS[Math.min(currentTier, GRADIENTS.length - 1)] }}
-                              />
-                              <span className="text-sm font-medium text-foreground/50">
-                                {next.stamps} {t("stamps")}
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-2 text-sm text-foreground/50">
-                              {next.isAll ? (
-                                <span className="font-semibold text-foreground/60">{t("full_collection")}</span>
-                              ) : (
-                                <>
-                                  <span className="font-semibold text-foreground/60">{next.gacha} {t("gacha")}</span>
-                                  {next.extra !== "-" && next.extra !== "0" && (
-                                    <span className="text-xs font-semibold text-foreground/60">
-                                      +{next.extra} {t("extra_choice")}
-                                    </span>
-                                  )}
-                                </>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      )}
                     </div>
                   </div>
                 </div>
               </div>
-            )}
           </>
         ) : (
-          <div className="flex flex-col items-center py-4 text-center">
-            <div className="rounded-full bg-foreground/5 p-3 mb-3">
-              <Stamp className="h-6 w-6 text-foreground/30" />
+          <>
+            <div className="flex flex-col items-center py-4 text-center">
+              <div className="rounded-full bg-foreground/5 p-3 mb-3">
+                <Stamp className="h-6 w-6 text-foreground/30" />
+              </div>
+              <p className="font-semibold text-foreground/80 text-sm">{t("no_prize_yet")}</p>
+              <p className="mt-1 text-xs text-foreground/50">
+                {t("scan_5_stands")}
+              </p>
             </div>
-            <p className="font-semibold text-foreground/80 text-sm">{t("no_prize_yet")}</p>
-            <p className="mt-1 text-xs text-foreground/50">
-              {t("scan_5_stands")}
-            </p>
-          </div>
+
+            <button
+              type="button"
+              onClick={toggleMilestones}
+              className="w-full flex items-center justify-center gap-2 rounded-lg border border-foreground/15 bg-foreground/[0.03] px-3 py-2.5 text-xs font-medium text-foreground/60 hover:bg-foreground/[0.06] transition-colors"
+            >
+              {t("show_future_prizes")}
+              <ChevronDown className={`h-3.5 w-3.5 transition-transform ${milestonesOpen ? "rotate-180" : ""}`} />
+            </button>
+
+            <div
+              className={`grid transition-all duration-300 ease-in-out ${
+                milestonesOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+              }`}
+            >
+              <div className="min-h-0 overflow-hidden">
+                <div className="pt-3">
+                  <div className="flex flex-col gap-[8px] mx-1.5 pb-1.5">
+                    {TIERS.slice(1).map((tier, i) => {
+                      const tierGradient = GRADIENTS[Math.min(i, GRADIENTS.length - 1)];
+                      const tierHasExtra = tier.extra !== "-" && tier.extra !== "0";
+                      const isReached = i < currentTier;
+                      const totalTiers = TIERS.length - 2;
+                      const totalFuture = totalTiers - currentTier + 1;
+                      const futureIndex = isReached ? 0 : i - currentTier;
+                      const tiersConquered = currentTier;
+                      const maxOpacityReduction = Math.max(0.1, 0.9 - tiersConquered * 0.1);
+                      const maxBlur = Math.max(0, 4 - tiersConquered * 0.4);
+                      const rowOpacity = isReached ? 1 : Math.max(1 - maxOpacityReduction, 1 - (futureIndex / totalFuture) * maxOpacityReduction);
+                      const rowBlur = isReached ? 0 : (futureIndex / totalFuture) * maxBlur;
+                      return (
+                        <div
+                          key={tier.stamps}
+                          className={`flex items-center justify-between rounded-lg px-3 py-2 ${
+                            isReached
+                              ? "border border-[#A58CA9]/45"
+                              : "border border-dashed border-[#A58CA9]/45"
+                          }`}
+                          style={{
+                            background: isReached ? `${tierBaseColor(tierGradient)}4D` : `${tierBaseColor(tierGradient)}1A`,
+                            boxShadow: isReached ? "6px 6px 0 rgba(0, 0, 0, 0.25)" : "3px 3px 0 rgba(0, 0, 0, 0.12)",
+                            opacity: rowOpacity,
+                            filter: `blur(${rowBlur}px)`,
+                          }}
+                        >
+                          <div className="flex items-center gap-2.5">
+                            <div
+                              className="h-2 w-2 rounded-full flex-shrink-0"
+                              style={{ background: tierGradient }}
+                            />
+                            <span className={`text-sm font-medium ${isReached ? "text-foreground/80" : "text-foreground/50"}`}>
+                              {tier.stamps} {t("stamps")}
+                            </span>
+                          </div>
+                          <div className={`flex items-center gap-2 text-sm ${isReached ? "text-foreground/80" : "text-foreground/50"}`}>
+                            {tier.isAll ? (
+                              <span className={`font-semibold ${isReached ? "text-foreground" : "text-foreground/60"}`}>{t("full_collection")}</span>
+                            ) : (
+                              <>
+                                <span className={`font-semibold ${isReached ? "text-foreground" : "text-foreground/60"}`}>{tier.gacha} {t("gacha")}</span>
+                                {tierHasExtra && (
+                                  <span className={`text-xs font-semibold ${isReached ? "text-foreground" : "text-foreground/60"}`}>
+                                    +{tier.extra} {t("extra_choice")}
+                                  </span>
+                                )}
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </>
         )}
       </div>
     </div>

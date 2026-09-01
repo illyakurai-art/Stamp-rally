@@ -268,37 +268,17 @@ export function ProtectedDashboard() {
           <br />
           <span className="text-nowrap">{t("welcome_event_name")}</span>
         </h1>
-        <Link
-          href="/mappa"
-          onClick={(e) => {
-            e.preventDefault();
-            setMapZoom(true);
-            setTimeout(() => {
-              router.push("/mappa");
-            }, 260);
-          }}
-          className="flex h-26 w-26 shrink-0 items-center justify-center"
-        >
-          <img
-            src="/map-icon.png"
-            alt={t("map")}
-            className={`h-24 w-24 rounded-md border border-foreground/20 object-cover transition-all duration-300 ease-out ${
-              mapZoom ? "scale-[3] opacity-0" : ""
-            }`}
-            style={{ boxShadow: "6px 6px 0 rgba(0, 0, 0, 0.25)" }}
-          />
-        </Link>
       </div>
 
       <div className="mt-8">
         <PrizeInfoCard stampCount={activeStampsCount} nickname={nickname} userDisplayId={userDisplayId} kkUnlocked={kkLabel} />
       </div>
 
-      <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
+      <div className="mt-8 flex flex-col gap-3 items-center">
         {qrMode ? (
           <Link
             href="/scan"
-            className="w-full min-h-12 rounded-md bg-foreground px-5 py-4 text-center text-sm font-medium text-background transition-opacity hover:opacity-90 flex items-center justify-center gap-3 sm:w-auto sm:min-w-[340px]"
+            className="w-full min-h-12 rounded-md bg-foreground px-5 py-4 text-center text-sm font-medium text-background transition-opacity hover:opacity-90 flex items-center justify-start gap-3 sm:w-auto sm:min-w-[340px]"
             style={{ boxShadow: "6px 6px 0 rgba(0, 0, 0, 0.25)" }}
           >
             <QrCode className="h-12 w-12 shrink-0" strokeWidth={1.2} />
@@ -311,7 +291,7 @@ export function ProtectedDashboard() {
         ) : (
           <button
             aria-disabled="true"
-            className="w-full min-h-12 rounded-md bg-[#996C9E] px-5 py-4 text-center text-sm font-medium text-white flex items-center justify-center gap-3 cursor-not-allowed select-none sm:w-auto sm:min-w-[340px]"
+            className="w-full min-h-12 rounded-md bg-[#996C9E] px-5 py-4 text-center text-sm font-medium text-white flex items-center justify-start gap-3 cursor-not-allowed select-none sm:w-auto sm:min-w-[340px]"
             style={{ boxShadow: "6px 6px 0 rgba(0, 0, 0, 0.25)" }}
           >
             <img src="/nfc-icon.png" alt="" className="h-12 w-12 shrink-0 object-contain" style={{ filter: "brightness(0) invert(1)" }} />
@@ -324,6 +304,33 @@ export function ProtectedDashboard() {
             </span>
           </button>
         )}
+        <Link
+          href="/mappa"
+          onClick={(e) => {
+            e.preventDefault();
+            setMapZoom(true);
+            setTimeout(() => {
+              router.push("/mappa");
+            }, 260);
+          }}
+          className="w-full min-h-12 rounded-md bg-foreground px-5 py-4 text-center text-sm font-medium text-background transition-opacity hover:opacity-90 flex items-center justify-start gap-3 sm:w-auto sm:min-w-[340px]"
+          style={{ boxShadow: "6px 6px 0 rgba(0, 0, 0, 0.25)" }}
+        >
+          <img
+            src="/map-icon.png"
+            alt={t("map")}
+            className={`h-[72px] w-[72px] shrink-0 rounded-md object-cover transition-all duration-300 ease-out ${
+              mapZoom ? "scale-[3] opacity-0" : ""
+            }`}
+          />
+          <span className="text-center leading-snug">
+            Apri la Mappa
+            <br />
+            per conoscere la posizione
+            <br />
+            degli Artisti
+          </span>
+        </Link>
       </div>
 
       {artists.length > 0 && (

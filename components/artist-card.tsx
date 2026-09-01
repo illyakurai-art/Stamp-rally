@@ -30,7 +30,7 @@ export function ArtistCard({ artist }: { artist: Artist }) {
               alt={artist.name}
               loading="lazy"
               decoding="async"
-              className="tile-fade h-full w-full bg-white object-cover"
+              className={`tile-fade h-full w-full bg-white ${artist.display_id === "A0031" ? "object-contain scale-95" : "object-cover"}`}
             />
           ) : (
             <div className="flex h-full w-full items-center justify-center bg-muted text-3xl font-bold text-foreground/30">

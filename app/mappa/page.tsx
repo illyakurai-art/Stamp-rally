@@ -105,10 +105,7 @@ export default function MappaPage() {
   return (
     <main className="min-h-screen px-4 py-6 sm:px-6">
       <div className="mx-auto w-full max-w-5xl">
-        <Link href="/protected" className="text-sm font-medium text-foreground/70 inline-flex items-center gap-1">
-          <ArrowLeft className="h-4 w-4" /> {t("back_to_my_area")}
-        </Link>
-        <h1 className="text-3xl font-bold tracking-tight mt-4">{t("map")}</h1>
+        <h1 className="text-3xl font-bold tracking-tight">{t("map")}</h1>
       </div>
       <div className="mt-6 mx-auto w-full max-w-5xl">
         <TransformWrapper
@@ -209,6 +206,16 @@ export default function MappaPage() {
             </>
           )}
         </TransformWrapper>
+      </div>
+      <div className="mt-6 mx-auto w-full max-w-5xl flex justify-center">
+        <Link
+          href="/protected"
+          className="w-full min-h-12 rounded-md bg-foreground px-5 py-4 text-center text-sm font-medium text-background transition-opacity hover:opacity-90 flex items-center justify-center gap-3 sm:w-auto sm:min-w-[340px]"
+          style={{ boxShadow: "6px 6px 0 rgba(0, 0, 0, 0.25)" }}
+        >
+          <ArrowLeft className="h-5 w-5 shrink-0" />
+          <span>{t("back_to_my_area")}</span>
+        </Link>
       </div>
     </main>
   );

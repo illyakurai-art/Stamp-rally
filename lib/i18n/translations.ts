@@ -49,6 +49,7 @@ export const translations = {
   "next_milestone": { ITA: "Prossimo:", ENG: "Next:" },
   "no_prize_yet": { ITA: "Nessun premio ancora", ENG: "No prize yet" },
   "scan_5_stands": { ITA: "Scansiona almeno 5 stand per sbloccare il primo premio.", ENG: "Scan at least 5 stands to unlock your first prize." },
+  "show_future_prizes": { ITA: "Vedi i premi disponibili", ENG: "See available prizes" },
   "gacha": { ITA: "gacha", ENG: "gacha" },
 
   // QR / Scan

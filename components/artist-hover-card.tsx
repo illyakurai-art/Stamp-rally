@@ -1,15 +1,10 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, useRef, useEffect } from "react"
 import Link from "next/link"
 import { MapPin, Link2, Check, HelpCircle, Gift, ChevronDown } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useI18n } from "@/lib/i18n/context"
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@/components/ui/hover-card"
 
 export interface Artist {
   id: string
@@ -46,6 +41,19 @@ export function ArtistHoverCard({
   const { t } = useI18n()
   const [open, setOpen] = useState(false)
   const [prizeOpen, setPrizeOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!open) return
+    function handleClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false)
+        setPrizeOpen(false)
+      }
+    }
+    document.addEventListener("mousedown", handleClick)
+    return () => document.removeEventListener("mousedown", handleClick)
+  }, [open])
 
   // Genera le iniziali dall'artista
   const initials = artist.name
@@ -61,31 +69,26 @@ export function ArtistHoverCard({
   const instagram = artist.instagram
 
   return (
-    <HoverCard
-      open={open}
-      onOpenChange={(o) => {
-        setOpen(o)
-        if (!o) setPrizeOpen(false)
-      }}
-      openDelay={0}
-      closeDelay={150}
-    >
-      <HoverCardTrigger
-        asChild
+    <div ref={ref} className="relative">
+      <div
         onClick={(e) => {
           e.stopPropagation()
           setOpen((prev) => !prev)
         }}
+        className="cursor-pointer"
       >
         {children}
-      </HoverCardTrigger>
+      </div>
 
-      <HoverCardContent
-        align={align}
-        side={side}
-        className="comic-pop comic-bubble w-80 bg-foreground text-background border-2 border-white/60 p-4 rounded-2xl shadow-2xl z-50"
-        onContextMenu={(e) => e.preventDefault()}
-      >
+      {open && (
+        <div
+          className={`absolute z-50 w-80 comic-pop comic-bubble bg-foreground text-background border-2 border-white/60 p-4 rounded-2xl shadow-2xl ${
+            side === "top" ? "bottom-full mb-2" : "top-full mt-2"
+          } ${
+            align === "start" ? "left-0" : align === "end" ? "right-0" : "left-1/2 -translate-x-1/2"
+          }`}
+          onContextMenu={(e) => e.preventDefault()}
+        >
         <div className="flex space-x-4">
           {/* Avatar dell'artista */}
           <Avatar className="h-12 w-12 border border-white/15 shrink-0">
@@ -226,7 +229,8 @@ export function ArtistHoverCard({
             )}
           </div>
         </div>
-      </HoverCardContent>
-    </HoverCard>
+        </div>
+      )}
+    </div>
   )
 }

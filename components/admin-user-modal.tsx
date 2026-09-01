@@ -10,14 +10,16 @@ import type { RedeemResult } from "@/app/actions/admin-redeem";
 import { getStampsGradient } from "@/lib/stamp-gradient";
 
 const TIERS = [
-  { stamps: 40, label: "Full collection", gacha: null, extra: null },
-  { stamps: 35, gacha: 16, extra: 8, label: "16 gacha + 8 extra" },
-  { stamps: 30, gacha: 12, extra: 6, label: "12 gacha + 6 extra" },
-  { stamps: 25, gacha: 8,  extra: 4, label: "8 gacha + 4 extra"  },
-  { stamps: 20, gacha: 6,  extra: 3, label: "6 gacha + 3 extra"  },
-  { stamps: 15, gacha: 4,  extra: 2, label: "4 gacha + 2 extra"  },
-  { stamps: 10, gacha: 2,  extra: 1, label: "2 gacha + 1 extra"  },
-  { stamps: 5,  gacha: 1,  extra: 0, label: "1 gacha"            },
+  { stamps: 50, label: "Full collection", gacha: null, extra: null },
+  { stamps: 45, gacha: 24, extra: 12, label: "24 gacha + 12 extra" },
+  { stamps: 40, gacha: 20, extra: 10, label: "20 gacha + 10 extra" },
+  { stamps: 35, gacha: 16, extra: 8,  label: "16 gacha + 8 extra"  },
+  { stamps: 30, gacha: 12, extra: 6,  label: "12 gacha + 6 extra"  },
+  { stamps: 25, gacha: 8,  extra: 4,  label: "8 gacha + 4 extra"   },
+  { stamps: 20, gacha: 6,  extra: 3,  label: "6 gacha + 3 extra"   },
+  { stamps: 15, gacha: 4,  extra: 2,  label: "4 gacha + 2 extra"   },
+  { stamps: 10, gacha: 2,  extra: 1,  label: "2 gacha + 1 extra"   },
+  { stamps: 5,  gacha: 1,  extra: 0,  label: "1 gacha"             },
 ];
 
 function getTier(n: number) {
