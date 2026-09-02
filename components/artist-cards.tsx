@@ -121,7 +121,7 @@ function PairArtistCard({ artists }: { artists: Artist[] }) {
         className={`group relative aspect-square w-full rounded-2xl content-visibility-auto transition-[transform,box-shadow] hover:scale-105 hover:shadow-lg cursor-pointer [touch-action:pan-y] ${
           merged.scanned
             ? "gold-ring border-transparent shadow-amber-500/20"
-            : scannedCount > 0
+            : activeArtist.scanned
               ? "scanned-ring border-transparent shadow-green-500/20"
               : ""
         }`}
