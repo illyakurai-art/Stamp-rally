@@ -33,7 +33,7 @@ export const translations = {
   "deleting": { ITA: "Eliminazione...", ENG: "Deleting..." },
 
   // Dashboard
-  "welcome_prefix": { ITA: "Benvenuto al", ENG: "Welcome to" },
+  "welcome_prefix": { ITA: "Benvenuto alla", ENG: "Welcome to" },
   "welcome_event_name": { ITA: "Origin of the Heart stamp-rally", ENG: "Origin of the Heart stamp-rally" },
   "stamps_collected": { ITA: "Timbri raccolti", ENG: "Stamps collected" },
   "stamps_missing": { ITA: "mancanti", ENG: "missing" },
