@@ -284,23 +284,22 @@ export function ProtectedDashboard() {
         {qrMode ? (
           <Link
             href="/scan"
-            className="w-full min-h-12 rounded-md bg-foreground px-5 py-4 text-center text-sm font-medium text-background transition-opacity hover:opacity-90 flex items-center justify-start gap-3 sm:w-auto sm:min-w-[340px]"
+            className="w-full min-h-12 rounded-md bg-foreground px-5 py-4 text-center text-sm font-medium text-background transition-opacity hover:opacity-90 flex items-center justify-between gap-3 sm:w-auto sm:min-w-[340px]"
             style={{ boxShadow: "6px 6px 0 rgba(0, 0, 0, 0.25)" }}
           >
-            <QrCode className="h-12 w-12 shrink-0" strokeWidth={1.2} />
             <span className="text-center leading-snug">
               {t("scan_stand_qr_line1")}
               <br />
               {t("scan_stand_qr_line2")}
             </span>
+            <QrCode className="h-12 w-12 shrink-0" strokeWidth={1.2} />
           </Link>
         ) : (
           <button
             aria-disabled="true"
-            className="w-full min-h-12 rounded-md bg-[#996C9E] px-5 py-4 text-center text-sm font-medium text-white flex items-center justify-start gap-3 cursor-not-allowed select-none sm:w-auto sm:min-w-[340px]"
+            className="w-full min-h-12 rounded-md bg-[#996C9E] px-5 py-4 text-center text-sm font-medium text-white flex items-center justify-between gap-3 cursor-not-allowed select-none sm:w-auto sm:min-w-[340px]"
             style={{ boxShadow: "6px 6px 0 rgba(0, 0, 0, 0.25)" }}
           >
-            <img src="/nfc-icon.png" alt="" className="h-12 w-12 shrink-0 object-contain" style={{ filter: "brightness(0) invert(1)" }} />
             <span className="text-center leading-snug">
               {t("scan_nfc_line1")}
               <br />
@@ -308,6 +307,7 @@ export function ProtectedDashboard() {
               <br />
               {t("scan_nfc_line3")}
             </span>
+            <img src="/nfc-icon.png" alt="" className="h-12 w-12 shrink-0 object-contain" style={{ filter: "brightness(0) invert(1)" }} />
           </button>
         )}
         <Link
@@ -319,16 +319,9 @@ export function ProtectedDashboard() {
               router.push("/mappa");
             }, 260);
           }}
-          className="w-full min-h-12 rounded-md bg-foreground px-5 py-4 text-center text-sm font-medium text-background transition-opacity hover:opacity-90 flex items-center justify-start gap-3 sm:w-auto sm:min-w-[340px]"
+          className="w-full min-h-12 rounded-md bg-foreground px-5 py-4 text-center text-sm font-medium text-background transition-opacity hover:opacity-90 flex items-center justify-between gap-3 sm:w-auto sm:min-w-[340px]"
           style={{ boxShadow: "6px 6px 0 rgba(0, 0, 0, 0.25)" }}
         >
-          <img
-            src="/map-icon.png"
-            alt={t("map")}
-            className={`h-[72px] w-[72px] shrink-0 rounded-md object-cover transition-all duration-300 ease-out ${
-              mapZoom ? "scale-[3] opacity-0" : ""
-            }`}
-          />
           <span className="text-center leading-snug">
             Apri la Mappa
             <br />
@@ -336,6 +329,13 @@ export function ProtectedDashboard() {
             <br />
             degli Artisti
           </span>
+          <img
+            src="/map-icon.png"
+            alt={t("map")}
+            className={`h-[72px] w-[72px] shrink-0 rounded-md object-cover transition-all duration-300 ease-out ${
+              mapZoom ? "scale-[3] opacity-0" : ""
+            }`}
+          />
         </Link>
       </div>
 
