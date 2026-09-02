@@ -178,7 +178,7 @@ export function RecentRedeemsList({ initial }: { initial: RecentRedeem[] }) {
                       className="h-2 w-2 rounded-full shrink-0"
                       style={{
                         background: TIER_COLORS[tc.stamps],
-                        opacity: tc.count > 0 ? ratio : 0.2,
+                        opacity: tc.count > 0 ? ratio : 0.5,
                       }}
                     />
                     <span className={tc.count > 0 ? "text-foreground/80" : "text-foreground/40"}>
