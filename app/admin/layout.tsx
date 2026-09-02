@@ -16,24 +16,48 @@ export default async function AdminLayout({
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Senza sessione renderizza i children (es. pagina di login admin)
   if (!user) {
     return <main className="min-h-screen flex flex-col">{children}</main>;
   }
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("nickname, role")
-    .eq("id", user.id)
-    .maybeSingle();
+  // Estrae il ruolo dagli app_metadata (gestito dal nostro hook)
+  const jwtRole = (user as any).app_metadata?.role ?? null;
+  
+  // Estrae il nome dell'utente dai metadati del JWT (evita query al DB se disponibile)
+  const metaName = user.user_metadata?.nickname ?? user.user_metadata?.full_name ?? "Admin/Staff";
 
-  if (profile?.role !== "staff") {
-    redirect("/admin/login?error=unauthorized");
+  let nickname = metaName;
+  let hasAccess = jwtRole === "admin" || jwtRole === "staff";
+
+  // Se il ruolo non è presente nel JWT (es. prima del refresh del token), interroga il DB
+  if (!jwtRole) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("nickname, role")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if (profile?.role !== "admin" && profile?.role !== "staff") {
+      redirect("/admin/login?error=unauthorized");
+    }
+    nickname = profile?.nickname ?? metaName;
+  } else {
+    // Se il ruolo nel JWT non è autorizzato, blocca l'accesso
+    if (!hasAccess) {
+      redirect("/admin/login?error=unauthorized");
+    }
+    
+    // Se il nickname non era nei metadati del JWT, facciamo una query leggera di fallback
+    if (nickname === "Admin/Staff") {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("nickname")
+        .eq("id", user.id)
+        .maybeSingle();
+      nickname = profile?.nickname ?? "Admin/Staff";
+    }
   }
 
-  // Se siamo sulla pagina di login admin, nascondi la nav (ma l'utente è
-  // già autenticato, quindi mostriamo lo stesso la nav per evitare che
-  // su Android il header x-pathname non venga propagato correttamente).
   const pathname = (await headers()).get("x-pathname") ?? "";
   const isLoginPage = pathname === "/admin/login";
 
@@ -43,7 +67,7 @@ export default async function AdminLayout({
 
   return (
     <main className="min-h-screen flex flex-col">
-      <AdminNav nickname={profile.nickname} />
+      <AdminNav nickname={nickname} />
       <AdminRealtimeRefresh />
       <div className="flex-1 bg-foreground/[0.02]">
         {children}

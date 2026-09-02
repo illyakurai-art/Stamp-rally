@@ -1,33 +1,35 @@
 import { createClient } from "@/lib/supabase/server";
-import { Users, Stamp, Trophy, Activity, type LucideIcon } from "lucide-react";
+import { Users, Stamp, Trophy, Activity } from "lucide-react";
 import { fetchRecentRedeems, fetchRecentStamps } from "@/lib/admin-recent";
 import {
   RecentRedeemsList,
   RecentStampsList,
 } from "@/components/admin-recent-lists";
 
-async function getStats(supabase: Awaited<ReturnType<typeof createClient>>) {
-  const [usersRes, stampsRes, redeemsRes] = await Promise.all([
+// Semplificato rimuovendo la funzione getStats separata per ottimizzare il Promise.all unico
+export default async function AdminDashboardPage() {
+  const supabase = await createClient();
+
+  // Eseguiamo TUTTE le query in parallelo in un unico livello di waterfall
+  const [
+    usersRes, 
+    stampsRes, 
+    redeemsRes, 
+    recentStamps, 
+    recentRedeems
+  ] = await Promise.all([
     supabase.from("profiles").select("id", { count: "exact", head: true }).eq("role", "visitor"),
     supabase.from("stamps").select("id", { count: "exact", head: true }),
     supabase.from("redeems").select("id", { count: "exact", head: true }),
+    fetchRecentStamps(supabase, { offset: 0, limit: 10 }),
+    fetchRecentRedeems(supabase, { offset: 0, limit: 10 }),
   ]);
 
-  return {
+  const stats = {
     totalUsers: usersRes.count ?? 0,
     totalStamps: stampsRes.count ?? 0,
     totalRedeems: redeemsRes.count ?? 0,
   };
-}
-
-export default async function AdminDashboardPage() {
-  const supabase = await createClient();
-  const stats = await getStats(supabase);
-
-  const [recentStamps, recentRedeems] = await Promise.all([
-    fetchRecentStamps(supabase, { offset: 0, limit: 10 }),
-    fetchRecentRedeems(supabase, { offset: 0, limit: 10 }),
-  ]);
 
   return (
     <section className="mx-auto w-full max-w-6xl px-5 py-10">

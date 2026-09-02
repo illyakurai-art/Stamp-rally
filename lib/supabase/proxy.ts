@@ -64,33 +64,49 @@ export async function updateSession(request: NextRequest) {
 
   // --- Logica basata sul ruolo per utenti autenticati ---
   if (user) {
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", user.sub)
-      .maybeSingle();
+    // Legge il ruolo dal JWT app_metadata (iniettato dall'hook) o da user_metadata
+    let role =
+      (user as any).app_metadata?.role ??
+      (user as any).user_metadata?.role ??
+      null;
 
-    const isStaff = profile?.role === "staff";
+    // Fallback: se il ruolo non è ancora presente nel JWT (es. vecchio login attivo),
+    // interroghiamo il database solo se l'utente sta navigando una rotta protetta.
+    if (!role && (
+      pathname.startsWith("/admin") ||
+      pathname.startsWith("/protected") ||
+      pathname === "/"
+    )) {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", user.sub)
+        .maybeSingle();
+      role = profile?.role ?? null;
+    }
 
-    if (isStaff && pathname.startsWith("/protected")) {
+    // Definiamo i livelli di autorizzazione abilitati alla sezione admin
+    const hasAdminAccess = role === "admin" || role === "staff";
+
+    if (hasAdminAccess && pathname.startsWith("/protected")) {
       const url = request.nextUrl.clone();
       url.pathname = "/admin";
       return NextResponse.redirect(url);
     }
 
-    if (isStaff && pathname === "/") {
+    if (hasAdminAccess && pathname === "/") {
       const url = request.nextUrl.clone();
       url.pathname = "/admin";
       return NextResponse.redirect(url);
     }
 
-    if (isStaff && pathname.startsWith("/admin/login")) {
+    if (hasAdminAccess && pathname.startsWith("/admin/login")) {
       const url = request.nextUrl.clone();
       url.pathname = "/admin";
       return NextResponse.redirect(url);
     }
 
-    if (!isStaff && pathname.startsWith("/admin") && !pathname.startsWith("/admin/login")) {
+    if (!hasAdminAccess && pathname.startsWith("/admin") && !pathname.startsWith("/admin/login")) {
       const url = request.nextUrl.clone();
       url.pathname = "/admin/login";
       url.searchParams.set("error", "unauthorized");

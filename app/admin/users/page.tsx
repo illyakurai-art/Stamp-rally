@@ -6,53 +6,55 @@ import { getEffectiveStampCount, SECRET_PAIRS } from "@/lib/secret-pairs";
 async function UsersContent() {
   const supabase = await createClient();
 
-  const { data: profiles } = await supabase
-    .from("profiles")
-    .select("id, nickname, display_id, created_at")
-    .eq("role", "visitor")
-    .order("nickname", { ascending: true });
+  // LIVELLO 1: Recuperiamo profili e artisti in parallelo
+  const [profilesRes, artistsRes] = await Promise.all([
+    supabase
+      .from("profiles")
+      .select("id, nickname, display_id, created_at")
+      .eq("role", "visitor")
+      .order("nickname", { ascending: true }),
+    supabase
+      .from("artists")
+      .select("display_id, name")
+  ]);
 
-  const displayIds = (profiles ?? [])
+  const profiles = profilesRes.data ?? [];
+  const allArtists = artistsRes.data ?? [];
+
+  const displayIds = profiles
     .map((u) => u.display_id)
     .filter(Boolean) as string[];
 
-  const { data: stampCounts } = displayIds.length > 0
-    ? await supabase
-        .rpc("get_stamp_counts_by_users", { p_user_ids: displayIds })
-    : { data: [] };
+  // LIVELLO 2: Recuperiamo i timbri e i conteggi rpc in parallelo (solo se ci sono utenti)
+  const [stampCountsRes, allStampsRes] = displayIds.length > 0
+    ? await Promise.all([
+        supabase.rpc("get_stamp_counts_by_users", { p_user_ids: displayIds }),
+        supabase.from("stamps").select("user_id, artist_id").in("user_id", displayIds)
+      ])
+    : [{ data: [] }, { data: [] }];
 
-  const stampsByUser = (stampCounts as { user_id: string; count: number }[] ?? []).reduce<Record<string, number>>(
-    (acc, s) => {
-      acc[s.user_id] = s.count;
-      return acc;
-    },
-    {}
-  );
+  const stampCounts = stampCountsRes.data as { user_id: string; count: number }[] ?? [];
+  const allStamps = allStampsRes.data ?? [];
 
-  // Fetch all stamps to get artist names for effective count
-  const { data: allStamps } = displayIds.length > 0
-    ? await supabase
-        .from("stamps")
-        .select("user_id, artist_id")
-        .in("user_id", displayIds)
-    : { data: [] };
+  // Mappatura rapida degli artisti
+  const artistNameById = new Map(allArtists.map((a) => [a.display_id, a.name]));
 
-  const { data: allArtists } = await supabase
-    .from("artists")
-    .select("display_id, name");
+  // Raggruppamento dei timbri per utente
+  const stampsByUser = stampCounts.reduce<Record<string, number>>((acc, s) => {
+    acc[s.user_id] = s.count;
+    return acc;
+  }, {});
 
-  const artistNameById = new Map((allArtists ?? []).map((a) => [a.display_id, a.name]));
-
-  // Group stamps by user and calculate effective counts
   const stampsByUserGrouped = new Map<string, string[]>();
-  for (const stamp of allStamps ?? []) {
+  for (const stamp of allStamps) {
     const names = stampsByUserGrouped.get(stamp.user_id) ?? [];
     const artistName = artistNameById.get(stamp.artist_id);
     if (artistName) names.push(artistName);
     stampsByUserGrouped.set(stamp.user_id, names);
   }
 
-  const users: UserEntry[] = (profiles ?? []).map((u) => {
+  // Costruzione della lista utenti finale
+  const users: UserEntry[] = profiles.map((u) => {
     const rawCount = stampsByUser[u.display_id ?? ""] ?? 0;
     const scannedNames = stampsByUserGrouped.get(u.display_id ?? "") ?? [];
     const kkUnlocked = SECRET_PAIRS.some((pair) =>
