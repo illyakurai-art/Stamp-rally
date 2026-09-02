@@ -319,7 +319,7 @@ export function ProtectedDashboard() {
               router.push("/mappa");
             }, 260);
           }}
-          className="relative w-full min-h-12 rounded-md bg-foreground px-5 py-4 text-sm font-medium text-background transition-opacity hover:opacity-90 flex items-center justify-center gap-3 sm:w-auto sm:min-w-[340px]"
+          className="relative w-full min-h-12 rounded-md bg-foreground px-5 py-4 text-sm font-medium text-background transition-all hover:opacity-90 flex items-center justify-center gap-3 sm:w-auto sm:min-w-[340px] active:translate-x-[3px] active:translate-y-[3px] active:shadow-[3px_3px_0_rgba(0,0,0,0.25)]"
           style={{ boxShadow: "6px 6px 0 rgba(0, 0, 0, 0.25)" }}
         >
           <span className="text-center leading-snug">
