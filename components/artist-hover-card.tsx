@@ -50,13 +50,25 @@ export function ArtistHoverCard({
   const [fixedPos, setFixedPos] = useState<{ x: number; y: number } | null>(null)
 
   useEffect(() => {
-    if (!open || !fixed) return
+    if (!open || !fixed || !ref.current) return
+    const rect = ref.current.getBoundingClientRect()
     const elW = 320
     const elH = 400
-    setFixedPos({
-      x: (window.innerWidth - elW) / 2,
-      y: (window.innerHeight - elH) / 2,
-    })
+    const gap = 8
+    let x = rect.left + rect.width / 2 - elW / 2
+    if (x < 8) x = 8
+    if (x + elW > window.innerWidth - 8) x = window.innerWidth - elW - 8
+    const spaceAbove = rect.top
+    const spaceBelow = window.innerHeight - rect.bottom
+    let y: number
+    if (spaceBelow >= elH + gap) {
+      y = rect.bottom + gap
+    } else if (spaceAbove >= elH + gap) {
+      y = rect.top - elH - gap
+    } else {
+      y = spaceBelow >= spaceAbove ? rect.bottom + gap : rect.top - elH - gap
+    }
+    setFixedPos({ x, y })
   }, [open, fixed])
 
   useEffect(() => {
