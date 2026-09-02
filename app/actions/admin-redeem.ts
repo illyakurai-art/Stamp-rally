@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import { getEffectiveStampCount } from "@/lib/secret-pairs";
 
 export interface RedeemResult {
   success: boolean;
@@ -52,7 +53,21 @@ export async function adminRedeem(userId: string): Promise<RedeemResult> {
     .order("stamped_at", { ascending: true });
 
   console.log("[adminRedeem] stamps fetched:", stamps?.length, "error:", stampsError?.message);
-  const stampCount = stamps?.length ?? 0;
+
+  // Get artist names for effective count calculation
+  const artistIds = (stamps ?? []).map((s) => s.artist_id);
+  const { data: stampArtists } = await supabase
+    .from("artists")
+    .select("display_id, name")
+    .in("display_id", artistIds);
+
+  const artistNameById = new Map((stampArtists ?? []).map((a) => [a.display_id, a.name]));
+  const scannedNames = artistIds
+    .map((id) => artistNameById.get(id))
+    .filter((n): n is string => !!n);
+
+  const rawCount = stamps?.length ?? 0;
+  const stampCount = getEffectiveStampCount(rawCount, scannedNames);
 
   // Fascia premio massima
   const { data: tier, error: tierError } = await supabase

@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { AdminUsersList, type UserEntry } from "@/components/admin-users-list";
+import { getEffectiveStampCount } from "@/lib/secret-pairs";
 
 async function UsersContent() {
   const supabase = await createClient();
@@ -28,13 +29,40 @@ async function UsersContent() {
     {}
   );
 
-  const users: UserEntry[] = (profiles ?? []).map((u) => ({
-    id: u.id,
-    nickname: u.nickname,
-    display_id: u.display_id,
-    created_at: u.created_at,
-    stamps: stampsByUser[u.display_id ?? ""] ?? 0,
-  }));
+  // Fetch all stamps to get artist names for effective count
+  const { data: allStamps } = displayIds.length > 0
+    ? await supabase
+        .from("stamps")
+        .select("user_id, artist_id")
+        .in("user_id", displayIds)
+    : { data: [] };
+
+  const { data: allArtists } = await supabase
+    .from("artists")
+    .select("display_id, name");
+
+  const artistNameById = new Map((allArtists ?? []).map((a) => [a.display_id, a.name]));
+
+  // Group stamps by user and calculate effective counts
+  const stampsByUserGrouped = new Map<string, string[]>();
+  for (const stamp of allStamps ?? []) {
+    const names = stampsByUserGrouped.get(stamp.user_id) ?? [];
+    const artistName = artistNameById.get(stamp.artist_id);
+    if (artistName) names.push(artistName);
+    stampsByUserGrouped.set(stamp.user_id, names);
+  }
+
+  const users: UserEntry[] = (profiles ?? []).map((u) => {
+    const rawCount = stampsByUser[u.display_id ?? ""] ?? 0;
+    const scannedNames = stampsByUserGrouped.get(u.display_id ?? "") ?? [];
+    return {
+      id: u.id,
+      nickname: u.nickname,
+      display_id: u.display_id,
+      created_at: u.created_at,
+      stamps: getEffectiveStampCount(rawCount, scannedNames),
+    };
+  });
 
   return (
     <>

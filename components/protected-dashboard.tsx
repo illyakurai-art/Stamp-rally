@@ -10,7 +10,7 @@ import { ArtistCards } from "@/components/artist-cards";
 import { PrizeInfoCard } from "@/components/prize-info-card";
 import { RedeemNotification } from "@/components/redeem-notification";
 import { StampRealtimeRefresh } from "@/components/stamp-realtime-refresh";
-import { SECRET_PAIRS } from "@/lib/secret-pairs";
+import { SECRET_PAIRS, getEffectiveStampCount } from "@/lib/secret-pairs";
 import { ChevronDown, QrCode } from "lucide-react";
 
 type ArtistData = {
@@ -176,7 +176,11 @@ export function ProtectedDashboard() {
       setNickname(nick);
       setUserDisplayId(profileDisplayId);
       userDisplayIdRef.current = profileDisplayId ?? null;
-      setActiveStampsCount(stampsResult.data?.length ?? 0);
+
+      const rawCount = stampsResult.data?.length ?? 0;
+      const scannedNames = artistList.filter((a) => a.scanned).map((a) => a.name);
+      setActiveStampsCount(getEffectiveStampCount(rawCount, scannedNames));
+
       setArtists(artistList);
       setLoading(false);
     });
@@ -200,8 +204,6 @@ export function ProtectedDashboard() {
         .select("id", { count: "exact", head: true })
         .in("user_id", userIdsToMatch);
 
-      setActiveStampsCount(count ?? 0);
-
       // Marca scanned sui nuovi artisti senza rifetchare l'intera lista
       if (artists.length > 0) {
         const { data: newStamps } = await supabase
@@ -218,13 +220,16 @@ export function ProtectedDashboard() {
             stampedAtById.set(key, s.stamped_at ?? null);
           }
         }
-        setArtists((prev) =>
-          prev.map((a) => ({
+        setArtists((prev) => {
+          const updated = prev.map((a) => ({
             ...a,
             scanned: scannedIds.has(a.id) || (a.display_id ? scannedIds.has(a.display_id) : false),
             stampedAt: stampedAtById.get(a.id) ?? stampedAtById.get(a.display_id ?? "") ?? a.stampedAt ?? null,
-          }))
-        );
+          }));
+          const scannedNames = updated.filter((a) => a.scanned).map((a) => a.name);
+          setActiveStampsCount(getEffectiveStampCount(count ?? 0, scannedNames));
+          return updated;
+        });
       }
     };
     fetchStamps();
