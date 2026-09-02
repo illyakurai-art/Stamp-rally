@@ -150,29 +150,29 @@ export default function MappaPage() {
                   <RotateCcw className="h-4 w-4" />
                 </button>
               </div>
-              <div className="relative">
-                <div ref={viewportRef} className="relative overflow-hidden rounded-xl border border-foreground/10 bg-foreground/[0.02]">
-                  <TransformComponent wrapperClass="!w-full">
-                    <div className="relative" style={{ width: 1200 }}>
-                      <img
-                        ref={imgRef}
-                        onLoad={centerOnTarget}
-                        src="/mappa.jpg"
-                        alt="Mappa"
-                        className="max-w-none block"
-                        style={{ width: 1200, height: "auto" }}
-                        draggable={false}
-                      />
-                      {!loading &&
-                        positioned.map((a) => (
-                          <div
-                            key={a.id}
-                            className="absolute z-10 -translate-x-1/2 -translate-y-1/2"
-                            style={{
-                              left: `${a.map_x}%`,
-                              top: `${a.map_y}%`,
-                            }}
-                          >
+              <div ref={viewportRef} className="relative overflow-hidden rounded-xl border border-foreground/10 bg-foreground/[0.02]">
+                <TransformComponent wrapperClass="!w-full">
+                  <div className="relative" style={{ width: 1200 }}>
+                    <img
+                      ref={imgRef}
+                      onLoad={centerOnTarget}
+                      src="/mappa.jpg"
+                      alt="Mappa"
+                      className="max-w-none block"
+                      style={{ width: 1200, height: "auto" }}
+                      draggable={false}
+                    />
+                    {!loading &&
+                      positioned.map((a) => (
+                        <div
+                          key={a.id}
+                          className="absolute z-10 -translate-x-1/2 -translate-y-1/2"
+                          style={{
+                            left: `${a.map_x}%`,
+                            top: `${a.map_y}%`,
+                          }}
+                        >
+                          <ArtistHoverCard artist={a} side="top" counterScale={mapScale} fixed>
                             <div className="transition-transform hover:scale-110" onContextMenu={(e) => e.preventDefault()} onDragStart={(e) => e.preventDefault()}>
                               <div
                               className={`overflow-hidden rounded-full flex items-center justify-center ${
@@ -197,38 +197,22 @@ export default function MappaPage() {
                                 )}
                               </div>
                             </div>
-                          </div>
-                        ))}
-                    </div>
-                  </TransformComponent>
-                  {/* Legenda */}
-                  <div className="absolute bottom-3 right-3 z-20 flex items-center gap-3 rounded-lg border border-foreground/10 bg-background/80 backdrop-blur-sm px-3 py-2 text-xs">
-                    <div className="flex items-center gap-1.5">
-                      <span className="inline-block h-3 w-3 rounded-full bg-green-500 border border-white" />
-                      <span className="text-foreground/70">{t("scanned")}</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <span className="inline-block h-3 w-3 rounded-full bg-secondary border border-border" />
-                      <span className="text-foreground/70">{t("to_visit")}</span>
-                    </div>
+                          </ArtistHoverCard>
+                        </div>
+                      ))}
+                  </div>
+                </TransformComponent>
+                {/* Legenda */}
+                <div className="absolute bottom-3 right-3 z-20 flex items-center gap-3 rounded-lg border border-foreground/10 bg-background/80 backdrop-blur-sm px-3 py-2 text-xs">
+                  <div className="flex items-center gap-1.5">
+                    <span className="inline-block h-3 w-3 rounded-full bg-green-500 border border-white" />
+                    <span className="text-foreground/70">{t("scanned")}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="inline-block h-3 w-3 rounded-full bg-secondary border border-border" />
+                    <span className="text-foreground/70">{t("to_visit")}</span>
                   </div>
                 </div>
-                {/* Hover cards — outside overflow-hidden so they're not clipped */}
-                {!loading &&
-                  positioned.map((a) => (
-                    <div
-                      key={`hc-${a.id}`}
-                      className="absolute z-50 -translate-x-1/2 pointer-events-auto"
-                      style={{
-                        left: `calc(${a.map_x}% + 0px)`,
-                        top: `calc(${a.map_y}% - 14px)`,
-                      }}
-                    >
-                      <ArtistHoverCard artist={a} side="top" counterScale={mapScale}>
-                        <div className="w-7 h-7 cursor-pointer" />
-                      </ArtistHoverCard>
-                    </div>
-                  ))}
               </div>
             </>
           )}

@@ -31,6 +31,7 @@ interface ArtistHoverCardProps {
   align?: "start" | "center" | "end"
   side?: "top" | "right" | "bottom" | "left"
   counterScale?: number
+  fixed?: boolean
 }
 
 export function ArtistHoverCard({
@@ -39,11 +40,24 @@ export function ArtistHoverCard({
   align = "center",
   side = "bottom",
   counterScale,
+  fixed,
 }: ArtistHoverCardProps) {
   const { t } = useI18n()
   const [open, setOpen] = useState(false)
   const [prizeOpen, setPrizeOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
+  const [fixedPos, setFixedPos] = useState<{ x: number; y: number } | null>(null)
+
+  useEffect(() => {
+    if (!open || !fixed || !ref.current) return
+    const rect = ref.current.getBoundingClientRect()
+    const elW = 320
+    let x = rect.left + rect.width / 2 - elW / 2
+    if (x < 8) x = 8
+    if (x + elW > window.innerWidth - 8) x = window.innerWidth - elW - 8
+    const y = side === "top" ? rect.top - 8 : rect.bottom + 8
+    setFixedPos({ x, y })
+  }, [open, fixed, side])
 
   useEffect(() => {
     if (!open) return
@@ -84,12 +98,17 @@ export function ArtistHoverCard({
 
       {open && (
         <div
-          className={`absolute z-50 w-80 comic-pop comic-bubble bg-foreground text-background border-2 border-white/60 p-4 rounded-2xl shadow-2xl ${
-            side === "top" ? "bottom-full mb-2" : "top-full mt-2"
-          } ${
-            align === "start" ? "left-0" : align === "end" ? "right-0" : "left-1/2 -translate-x-1/2"
+          className={`z-[9999] w-80 comic-pop comic-bubble bg-foreground text-background border-2 border-white/60 p-4 rounded-2xl shadow-2xl ${
+            fixed ? "" : `absolute ${
+              side === "top" ? "bottom-full mb-2" : "top-full mt-2"
+            } ${
+              align === "start" ? "left-0" : align === "end" ? "right-0" : "left-1/2 -translate-x-1/2"
+            }`
           }`}
-          style={counterScale ? { transform: `scale(${1 / counterScale})`, transformOrigin: side === "top" ? "bottom center" : "top center" } : undefined}
+          style={{
+            ...(fixed && fixedPos ? { position: "fixed" as const, left: fixedPos.x, top: fixedPos.y } : {}),
+            ...(counterScale ? { transform: `scale(${1 / counterScale})`, transformOrigin: side === "top" ? "bottom center" : "top center" } : {}),
+          }}
           onContextMenu={(e) => e.preventDefault()}
         >
         <div className="flex space-x-4">
