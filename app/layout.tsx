@@ -4,6 +4,7 @@ import { ThemeProvider } from "next-themes";
 import { ToasterProvider } from "@/components/toaster-provider";
 import { I18nProvider } from "@/lib/i18n/context";
 import { ImageProtection } from "@/components/image-protection";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 
 const defaultUrl =
@@ -60,6 +61,7 @@ export default function RootLayout({
           </p>
         </footer>
         <ToasterProvider />
+        <SpeedInsights />
       </body>
     </html>
   );
