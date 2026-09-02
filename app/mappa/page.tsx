@@ -23,6 +23,7 @@ export default function MappaPage() {
   const { t } = useI18n();
   const [artists, setArtists] = useState<MapArtist[]>([]);
   const [loading, setLoading] = useState(true);
+  const [mapScale, setMapScale] = useState(1);
   const transformRef = useRef<ReactZoomPanPinchRef | null>(null);
   const viewportRef = useRef<HTMLDivElement | null>(null);
   const imgRef = useRef<HTMLImageElement | null>(null);
@@ -102,6 +103,16 @@ export default function MappaPage() {
     centerOnTarget();
   }, [loading, artists]);
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const api = transformRef.current;
+      if (api?.state) {
+        setMapScale(api.state.scale);
+      }
+    }, 100);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <main className="min-h-screen px-4 py-6 sm:px-6">
       <div className="mx-auto w-full max-w-5xl">
@@ -161,7 +172,7 @@ export default function MappaPage() {
                             top: `${a.map_y}%`,
                           }}
                         >
-                          <ArtistHoverCard artist={a} side="top">
+                          <ArtistHoverCard artist={a} side="top" counterScale={mapScale}>
                             <div className="transition-transform hover:scale-110" onContextMenu={(e) => e.preventDefault()} onDragStart={(e) => e.preventDefault()}>
                               <div
                               className={`overflow-hidden rounded-full flex items-center justify-center ${

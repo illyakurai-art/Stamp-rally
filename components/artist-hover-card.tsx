@@ -30,6 +30,7 @@ interface ArtistHoverCardProps {
   children: React.ReactNode
   align?: "start" | "center" | "end"
   side?: "top" | "right" | "bottom" | "left"
+  counterScale?: number
 }
 
 export function ArtistHoverCard({
@@ -37,6 +38,7 @@ export function ArtistHoverCard({
   children,
   align = "center",
   side = "bottom",
+  counterScale,
 }: ArtistHoverCardProps) {
   const { t } = useI18n()
   const [open, setOpen] = useState(false)
@@ -87,6 +89,7 @@ export function ArtistHoverCard({
           } ${
             align === "start" ? "left-0" : align === "end" ? "right-0" : "left-1/2 -translate-x-1/2"
           }`}
+          style={counterScale ? { transform: `scale(${1 / counterScale})`, transformOrigin: side === "top" ? "bottom center" : "top center" } : undefined}
           onContextMenu={(e) => e.preventDefault()}
         >
         <div className="flex space-x-4">
