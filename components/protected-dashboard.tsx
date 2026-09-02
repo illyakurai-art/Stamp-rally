@@ -284,10 +284,10 @@ export function ProtectedDashboard() {
         {qrMode ? (
           <Link
             href="/scan"
-            className="w-full min-h-12 rounded-md bg-foreground px-5 py-4 text-center text-sm font-medium text-background transition-opacity hover:opacity-90 flex items-center justify-between gap-3 sm:w-auto sm:min-w-[340px]"
+            className="w-full min-h-12 rounded-md bg-foreground px-5 py-4 text-sm font-medium text-background transition-opacity hover:opacity-90 flex items-center justify-between gap-3 sm:w-auto sm:min-w-[340px]"
             style={{ boxShadow: "6px 6px 0 rgba(0, 0, 0, 0.25)" }}
           >
-            <span className="text-center leading-snug">
+            <span className="flex-1 text-center leading-snug">
               {t("scan_stand_qr_line1")}
               <br />
               {t("scan_stand_qr_line2")}
@@ -297,10 +297,10 @@ export function ProtectedDashboard() {
         ) : (
           <button
             aria-disabled="true"
-            className="w-full min-h-12 rounded-md bg-[#996C9E] px-5 py-4 text-center text-sm font-medium text-white flex items-center justify-between gap-3 cursor-not-allowed select-none sm:w-auto sm:min-w-[340px]"
+            className="w-full min-h-12 rounded-md bg-[#996C9E] px-5 py-4 text-sm font-medium text-white flex items-center justify-between gap-3 cursor-not-allowed select-none sm:w-auto sm:min-w-[340px]"
             style={{ boxShadow: "6px 6px 0 rgba(0, 0, 0, 0.25)" }}
           >
-            <span className="text-center leading-snug">
+            <span className="flex-1 text-center leading-snug">
               {t("scan_nfc_line1")}
               <br />
               {t("scan_nfc_line2")}
@@ -319,10 +319,10 @@ export function ProtectedDashboard() {
               router.push("/mappa");
             }, 260);
           }}
-          className="w-full min-h-12 rounded-md bg-foreground px-5 py-4 text-center text-sm font-medium text-background transition-opacity hover:opacity-90 flex items-center justify-between gap-3 sm:w-auto sm:min-w-[340px]"
+          className="w-full min-h-12 rounded-md bg-foreground px-5 py-4 text-sm font-medium text-background transition-opacity hover:opacity-90 flex items-center justify-between gap-3 sm:w-auto sm:min-w-[340px]"
           style={{ boxShadow: "6px 6px 0 rgba(0, 0, 0, 0.25)" }}
         >
-          <span className="text-center leading-snug">
+          <span className="flex-1 text-center leading-snug">
             Apri la Mappa
             <br />
             per conoscere la posizione
