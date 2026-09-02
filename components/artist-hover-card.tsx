@@ -33,6 +33,7 @@ interface ArtistHoverCardProps {
   side?: "top" | "right" | "bottom" | "left"
   counterScale?: number
   fixed?: boolean
+  onLocate?: () => void
 }
 
 export function ArtistHoverCard({
@@ -42,6 +43,7 @@ export function ArtistHoverCard({
   side = "bottom",
   counterScale,
   fixed,
+  onLocate,
 }: ArtistHoverCardProps) {
   const { t } = useI18n()
   const [open, setOpen] = useState(false)
@@ -141,13 +143,26 @@ export function ArtistHoverCard({
           <div className="space-y-1.5 pt-1 text-xs text-background/70">
             <div className="flex items-center">
               <MapPin className="mr-2 h-3.5 w-3.5 shrink-0 stroke-[1.5] text-background/60" />
-              <Link
-                href={`/mappa?artist=${encodeURIComponent(artist.display_id ?? artist.id)}`}
-                onClick={(e) => e.stopPropagation()}
-                className="underline decoration-[#7EB8FF] decoration-2 underline-offset-2 text-[#7EB8FF] hover:text-[#9CC9FF] font-medium truncate"
-              >
-                {t("take_me_to_stand")}
-              </Link>
+              {onLocate ? (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    onLocate()
+                    setOpen(false)
+                  }}
+                  className="underline decoration-[#7EB8FF] decoration-2 underline-offset-2 text-[#7EB8FF] hover:text-[#9CC9FF] font-medium truncate"
+                >
+                  {t("take_me_to_stand")}
+                </button>
+              ) : (
+                <Link
+                  href={`/mappa?artist=${encodeURIComponent(artist.display_id ?? artist.id)}`}
+                  onClick={(e) => e.stopPropagation()}
+                  className="underline decoration-[#7EB8FF] decoration-2 underline-offset-2 text-[#7EB8FF] hover:text-[#9CC9FF] font-medium truncate"
+                >
+                  {t("take_me_to_stand")}
+                </Link>
+              )}
             </div>
             {instagram && instagram.split(",").map((handle) => {
                 const h = handle.trim().replace(/^@/, "")

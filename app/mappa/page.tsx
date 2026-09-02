@@ -98,6 +98,24 @@ export default function MappaPage() {
     centeredRef.current = true;
   };
 
+  const locateArtist = (artist: (typeof positioned)[number]) => {
+    const api = transformRef.current;
+    const viewport = viewportRef.current;
+    const img = imgRef.current;
+    if (!api || !viewport || !img) return;
+    const nw = img.naturalWidth;
+    const nh = img.naturalHeight;
+    if (!nw || !nh) return;
+    const contentW = 1200;
+    const contentH = (1200 * nh) / nw;
+    const scale = 2;
+    const cx = ((artist.map_x ?? 0) / 100) * contentW;
+    const cy = ((artist.map_y ?? 0) / 100) * contentH;
+    const vw = viewport.clientWidth;
+    const vh = viewport.clientHeight;
+    api.setTransform(vw / 2 - cx * scale, vh / 2 - cy * scale, scale, 600);
+  };
+
   useEffect(() => {
     if (loading || artists.length === 0) return;
     centerOnTarget();
@@ -172,7 +190,7 @@ export default function MappaPage() {
                             top: `${a.map_y}%`,
                           }}
                         >
-                          <ArtistHoverCard artist={a} side="top" counterScale={mapScale} fixed>
+                          <ArtistHoverCard artist={a} side="top" counterScale={mapScale} fixed onLocate={() => locateArtist(a)}>
                             <div className="transition-transform hover:scale-110" onContextMenu={(e) => e.preventDefault()} onDragStart={(e) => e.preventDefault()}>
                               <div
                               className={`overflow-hidden rounded-full flex items-center justify-center ${
