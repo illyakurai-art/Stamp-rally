@@ -20,7 +20,7 @@ export function UserQrCode({ displayId, nickname }: Props) {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center justify-center gap-2 min-h-12 rounded-md border border-foreground/20 px-5 py-3 text-sm font-medium transition-colors hover:bg-foreground/5 shadow-[4px_4px_0_rgba(0,0,0,0.25)]"
+        className="flex items-center justify-center gap-2 min-h-12 rounded-md border border-foreground/20 px-5 py-3 text-sm font-medium transition-all hover:bg-foreground/5 shadow-[4px_4px_0_rgba(0,0,0,0.25)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0_rgba(0,0,0,0.25)]"
       >
         <QrCode className="h-4 w-4" />
         {t("my_qr")}
@@ -47,7 +47,7 @@ export function UserQrCode({ displayId, nickname }: Props) {
               />
             </div>
 
-            <p className="text-xs text-foreground/50 text-center max-w-[200px]">
+            <p className="text-sm font-semibold text-foreground/80 text-center max-w-[220px] leading-snug bg-gradient-to-r from-purple-500 via-pink-500 to-orange-400 bg-clip-text text-transparent">
               {t("show_qr_to_staff")}
             </p>
           </div>
