@@ -83,12 +83,22 @@ export function AdminUsersList({ users }: { users: UserEntry[] }) {
             const tier = getTier(user.stamps);
             const progress = Math.min((user.stamps / max) * 100, 100);
 
+            const isGold = user.stamps >= 51;
+
             return (
               <button
                 key={user.id}
                 onClick={() => setSelected(user)}
-                className="rounded-2xl border border-foreground/10 p-5 flex flex-col gap-4 hover:border-foreground/25 hover:shadow-lg active:scale-[0.98] transition-all text-left"
-                style={{ background: getStampsDarkGradient(user.stamps) }}
+                className={`rounded-2xl border p-5 flex flex-col gap-4 hover:shadow-lg active:scale-[0.98] transition-all text-left ${
+                  isGold
+                    ? "border-yellow-400/60 hover:border-yellow-400"
+                    : "border-foreground/10 hover:border-foreground/25"
+                }`}
+                style={{
+                  background: isGold
+                    ? "linear-gradient(135deg, #D4A017 0%, #F5D060 30%, #FFED8A 50%, #F5D060 70%, #D4A017 100%)"
+                    : getStampsDarkGradient(user.stamps),
+                }}
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
@@ -101,7 +111,9 @@ export function AdminUsersList({ users }: { users: UserEntry[] }) {
                       })}
                     </p>
                   </div>
-                  <span className="shrink-0 inline-flex items-baseline gap-1 rounded-full bg-white/25 px-2.5 py-1 text-sm font-bold text-white">
+                  <span className={`shrink-0 inline-flex items-baseline gap-1 rounded-full px-2.5 py-1 text-sm font-bold ${
+                    isGold ? "bg-yellow-900/40 text-yellow-900" : "bg-white/25 text-white"
+                  }`}>
                     {user.stamps}
                     <span className="text-xs font-normal opacity-70">/{max}</span>
                   </span>
