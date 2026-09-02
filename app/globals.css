@@ -131,23 +131,13 @@ select:-webkit-autofill {
 .scanned-ring::before {
   content: "";
   position: absolute;
-  inset: 0; /* anello interno che copre il bordo della card */
+  inset: 0;
   border-radius: inherit;
-  padding: 7px; /* spessore bordo */
-  background: linear-gradient(
-    120deg,
-    #14532d,
-    #22c55e,
-    #86efac,
-    #15803d,
-    #22c55e,
-    #14532d
-  );
-  background-size: 300% 300%;
+  padding: 7px;
+  background: #22c55e;
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
-  animation: scanned-gradient 4s ease infinite;
   pointer-events: none;
   z-index: 10;
 }
