@@ -77,19 +77,19 @@ export function AdminStandsList({ stands }: { stands: StandEntry[] }) {
 
       {/* Griglia card */}
       {sorted.length > 0 ? (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+        <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-5">
           {sorted.map((stand) => (
             <div
               key={stand.id}
-              className="rounded-2xl border border-foreground/10 p-4 flex flex-col items-center justify-center gap-2 transition-colors hover:border-foreground/25 hover:shadow-sm aspect-square bg-gradient-to-br"
+              className="rounded-xl border border-foreground/10 p-2 flex flex-col items-center justify-center gap-1 transition-colors hover:border-foreground/25 hover:shadow-sm aspect-square bg-gradient-to-br"
               style={{
                 backgroundImage: `linear-gradient(135deg, rgba(153,108,158,0.35) 0%, rgba(153,108,158,0.15) 55%, rgba(153,108,158,0.03) 100%)`,
               }}
             >
-              <p className="font-semibold truncate text-sm text-center w-full">{stand.name}</p>
-              <p className="text-[10px] text-foreground/50">{stand.display_id ?? "—"}</p>
+              <p className="font-semibold truncate text-xs text-center w-full">{stand.name}</p>
+              <p className="text-[9px] text-foreground/50">{stand.display_id ?? "—"}</p>
               <div
-                className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-bold"
+                className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-bold"
                 style={{
                   background: `rgba(168, 85, 247, ${0.10 + (stand.stamps / maxStamps) * 0.35})`,
                   color: `rgba(255, 255, 255, ${0.5 + (stand.stamps / maxStamps) * 0.5})`,
