@@ -127,11 +127,25 @@ export function RecentRedeemsList({ initial }: { initial: RecentRedeem[] }) {
   const [tiersOpen, setTiersOpen] = useState(false);
 
   const TIERS = [50, 45, 40, 35, 30, 25, 20, 15, 10, 5];
+  const TIER_COLORS: Record<number, string> = {
+    50: "#9333ea",
+    45: "#6366f1",
+    40: "#3b82f6",
+    35: "#06b6d4",
+    30: "#14b8a6",
+    25: "#22c55e",
+    20: "#eab308",
+    15: "#f97316",
+    10: "#ef4444",
+    5: "#ec4899",
+  };
   const tierCounts = TIERS.map((t) => ({
     stamps: t,
     count: items.filter((r) => r.tier_threshold === t).length,
   }));
   const totalCount = items.length;
+  const maxCount = Math.max(...tierCounts.map((t) => t.count), 1);
+  const minCount = Math.min(...tierCounts.map((t) => t.count).filter((c) => c > 0), 0);
 
   return (
     <div className="flex flex-col gap-3">
@@ -152,32 +166,36 @@ export function RecentRedeemsList({ initial }: { initial: RecentRedeem[] }) {
         </button>
         {tiersOpen && (
           <div className="border-t border-foreground/10 px-3 py-2 flex flex-col gap-1">
-            {tierCounts.map((tc) => (
-              <div
-                key={tc.stamps}
-                className="flex items-center justify-between rounded-md px-2.5 py-1.5 text-sm"
-              >
-                <div className="flex items-center gap-2">
-                  <div
-                    className="h-2 w-2 rounded-full shrink-0"
+            {tierCounts.map((tc) => {
+              const ratio = tc.count > 0 ? 0.5 + (tc.count / maxCount) * 0.5 : 0.2;
+              return (
+                <div
+                  key={tc.stamps}
+                  className="flex items-center justify-between rounded-md px-2.5 py-1.5 text-sm"
+                >
+                  <div className="flex items-center gap-2">
+                    <div
+                      className="h-2 w-2 rounded-full shrink-0"
+                      style={{
+                        background: TIER_COLORS[tc.stamps],
+                        opacity: tc.count > 0 ? ratio : 0.2,
+                      }}
+                    />
+                    <span className={tc.count > 0 ? "text-foreground/80" : "text-foreground/40"}>
+                      {tc.stamps} timbri
+                    </span>
+                  </div>
+                  <span
+                    className="font-semibold tabular-nums"
                     style={{
-                      background: `rgba(16, 185, 129, ${tc.count > 0 ? 0.4 + (tc.count / Math.max(...tierCounts.map((t) => t.count), 1)) * 0.6 : 0.15})`,
+                      color: `rgba(16, 185, 129, ${ratio})`,
                     }}
-                  />
-                  <span className={tc.count > 0 ? "text-foreground/80" : "text-foreground/40"}>
-                    {tc.stamps} timbri
+                  >
+                    {tc.count}
                   </span>
                 </div>
-                <span
-                  className="font-semibold tabular-nums"
-                  style={{
-                    color: `rgba(16, 185, 129, ${tc.count > 0 ? 0.5 + (tc.count / Math.max(...tierCounts.map((t) => t.count), 1)) * 0.5 : 0.25})`,
-                  }}
-                >
-                  {tc.count}
-                </span>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
