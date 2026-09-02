@@ -111,8 +111,8 @@ export function AdminStandsList({ stands }: { stands: StandEntry[] }) {
                 <span
                   className="shrink-0 inline-flex items-baseline gap-1 rounded-full px-2.5 py-1 text-sm font-bold"
                   style={{
-                    background: `rgba(168, 85, 247, ${0.08 + (stand.stamps / maxStamps) * 0.42})`,
-                    color: `rgba(168, 85, 247, ${0.4 + (stand.stamps / maxStamps) * 0.6})`,
+                    background: `rgba(168, 85, 247, ${0.10 + (stand.stamps / maxStamps) * 0.35})`,
+                    color: `rgba(255, 255, 255, ${0.5 + (stand.stamps / maxStamps) * 0.5})`,
                   }}
                 >
                   {stand.stamps}

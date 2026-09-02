@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2, ChevronDown, Trophy } from "lucide-react";
 import type { RecentRedeem, RecentStamp } from "@/lib/admin-recent";
 
 const REDEEM_TIER_GRADIENTS: { threshold: number; gradient: string; badge: string }[] = [
@@ -124,9 +124,66 @@ export function RecentStampsList({ initial }: { initial: RecentStamp[] }) {
 
 export function RecentRedeemsList({ initial }: { initial: RecentRedeem[] }) {
   const { items, loading, hasMore, sentinelRef } = useInfiniteScroll<RecentRedeem>("redeems", initial);
+  const [tiersOpen, setTiersOpen] = useState(false);
+
+  const TIERS = [50, 45, 40, 35, 30, 25, 20, 15, 10, 5];
+  const tierCounts = TIERS.map((t) => ({
+    stamps: t,
+    count: items.filter((r) => r.tier_threshold === t).length,
+  }));
+  const totalCount = items.length;
 
   return (
-    <div className="max-h-[360px] overflow-y-auto flex flex-col gap-2 pr-1">
+    <div className="flex flex-col gap-3">
+      {/* Tendina tier riscatti */}
+      <div className="rounded-lg border border-foreground/10 bg-foreground/[0.03]">
+        <button
+          onClick={() => setTiersOpen((o) => !o)}
+          className="flex w-full items-center justify-between px-3 py-2.5 text-sm font-medium text-foreground/80 hover:bg-foreground/[0.03] transition-colors"
+        >
+          <div className="flex items-center gap-2">
+            <Trophy className="h-4 w-4 text-emerald-500" />
+            <span>Riepilogo tier riscattati</span>
+            <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+              {totalCount}
+            </span>
+          </div>
+          <ChevronDown className={`h-4 w-4 text-foreground/40 transition-transform ${tiersOpen ? "rotate-180" : ""}`} />
+        </button>
+        {tiersOpen && (
+          <div className="border-t border-foreground/10 px-3 py-2 flex flex-col gap-1">
+            {tierCounts.map((tc) => (
+              <div
+                key={tc.stamps}
+                className="flex items-center justify-between rounded-md px-2.5 py-1.5 text-sm"
+              >
+                <div className="flex items-center gap-2">
+                  <div
+                    className="h-2 w-2 rounded-full shrink-0"
+                    style={{
+                      background: `rgba(16, 185, 129, ${tc.count > 0 ? 0.4 + (tc.count / Math.max(...tierCounts.map((t) => t.count), 1)) * 0.6 : 0.15})`,
+                    }}
+                  />
+                  <span className={tc.count > 0 ? "text-foreground/80" : "text-foreground/40"}>
+                    {tc.stamps} timbri
+                  </span>
+                </div>
+                <span
+                  className="font-semibold tabular-nums"
+                  style={{
+                    color: `rgba(16, 185, 129, ${tc.count > 0 ? 0.5 + (tc.count / Math.max(...tierCounts.map((t) => t.count), 1)) * 0.5 : 0.25})`,
+                  }}
+                >
+                  {tc.count}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Lista riscatti */}
+      <div className="max-h-[360px] overflow-y-auto flex flex-col gap-2 pr-1">
       {items.length > 0 ? (
         <>
           {items.map((r) => {
@@ -170,6 +227,7 @@ export function RecentRedeemsList({ initial }: { initial: RecentRedeem[] }) {
       ) : (
         <p className="text-sm text-foreground/40">Nessun riscatto ancora.</p>
       )}
+    </div>
     </div>
   );
 }
