@@ -268,8 +268,8 @@ export function ProtectedDashboard() {
       <RedeemNotification userId={userId!} />
       <StampRealtimeRefresh userId={userId!} userDisplayId={userDisplayId ?? null} />
 
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold leading-snug">
+      <div className="flex items-center justify-center">
+        <h1 className="text-2xl font-bold leading-snug text-center">
           {t("welcome_prefix")}
           <br />
           <span className="text-nowrap">{t("welcome_event_name")}</span>
