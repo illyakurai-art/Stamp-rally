@@ -1,31 +1,37 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
 export function AdminRealtimeRefresh() {
   const router = useRouter();
+  const timerRef = useRef<ReturnType<typeof setTimeout>>(null);
+
+  const debouncedRefresh = () => {
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => router.refresh(), 3000);
+  };
 
   useEffect(() => {
     const supabase = createClient();
 
-    // Ascolta qualsiasi nuovo timbro inserito da qualsiasi utente
     const stampsChannel = supabase
       .channel("admin-stamps-watch")
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "stamps" },
-        () => router.refresh()
+        debouncedRefresh
       )
       .on(
         "postgres_changes",
         { event: "DELETE", schema: "public", table: "stamps" },
-        () => router.refresh()
+        debouncedRefresh
       )
       .subscribe();
 
     return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
       supabase.removeChannel(stampsChannel);
     };
   }, [router]);

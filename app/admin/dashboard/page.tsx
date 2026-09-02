@@ -1,4 +1,3 @@
-import { unstable_noStore as noStore } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { Users, Stamp, Trophy, Activity, type LucideIcon } from "lucide-react";
 import { fetchRecentRedeems, fetchRecentStamps } from "@/lib/admin-recent";
@@ -22,7 +21,6 @@ async function getStats(supabase: Awaited<ReturnType<typeof createClient>>) {
 }
 
 export default async function AdminDashboardPage() {
-  noStore();
   const supabase = await createClient();
   const stats = await getStats(supabase);
 

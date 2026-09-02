@@ -1,10 +1,8 @@
 import { Suspense } from "react";
-import { unstable_noStore as noStore } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { AdminUsersList, type UserEntry } from "@/components/admin-users-list";
 
 async function UsersContent() {
-  noStore();
   const supabase = await createClient();
 
   const { data: profiles } = await supabase
