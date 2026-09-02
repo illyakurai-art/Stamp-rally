@@ -43,7 +43,7 @@ export function AdminUsersList({ users }: { users: UserEntry[] }) {
       )
     : users;
 
-  const max = 40;
+  const max = 50;
 
   return (
     <div className="flex flex-col gap-6">

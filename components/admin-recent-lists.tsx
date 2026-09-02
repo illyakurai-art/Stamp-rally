@@ -5,8 +5,10 @@ import { Loader2 } from "lucide-react";
 import type { RecentRedeem, RecentStamp } from "@/lib/admin-recent";
 
 const REDEEM_TIER_GRADIENTS: { threshold: number; gradient: string; badge: string }[] = [
-  { threshold: 40, gradient: "from-purple-500/20 to-indigo-500/15", badge: "bg-purple-500/20 text-purple-700 dark:text-purple-300" },
-  { threshold: 35, gradient: "from-blue-500/20 to-cyan-500/15", badge: "bg-blue-500/20 text-blue-700 dark:text-blue-300" },
+  { threshold: 50, gradient: "from-purple-600/20 to-indigo-500/15", badge: "bg-purple-600/20 text-purple-700 dark:text-purple-300" },
+  { threshold: 45, gradient: "from-indigo-500/20 to-blue-500/15", badge: "bg-indigo-500/20 text-indigo-700 dark:text-indigo-300" },
+  { threshold: 40, gradient: "from-blue-500/20 to-cyan-500/15", badge: "bg-blue-500/20 text-blue-700 dark:text-blue-300" },
+  { threshold: 35, gradient: "from-cyan-500/20 to-teal-500/15", badge: "bg-cyan-500/20 text-cyan-700 dark:text-cyan-300" },
   { threshold: 30, gradient: "from-teal-500/20 to-emerald-500/15", badge: "bg-teal-500/20 text-teal-700 dark:text-teal-300" },
   { threshold: 25, gradient: "from-green-500/20 to-lime-500/15", badge: "bg-green-500/20 text-green-700 dark:text-green-300" },
   { threshold: 20, gradient: "from-yellow-500/20 to-orange-400/15", badge: "bg-yellow-500/20 text-yellow-700 dark:text-yellow-300" },
