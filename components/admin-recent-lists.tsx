@@ -167,7 +167,7 @@ export function RecentRedeemsList({ initial }: { initial: RecentRedeem[] }) {
         {tiersOpen && (
           <div className="border-t border-foreground/10 px-3 py-2 flex flex-col gap-1">
             {tierCounts.map((tc) => {
-              const ratio = tc.count > 0 ? 0.5 + (tc.count / maxCount) * 0.5 : 0.2;
+              const ratio = tc.count > 0 ? 0.7 + (tc.count / maxCount) * 0.3 : 0.5;
               return (
                 <div
                   key={tc.stamps}
