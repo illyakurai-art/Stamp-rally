@@ -27,7 +27,7 @@ type ArtistData = {
   instagram?: string | null;
 };
 
-type ArtistSort = "alpha" | "scanned";
+type ArtistSort = "alpha" | "scanned" | "unscanned_first";
 
 export function ProtectedDashboard() {
   const { t } = useI18n();
@@ -43,7 +43,8 @@ export function ProtectedDashboard() {
   const [artistSort, setArtistSort] = useState<ArtistSort>(() => {
     if (typeof window === "undefined") return "alpha";
     const saved = localStorage.getItem("stamp_rally_artist_sort");
-    return saved === "scanned" ? "scanned" : "alpha";
+    if (saved === "scanned" || saved === "unscanned_first") return saved;
+    return "alpha";
   });
   const [sortOpen, setSortOpen] = useState(false);
   const [mapZoom, setMapZoom] = useState(false);
@@ -236,15 +237,20 @@ export function ProtectedDashboard() {
       return a.name.localeCompare(b.name, "it", { sensitivity: "base" });
     }
     // Ordine di timbratura: prima i timbrati (dal più vecchio), poi i non timbrati in ordine alfabetico
-    if (a.scanned !== b.scanned) return a.scanned ? -1 : 1;
-    if (a.scanned && b.scanned) {
-      return (a.stampedAt ?? "").localeCompare(b.stampedAt ?? "");
+    if (artistSort === "scanned") {
+      if (a.scanned !== b.scanned) return a.scanned ? -1 : 1;
+      if (a.scanned && b.scanned) {
+        return (a.stampedAt ?? "").localeCompare(b.stampedAt ?? "");
+      }
+      return a.name.localeCompare(b.name, "it", { sensitivity: "base" });
     }
+    // Prima i mancanti in ordine alfabetico, poi i timbrati in ordine alfabetico
+    if (a.scanned !== b.scanned) return a.scanned ? 1 : -1;
     return a.name.localeCompare(b.name, "it", { sensitivity: "base" });
   });
 
   const sortLabel =
-    artistSort === "alpha" ? t("sort_alpha") : t("sort_scanned");
+    artistSort === "alpha" ? t("sort_alpha") : artistSort === "scanned" ? t("sort_scanned") : t("sort_unscanned_first");
 
   // Obiettivo segreto: tutti i membri di una coppia scansionati → corona + nome oro
   const kkLabel =
@@ -370,6 +376,14 @@ export function ProtectedDashboard() {
                     }`}
                   >
                     {t("sort_scanned")}
+                  </button>
+                  <button
+                    onClick={() => { setArtistSort("unscanned_first"); setSortOpen(false); }}
+                    className={`flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm transition-colors hover:bg-foreground/5 ${
+                      artistSort === "unscanned_first" ? "bg-foreground/5 font-medium" : ""
+                    }`}
+                  >
+                    {t("sort_unscanned_first")}
                   </button>
                 </div>
               )}

@@ -143,6 +143,7 @@ export const translations = {
   "sort_by": { ITA: "Ordina", ENG: "Sort" },
   "sort_alpha": { ITA: "Ordine alfabetico", ENG: "Alphabetical order" },
   "sort_scanned": { ITA: "Ordine di timbratura", ENG: "Stamping order" },
+  "sort_unscanned_first": { ITA: "Prima da timbrare", ENG: "Unscanned first" },
   "scanned": { ITA: "Scansionato", ENG: "Scanned" },
   "not_visited": { ITA: "Non visitato", ENG: "Not visited" },
   "to_visit": { ITA: "Da visitare", ENG: "To visit" },
