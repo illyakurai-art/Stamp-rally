@@ -370,20 +370,20 @@ export function ProtectedDashboard() {
                     {t("sort_alpha")}
                   </button>
                   <button
-                    onClick={() => { setArtistSort("scanned"); setSortOpen(false); }}
-                    className={`flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm transition-colors hover:bg-foreground/5 ${
-                      artistSort === "scanned" ? "bg-foreground/5 font-medium" : ""
-                    }`}
-                  >
-                    {t("sort_scanned")}
-                  </button>
-                  <button
                     onClick={() => { setArtistSort("unscanned_first"); setSortOpen(false); }}
                     className={`flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm transition-colors hover:bg-foreground/5 ${
                       artistSort === "unscanned_first" ? "bg-foreground/5 font-medium" : ""
                     }`}
                   >
                     {t("sort_unscanned_first")}
+                  </button>
+                  <button
+                    onClick={() => { setArtistSort("scanned"); setSortOpen(false); }}
+                    className={`flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm transition-colors hover:bg-foreground/5 ${
+                      artistSort === "scanned" ? "bg-foreground/5 font-medium" : ""
+                    }`}
+                  >
+                    {t("sort_scanned")}
                   </button>
                 </div>
               )}
