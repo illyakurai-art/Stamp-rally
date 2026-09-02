@@ -64,17 +64,6 @@ export default async function AdminDashboardPage() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        {/* Ultimi timbri */}
-        <div className="rounded-xl border border-foreground/10 bg-gradient-to-br from-sky-500/10 to-blue-500/10 p-5">
-          <div className="flex items-center gap-2 mb-4">
-            <Activity className="h-4 w-4 text-sky-600 dark:text-sky-400" />
-            <h2 className="text-sm font-semibold uppercase tracking-wider text-sky-700 dark:text-sky-300">
-              Ultimi timbri
-            </h2>
-          </div>
-          <RecentStampsList initial={recentStamps} />
-        </div>
-
         {/* Ultimi riscatti */}
         <div className="rounded-xl border border-foreground/10 bg-gradient-to-br from-emerald-500/10 to-teal-500/10 p-5">
           <div className="flex items-center gap-2 mb-4">
@@ -84,6 +73,17 @@ export default async function AdminDashboardPage() {
             </h2>
           </div>
           <RecentRedeemsList initial={recentRedeems} />
+        </div>
+
+        {/* Ultimi timbri */}
+        <div className="rounded-xl border border-foreground/10 bg-gradient-to-br from-sky-500/10 to-blue-500/10 p-5">
+          <div className="flex items-center gap-2 mb-4">
+            <Activity className="h-4 w-4 text-sky-600 dark:text-sky-400" />
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-sky-700 dark:text-sky-300">
+              Ultimi timbri
+            </h2>
+          </div>
+          <RecentStampsList initial={recentStamps} />
         </div>
       </div>
     </section>
