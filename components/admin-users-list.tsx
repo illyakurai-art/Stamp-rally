@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Search, QrCode } from "lucide-react";
+import { Search, QrCode, Crown } from "lucide-react";
 import { AdminUserModal } from "@/components/admin-user-modal";
 import { AdminQrScanner } from "@/components/admin-qr-scanner";
 import { getStampsDarkGradient } from "@/lib/stamp-gradient";
@@ -102,8 +102,9 @@ export function AdminUsersList({ users }: { users: UserEntry[] }) {
                 }}
               >
                 <div className="flex items-start justify-between gap-2">
-                  <div className="min-w-0">
-                    <p className={`font-semibold truncate text-base drop-shadow-sm ${user.kkUnlocked ? "text-yellow-300 rounded-full border-2 border-yellow-400 px-2 py-0.5" : "text-white"}`}>{user.nickname}</p>
+                  <div className="min-w-0 flex items-center gap-1.5">
+                    {user.kkUnlocked && <Crown className="h-4 w-4 text-yellow-400 shrink-0 fill-yellow-400" />}
+                    <p className={`font-semibold truncate text-base drop-shadow-sm ${user.kkUnlocked ? "text-yellow-300 rounded-full border border-yellow-400/70 px-2 py-0.5" : "text-white"}`}>{user.nickname}</p>
                     <p className="text-xs text-white/80 mt-0.5">
                       {user.display_id ?? "—"} ·{" "}
                       {new Date(user.created_at).toLocaleString("it-IT", {
