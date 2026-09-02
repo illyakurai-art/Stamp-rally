@@ -20,7 +20,7 @@ export function UserQrCode({ displayId, nickname }: Props) {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center justify-center gap-2 min-h-12 rounded-md border border-foreground/20 px-5 py-3 text-sm font-medium transition-colors hover:bg-foreground/5"
+        className="flex items-center justify-center gap-2 min-h-12 rounded-md border border-foreground/20 px-5 py-3 text-sm font-medium transition-colors hover:bg-foreground/5 shadow-[4px_4px_0_rgba(0,0,0,0.25)]"
       >
         <QrCode className="h-4 w-4" />
         {t("my_qr")}
