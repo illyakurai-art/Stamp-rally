@@ -180,7 +180,7 @@ export default function MappaPage() {
                                   ? "border-2 border-green-500 shadow-[0_2px_6px_rgba(0,0,0,0.5)]"
                                   : "border-2 border-white/90 shadow-[0_2px_6px_rgba(0,0,0,0.5)]"
                               }`}
-                              style={{ width: 24, height: 24 }}
+                              style={{ width: 22, height: 22 }}
                               >
                                 {a.image_url ? (
                                   <img
