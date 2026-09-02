@@ -159,6 +159,9 @@ export const translations = {
   "artist_stands": { ITA: "Stand Artisti", ENG: "Artist Stands" },
   "scanned_counter": { ITA: "scansionati", ENG: "scanned" },
   "loading_map": { ITA: "Caricamento mappa...", ENG: "Loading map..." },
+  "open_map_line1": { ITA: "Apri la Mappa", ENG: "Open the Map" },
+  "open_map_line2": { ITA: "per conoscere la posizione", ENG: "to find the location" },
+  "open_map_line3": { ITA: "degli Artisti", ENG: "of the Artists" },
 
   // Users (admin)
   "users": { ITA: "Utenti", ENG: "Users" },

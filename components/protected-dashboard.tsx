@@ -323,11 +323,11 @@ export function ProtectedDashboard() {
           style={{ boxShadow: "6px 6px 0 rgba(0, 0, 0, 0.25)" }}
         >
           <span className="text-center leading-snug">
-            Apri la Mappa
+            {t("open_map_line1")}
             <br />
-            per conoscere la posizione
+            {t("open_map_line2")}
             <br />
-            degli Artisti
+            {t("open_map_line3")}
           </span>
           <img
             src="/map-icon.png"
