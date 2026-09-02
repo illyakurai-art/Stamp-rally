@@ -205,10 +205,10 @@ export default function MappaPage() {
                                   <Image
                                     src={a.image_url}
                                     alt={a.name}
-                                    width={66}
-                                    height={66}
+                                    width={88}
+                                    height={88}
                                     loading="lazy"
-                                    sizes="66px"
+                                    sizes="88px"
                                     className="h-full w-full object-cover"
                                   />
                                 ) : (
