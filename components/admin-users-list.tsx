@@ -29,6 +29,7 @@ export interface UserEntry {
   display_id: string | null;
   created_at: string;
   stamps: number;
+  kkUnlocked?: boolean;
 }
 
 export function AdminUsersList({ users }: { users: UserEntry[] }) {
@@ -102,7 +103,7 @@ export function AdminUsersList({ users }: { users: UserEntry[] }) {
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
-                    <p className="font-semibold truncate text-base text-white drop-shadow-sm">{user.nickname}</p>
+                    <p className={`font-semibold truncate text-base drop-shadow-sm ${user.kkUnlocked ? "text-yellow-300 rounded-full border-2 border-yellow-400 px-2 py-0.5" : "text-white"}`}>{user.nickname}</p>
                     <p className="text-xs text-white/80 mt-0.5">
                       {user.display_id ?? "—"} ·{" "}
                       {new Date(user.created_at).toLocaleString("it-IT", {

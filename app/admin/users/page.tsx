@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { AdminUsersList, type UserEntry } from "@/components/admin-users-list";
-import { getEffectiveStampCount } from "@/lib/secret-pairs";
+import { getEffectiveStampCount, SECRET_PAIRS } from "@/lib/secret-pairs";
 
 async function UsersContent() {
   const supabase = await createClient();
@@ -55,12 +55,18 @@ async function UsersContent() {
   const users: UserEntry[] = (profiles ?? []).map((u) => {
     const rawCount = stampsByUser[u.display_id ?? ""] ?? 0;
     const scannedNames = stampsByUserGrouped.get(u.display_id ?? "") ?? [];
+    const kkUnlocked = SECRET_PAIRS.some((pair) =>
+      pair.members.every((name) =>
+        scannedNames.some((n) => n.toLowerCase() === name.toLowerCase())
+      )
+    );
     return {
       id: u.id,
       nickname: u.nickname,
       display_id: u.display_id,
       created_at: u.created_at,
       stamps: getEffectiveStampCount(rawCount, scannedNames),
+      kkUnlocked,
     };
   });
 
