@@ -156,7 +156,7 @@ export default function MappaPage() {
                     <img
                       ref={imgRef}
                       onLoad={centerOnTarget}
-                      src="/mappa.jpg"
+                      src="/mappa.webp"
                       alt="Mappa"
                       className="max-w-none block"
                       style={{ width: 1200, height: "auto" }}

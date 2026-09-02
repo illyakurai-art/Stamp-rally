@@ -9,7 +9,7 @@ export async function updateSession(request: NextRequest) {
 
   // Cache-control per risorse non-sensibili
   if (
-    pathname === "/mappa.jpg" ||
+    pathname === "/mappa.webp" ||
     pathname === "/map-icon.png" ||
     pathname === "/favicon.ico" ||
     pathname.startsWith("/_next/")
