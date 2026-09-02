@@ -224,7 +224,7 @@ export function PrizeInfoCard({
                         return (
                           <div
                             key={tier.stamps}
-                            className={`flex items-center justify-between rounded-lg px-3 ${isCurrent ? "py-[11px]" : isReached ? "py-[9px]" : "py-2"} ${
+                            className={`flex items-center justify-between rounded-lg ${isCurrent ? "px-5" : "px-3"} ${isCurrent ? "py-[11px]" : isReached ? "py-[9px]" : "py-2"} ${
                               isReached
                                 ? "border border-[#A58CA9]/45"
                                 : "border border-dashed border-[#A58CA9]/45"
