@@ -31,6 +31,7 @@ export function AdminStandsList({ stands }: { stands: StandEntry[] }) {
   );
 
   const totalStamps = stands.reduce((acc, s) => acc + s.stamps, 0);
+  const maxStamps = Math.max(...stands.map((s) => s.stamps), 1);
 
   const SORT_OPTIONS: { mode: SortMode; label: string; icon: typeof ArrowDownAZ }[] = [
     { mode: "alpha", label: "Alfabetico", icon: ArrowDownAZ },
@@ -107,15 +108,13 @@ export function AdminStandsList({ stands }: { stands: StandEntry[] }) {
                     </span>
                   </p>
                 </div>
-                <span className={`shrink-0 inline-flex items-baseline gap-1 rounded-full px-2.5 py-1 text-sm font-bold ${
-                  stand.stamps >= 30
-                    ? "bg-purple-500/15 text-purple-600 dark:text-purple-400"
-                    : stand.stamps >= 15
-                    ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
-                    : stand.stamps >= 5
-                    ? "bg-blue-500/15 text-blue-600 dark:text-blue-400"
-                    : "bg-foreground/10 text-foreground/70"
-                }`}>
+                <span
+                  className="shrink-0 inline-flex items-baseline gap-1 rounded-full px-2.5 py-1 text-sm font-bold"
+                  style={{
+                    background: `rgba(168, 85, 247, ${0.08 + (stand.stamps / maxStamps) * 0.42})`,
+                    color: `rgba(168, 85, 247, ${0.4 + (stand.stamps / maxStamps) * 0.6})`,
+                  }}
+                >
                   {stand.stamps}
                 </span>
               </div>
