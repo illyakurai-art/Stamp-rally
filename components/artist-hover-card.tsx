@@ -49,15 +49,14 @@ export function ArtistHoverCard({
   const [fixedPos, setFixedPos] = useState<{ x: number; y: number } | null>(null)
 
   useEffect(() => {
-    if (!open || !fixed || !ref.current) return
-    const rect = ref.current.getBoundingClientRect()
+    if (!open || !fixed) return
     const elW = 320
-    let x = rect.left + rect.width / 2 - elW / 2
-    if (x < 8) x = 8
-    if (x + elW > window.innerWidth - 8) x = window.innerWidth - elW - 8
-    const y = side === "top" ? rect.top - 8 : rect.bottom + 8
-    setFixedPos({ x, y })
-  }, [open, fixed, side])
+    const elH = 400
+    setFixedPos({
+      x: (window.innerWidth - elW) / 2,
+      y: (window.innerHeight - elH) / 2,
+    })
+  }, [open, fixed])
 
   useEffect(() => {
     if (!open) return
@@ -107,7 +106,7 @@ export function ArtistHoverCard({
           }`}
           style={{
             ...(fixed && fixedPos ? { position: "fixed" as const, left: fixedPos.x, top: fixedPos.y } : {}),
-            ...(counterScale ? { transform: `scale(${1 / counterScale})`, transformOrigin: side === "top" ? "bottom center" : "top center" } : {}),
+            ...(!fixed && counterScale ? { transform: `scale(${1 / counterScale})`, transformOrigin: side === "top" ? "bottom center" : "top center" } : {}),
           }}
           onContextMenu={(e) => e.preventDefault()}
         >
