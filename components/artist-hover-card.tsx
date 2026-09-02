@@ -51,6 +51,34 @@ export function ArtistHoverCard({
   const ref = useRef<HTMLDivElement>(null)
   const portalRef = useRef<HTMLDivElement>(null)
   const [fixedPos, setFixedPos] = useState<{ x: number; y: number } | null>(null)
+  const [absStyle, setAbsStyle] = useState<React.CSSProperties>({})
+
+  useEffect(() => {
+    if (!open || fixed || !ref.current) return
+    const rect = ref.current.getBoundingClientRect()
+    const elW = 320
+    const elH = 400
+    const gap = 8
+    let x = rect.left + rect.width / 2 - elW / 2
+    if (x < 8) x = 8
+    if (x + elW > window.innerWidth - 8) x = window.innerWidth - elW - 8
+    const spaceAbove = rect.top
+    const spaceBelow = window.innerHeight - rect.bottom
+    let above: boolean
+    if (spaceBelow >= elH + gap) {
+      above = false
+    } else if (spaceAbove >= elH + gap) {
+      above = true
+    } else {
+      above = spaceAbove > spaceBelow
+    }
+    const offsetX = x - rect.left
+    setAbsStyle({
+      position: "fixed" as const,
+      left: x,
+      ...(above ? { bottom: window.innerHeight - rect.top + gap } : { top: rect.bottom + gap }),
+    })
+  }, [open, fixed])
 
   useEffect(() => {
     if (!open || !fixed || !ref.current) return
@@ -272,18 +300,16 @@ export function ArtistHoverCard({
         document.body
       )}
 
-      {open && !fixed && (
+      {open && !fixed && absStyle && typeof window !== "undefined" && createPortal(
         <div
-          className={`absolute z-50 w-80 comic-pop comic-bubble bg-foreground text-background border-2 border-white/60 p-4 rounded-2xl shadow-2xl ${
-            side === "top" ? "bottom-full mb-2" : "top-full mt-2"
-          } ${
-            align === "start" ? "left-0" : align === "end" ? "right-0" : "left-1/2 -translate-x-1/2"
-          }`}
-          style={counterScale ? { transform: `scale(${1 / counterScale})`, transformOrigin: side === "top" ? "bottom center" : "top center" } : undefined}
+          ref={portalRef}
+          className="z-[9999] w-80 comic-pop comic-bubble bg-foreground text-background border-2 border-white/60 p-4 rounded-2xl shadow-2xl"
+          style={absStyle}
           onContextMenu={(e) => e.preventDefault()}
         >
           {popupContent}
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   )
