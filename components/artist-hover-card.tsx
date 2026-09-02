@@ -49,6 +49,7 @@ export function ArtistHoverCard({
   const [open, setOpen] = useState(false)
   const [prizeOpen, setPrizeOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
+  const portalRef = useRef<HTMLDivElement>(null)
   const [fixedPos, setFixedPos] = useState<{ x: number; y: number } | null>(null)
 
   useEffect(() => {
@@ -76,7 +77,9 @@ export function ArtistHoverCard({
   useEffect(() => {
     if (!open) return
     function handleClick(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
+      const inTrigger = ref.current?.contains(e.target as Node)
+      const inPortal = portalRef.current?.contains(e.target as Node)
+      if (!inTrigger && !inPortal) {
         setOpen(false)
         setPrizeOpen(false)
       }
@@ -259,6 +262,7 @@ export function ArtistHoverCard({
 
       {open && fixed && fixedPos && typeof window !== "undefined" && createPortal(
         <div
+          ref={portalRef}
           className="z-[9999] w-80 comic-pop comic-bubble bg-foreground text-background border-2 border-white/60 p-4 rounded-2xl shadow-2xl"
           style={{ position: "fixed", left: fixedPos.x, top: fixedPos.y }}
           onContextMenu={(e) => e.preventDefault()}
