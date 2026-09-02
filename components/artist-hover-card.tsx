@@ -3,8 +3,8 @@
 import React, { useState, useRef, useEffect } from "react"
 import { createPortal } from "react-dom"
 import Link from "next/link"
+import Image from "next/image"
 import { MapPin, Link2, Check, HelpCircle, Gift, ChevronDown } from "lucide-react"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useI18n } from "@/lib/i18n/context"
 
 export interface Artist {
@@ -130,14 +130,21 @@ export function ArtistHoverCard({
   const popupContent = (
     <>
       <div className="flex space-x-4">
-        <Avatar className="h-12 w-12 border border-white/15 shrink-0">
+        <div className="h-12 w-12 border border-white/15 shrink-0 rounded-full overflow-hidden bg-white/10 flex items-center justify-center">
           {artist.image_url ? (
-            <AvatarImage src={artist.image_url} alt={artist.name} />
-          ) : null}
-          <AvatarFallback className="bg-white/10 text-background font-semibold">
-            {initials}
-          </AvatarFallback>
-        </Avatar>
+            <Image
+              src={artist.image_url}
+              alt={artist.name}
+              width={48}
+              height={48}
+              className="h-full w-full object-cover"
+              loading="lazy"
+              sizes="48px"
+            />
+          ) : (
+            <span className="text-sm font-semibold text-background">{initials}</span>
+          )}
+        </div>
 
         <div className="space-y-3 flex-1 overflow-hidden">
           <div className="flex items-start justify-between gap-2">
@@ -258,10 +265,14 @@ export function ArtistHoverCard({
           {prizeOpen && (
             <div className="mt-1 overflow-hidden rounded-lg border border-white/15 bg-white/5 animate-in slide-in-from-top-1 fade-in duration-150">
               {artist.prize_image_url ? (
-                <img
+                <Image
                   src={artist.prize_image_url}
                   alt={`${artist.name} prize`}
+                  width={320}
+                  height={200}
                   className="w-full object-cover"
+                  loading="lazy"
+                  sizes="320px"
                 />
               ) : (
                 <div className="flex flex-col items-center justify-center gap-1.5 py-6 text-center">

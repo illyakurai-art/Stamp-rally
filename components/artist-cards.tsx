@@ -1,6 +1,7 @@
 "use client"
 
 import { useRef, useState } from "react"
+import Image from "next/image"
 import { ArtistCard } from "@/components/artist-card"
 import { ArtistHoverCard, type Artist } from "@/components/artist-hover-card"
 import { useI18n } from "@/lib/i18n/context"
@@ -140,12 +141,14 @@ function PairArtistCard({ artists }: { artists: Artist[] }) {
           }`}
         >
           {artists[current].image_url ? (
-            <img
+            <Image
               key={`${merged.id}-${current}`}
               src={artists[current].image_url}
               alt={artists[current].name}
+              width={220}
+              height={220}
               loading="lazy"
-              decoding="async"
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 200px"
               className="tile-fade h-full w-full bg-white object-cover"
             />
           ) : (

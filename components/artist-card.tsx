@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import { ArtistHoverCard, type Artist } from "@/components/artist-hover-card"
 import { useI18n } from "@/lib/i18n/context"
 
@@ -25,11 +26,13 @@ export function ArtistCard({ artist }: { artist: Artist }) {
           }`}
         >
           {artist.image_url ? (
-            <img
+            <Image
               src={artist.image_url}
               alt={artist.name}
+              width={220}
+              height={220}
               loading="lazy"
-              decoding="async"
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 200px"
               className={`tile-fade h-full w-full bg-white ${artist.display_id === "A0031" ? "object-contain scale-95" : "object-cover"}`}
             />
           ) : (

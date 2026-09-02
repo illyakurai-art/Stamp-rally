@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { TransformWrapper, TransformComponent, type ReactZoomPanPinchRef } from "react-zoom-pan-pinch";
 import { createClient } from "@/lib/supabase/client";
@@ -201,9 +202,13 @@ export default function MappaPage() {
                               style={{ width: 22, height: 22 }}
                               >
                                 {a.image_url ? (
-                                  <img
+                                  <Image
                                     src={a.image_url}
                                     alt={a.name}
+                                    width={22}
+                                    height={22}
+                                    loading="lazy"
+                                    sizes="22px"
                                     className="h-full w-full object-cover"
                                   />
                                 ) : (
