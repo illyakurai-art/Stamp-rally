@@ -7,7 +7,7 @@ async function StandsContent() {
 
   const { data: artists } = await supabase
     .from("artists")
-    .select("id, name, display_id, active")
+    .select("id, name, display_id")
     .order("display_id", { ascending: true });
 
   const displayIds = (artists ?? [])
@@ -31,7 +31,6 @@ async function StandsContent() {
     id: a.id,
     name: a.name,
     display_id: a.display_id,
-    active: a.active,
     stamps: stampsByArtist[a.display_id ?? ""] ?? 0,
   }));
 

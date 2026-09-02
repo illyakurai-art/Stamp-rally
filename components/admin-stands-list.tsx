@@ -8,7 +8,6 @@ export interface StandEntry {
   id: string;
   name: string;
   display_id: string | null;
-  active: boolean;
   stamps: number;
 }
 
@@ -30,7 +29,6 @@ export function AdminStandsList({ stands }: { stands: StandEntry[] }) {
       : b.stamps - a.stamps
   );
 
-  const totalStamps = stands.reduce((acc, s) => acc + s.stamps, 0);
   const maxStamps = Math.max(...stands.map((s) => s.stamps), 1);
 
   const SORT_OPTIONS: { mode: SortMode; label: string; icon: typeof ArrowDownAZ }[] = [
@@ -74,65 +72,31 @@ export function AdminStandsList({ stands }: { stands: StandEntry[] }) {
               </button>
             ))}
           </div>
-          <div className="shrink-0 rounded-full border border-foreground/15 bg-background px-3 py-1.5 text-xs text-foreground/60">
-            <span className="font-semibold text-foreground/80">{totalStamps}</span> timbri elargiti
-          </div>
         </div>
       </div>
 
       {/* Griglia card */}
       {sorted.length > 0 ? (
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
           {sorted.map((stand) => (
             <div
               key={stand.id}
-              className="rounded-2xl border border-foreground/10 p-5 flex flex-col gap-4 transition-colors hover:border-foreground/25 hover:shadow-sm bg-gradient-to-br"
+              className="rounded-2xl border border-foreground/10 p-4 flex flex-col items-center justify-center gap-2 transition-colors hover:border-foreground/25 hover:shadow-sm aspect-square bg-gradient-to-br"
               style={{
                 backgroundImage: `linear-gradient(135deg, rgba(153,108,158,0.35) 0%, rgba(153,108,158,0.15) 55%, rgba(153,108,158,0.03) 100%)`,
               }}
             >
-              {/* Nome + badge contatore */}
-              <div className="flex items-start justify-between gap-2">
-                <div className="min-w-0">
-                  <p className="font-semibold truncate text-base">{stand.name}</p>
-                  <p className="text-xs text-foreground/60 mt-0.5 flex items-center gap-1.5">
-                    <span>{stand.display_id ?? "—"}</span>
-                    <span
-                      className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${
-                        stand.active
-                          ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
-                          : "bg-red-500/10 text-red-500 dark:text-red-400"
-                      }`}
-                    >
-                      {stand.active ? "Attivo" : "Inattivo"}
-                    </span>
-                  </p>
-                </div>
-                <span
-                  className="shrink-0 inline-flex items-baseline gap-1 rounded-full px-2.5 py-1 text-sm font-bold"
-                  style={{
-                    background: `rgba(168, 85, 247, ${0.10 + (stand.stamps / maxStamps) * 0.35})`,
-                    color: `rgba(255, 255, 255, ${0.5 + (stand.stamps / maxStamps) * 0.5})`,
-                  }}
-                >
-                  {stand.stamps}
-                </span>
-              </div>
-
-              {/* Barra proporzione sul totale */}
-              <div className="h-1.5 w-full overflow-hidden rounded-full bg-foreground/8">
-                <div
-                  className="h-full rounded-full bg-gradient-to-r from-violet-500 to-fuchsia-500 transition-all duration-500"
-                  style={{
-                    width: `${totalStamps > 0 ? Math.min((stand.stamps / totalStamps) * 100, 100) : 0}%`,
-                  }}
-                />
-              </div>
-
-              {/* Timbri elargiti */}
-              <div className="rounded-lg bg-foreground/[0.05] px-3 py-2 text-xs text-foreground/80 text-center flex items-center justify-center gap-1.5">
-                <Stamp className="h-3.5 w-3.5 text-foreground/50" />
-                {stand.stamps === 1 ? "1 timbro elargito" : `${stand.stamps} timbri elargiti`}
+              <p className="font-semibold truncate text-sm text-center w-full">{stand.name}</p>
+              <p className="text-[10px] text-foreground/50">{stand.display_id ?? "—"}</p>
+              <div
+                className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-bold"
+                style={{
+                  background: `rgba(168, 85, 247, ${0.10 + (stand.stamps / maxStamps) * 0.35})`,
+                  color: `rgba(255, 255, 255, ${0.5 + (stand.stamps / maxStamps) * 0.5})`,
+                }}
+              >
+                <Stamp className="h-3.5 w-3.5" />
+                {stand.stamps}
               </div>
             </div>
           ))}
