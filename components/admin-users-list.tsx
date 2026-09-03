@@ -105,7 +105,7 @@ export function AdminUsersList({ users }: { users: UserEntry[] }) {
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-1.5">
                       {user.kkUnlocked && <Crown className="h-4 w-4 text-yellow-400 shrink-0 fill-yellow-400" />}
-                      <p className={`font-semibold text-base drop-shadow-sm ${user.kkUnlocked ? "text-yellow-300 rounded-full border border-yellow-400/70 px-2 py-0.5" : "text-white"}`}>{user.nickname}</p>
+                      <p className={`font-semibold text-base drop-shadow-sm ${user.kkUnlocked ? "text-yellow-300" : "text-white"}`}>{user.nickname}</p>
                     </div>
                     <p className="text-xs text-white/80 mt-1">
                       {user.display_id ?? "—"} ·{" "}
