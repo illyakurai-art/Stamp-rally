@@ -284,6 +284,26 @@ select:-webkit-autofill {
   border-bottom: 7px solid hsl(var(--foreground));
 }
 
+/* ── Scrollbar personalizzata: thumb tondo azzurro pastello, niente track bianca ── */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #B8D4E3 transparent;
+}
+*::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background: #B8D4E3;
+  border-radius: 9999px;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: #9EC5D6;
+}
+
 /* ── html5-qrcode: rimuove elementi duplicati su mobile ── */
 #qr-reader {
   border: none !important;
