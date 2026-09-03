@@ -72,7 +72,7 @@ export async function adminRedeem(userId: string): Promise<RedeemResult> {
   // Fascia premio massima
   const { data: tier, error: tierError } = await supabase
     .from("prizes")
-    .select("*")
+    .select("tier_threshold, gacha_included, extra_choice, is_full_collection")
     .lte("tier_threshold", stampCount)
     .order("tier_threshold", { ascending: false })
     .limit(1)
@@ -152,6 +152,18 @@ export async function adminRedeem(userId: string): Promise<RedeemResult> {
 
 export async function getUserStamps(userId: string) {
   const supabase = await createClient();
+
+  // Verifica che chi chiama sia staff
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return null;
+
+  const { data: callerProfile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (callerProfile?.role !== "staff") return null;
 
   const { data: profile } = await supabase
     .from("profiles")

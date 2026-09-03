@@ -54,6 +54,7 @@ export async function updateSession(request: NextRequest) {
     !user &&
     pathname !== "/" &&
     !pathname.startsWith("/auth") &&
+    !pathname.startsWith("/api") &&
     !pathname.startsWith("/admin/login") &&
     pathname !== "/privacy"
   ) {

@@ -108,23 +108,38 @@ export function AuthForm() {
     const supabase = createClient();
 
     if (!isNewUser) {
-      // ── LOGIN (utente esistente o non ancora determinato) ──
+      // ── LOGIN via route server-side (IP forwarding per rate limiting) ──
       try {
-        const { error } = await supabase.auth.signInWithPassword({
-          email: nicknameToFakeEmail(effectiveNickname),
-          password: effectivePassword,
+        const res = await fetch("/api/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ nickname: effectiveNickname, password: effectivePassword }),
         });
-        if (error) {
-          if (
-            error.message.toLowerCase().includes("invalid login") ||
-            error.message.toLowerCase().includes("invalid credentials")
-          ) {
+        const data = await res.json();
+
+        if (!res.ok) {
+          if (data.error?.toLowerCase().includes("nickname o password")) {
             setWrongPassword(nicknameStatus === "taken");
             setIsLoading(false);
             return;
           }
-          throw error;
+          if (res.status === 429) {
+            setError("Troppi tentativi di accesso. Riprova tra qualche secondo.");
+            setIsLoading(false);
+            return;
+          }
+          throw new Error(data.error ?? t("error_occurred"));
         }
+
+        // Imposta la sessione nel client con i token ricevuti
+        if (data.access_token && data.refresh_token) {
+          const supabase = createClient();
+          await supabase.auth.setSession({
+            access_token: data.access_token,
+            refresh_token: data.refresh_token,
+          });
+        }
+
         router.push("/protected");
       } catch (err: unknown) {
         setError(err instanceof Error ? err.message : t("error_occurred"));

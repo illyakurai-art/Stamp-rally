@@ -8,9 +8,8 @@ export async function checkNicknameAvailable(nickname: string): Promise<boolean>
     p_nickname: nickname.trim(),
   });
   if (error) {
-    // In caso di errore RPC lasciamo passare (il DB bloccherà comunque il duplicato)
     console.error("nickname check error:", error);
-    return true;
+    return false;
   }
   return data as boolean;
 }

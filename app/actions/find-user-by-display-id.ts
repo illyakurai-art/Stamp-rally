@@ -6,6 +6,18 @@ import type { UserEntry } from "@/components/admin-users-list";
 export async function findUserByDisplayId(displayId: string): Promise<UserEntry | null> {
   const supabase = await createClient();
 
+  // Verifica che chi chiama sia staff
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return null;
+
+  const { data: callerProfile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (callerProfile?.role !== "staff") return null;
+
   const { data: profile } = await supabase
     .from("profiles")
     .select("id, nickname, display_id, created_at")
