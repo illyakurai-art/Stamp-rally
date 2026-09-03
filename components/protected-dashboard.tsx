@@ -268,7 +268,7 @@ export function ProtectedDashboard() {
     )?.label ?? false;
 
   return (
-    <section className="mx-auto w-full max-w-5xl px-5 py-6">
+    <section className="mx-auto w-full max-w-5xl px-5 py-6 select-none">
       <ScanToast />
       <RedeemNotification userId={userId!} />
       <StampRealtimeRefresh userId={userId!} userDisplayId={userDisplayId ?? null} />
