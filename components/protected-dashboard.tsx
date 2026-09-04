@@ -12,6 +12,8 @@ import { RedeemNotification } from "@/components/redeem-notification";
 import { StampRealtimeRefresh } from "@/components/stamp-realtime-refresh";
 import { SECRET_PAIRS, getEffectiveStampCount } from "@/lib/secret-pairs";
 import { ChevronDown, QrCode } from "lucide-react";
+import { AnimatedGroup } from "@/components/motion/animated-group";
+import { InView } from "@/components/motion/in-view";
 
 type ArtistData = {
   id: string;
@@ -282,7 +284,9 @@ export function ProtectedDashboard() {
       </div>
 
       <div className="mt-8">
-        <PrizeInfoCard stampCount={activeStampsCount} nickname={nickname} userDisplayId={userDisplayId} kkUnlocked={kkLabel} />
+        <AnimatedGroup preset="blur-sm">
+          <PrizeInfoCard stampCount={activeStampsCount} nickname={nickname} userDisplayId={userDisplayId} kkUnlocked={kkLabel} />
+        </AnimatedGroup>
       </div>
 
       <div className="mt-8 flex flex-col gap-3 items-center">
@@ -394,7 +398,18 @@ export function ProtectedDashboard() {
               )}
             </div>
           </div>
-          <ArtistCards artists={sortedArtists} />
+          <InView
+            viewOptions={{ once: true, margin: "0px 0px -250px 0px" }}
+            variants={{
+              hidden: { opacity: 0 },
+              visible: {
+                opacity: 1,
+                transition: { staggerChildren: 0.09 },
+              },
+            }}
+          >
+            <ArtistCards artists={sortedArtists} />
+          </InView>
         </div>
       )}
     </section>

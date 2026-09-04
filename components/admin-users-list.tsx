@@ -51,10 +51,10 @@ export function AdminUsersList({ users }: { users: UserEntry[] }) {
       {/* Bottone scanner QR — sopra la ricerca, stessa larghezza */}
       <button
         onClick={() => setScannerOpen(true)}
-        className="flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-[#996C9E] px-4 text-sm font-medium text-white shadow-sm hover:bg-[#8a5f8e] transition-colors"
+        className="flex h-14 w-full items-center justify-center gap-3 rounded-xl bg-[#996C9E] px-5 text-base font-semibold text-white shadow-sm hover:bg-[#8a5f8e] transition-colors"
         style={{ boxShadow: "6px 6px 0 rgba(0, 0, 0, 0.25)" }}
       >
-        <QrCode className="h-4 w-4 shrink-0" />
+        <QrCode className="h-6 w-6 shrink-0" />
         Scansiona QR utente
       </button>
 

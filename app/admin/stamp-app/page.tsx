@@ -1,7 +1,5 @@
-"use client";
-
-import { ProtectedDashboard } from "@/components/protected-dashboard";
+import { redirect } from "next/navigation";
 
 export default function AdminStampAppPage() {
-  return <ProtectedDashboard />;
+  redirect("/protected");
 }

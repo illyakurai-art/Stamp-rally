@@ -1,7 +1,6 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
 import {
   Card,
@@ -13,11 +12,7 @@ import {
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { ShieldCheck } from "lucide-react";
-
-function nicknameToFakeEmail(nickname: string): string {
-  const safe = nickname.trim().toLowerCase().replace(/[^a-z0-9_.-]/g, "_");
-  return `${safe}@stamprally.local`;
-}
+import { createClient } from "@/lib/supabase/client";
 
 export function AdminLoginForm({ className }: { className?: string }) {
   const [nickname, setNickname] = useState("");
@@ -31,10 +26,7 @@ export function AdminLoginForm({ className }: { className?: string }) {
     e.preventDefault();
     setError(null);
     setIsLoading(true);
-    const supabase = createClient();
 
-    // L'auto-fill (Face ID / password manager) scrive il campo ma NON
-    // triggera onChange: leggiamo i valori reali dal DOM al momento del submit.
     const form = e.currentTarget as HTMLFormElement;
     const formData = new FormData(form);
     const domNickname = (formData.get("nickname") as string)?.trim() ?? "";
@@ -44,28 +36,43 @@ export function AdminLoginForm({ className }: { className?: string }) {
     const effectivePassword = domPassword || password;
 
     try {
-      const { data, error: loginError } = await supabase.auth.signInWithPassword({
-        email: nicknameToFakeEmail(effectiveNickname),
-        password: effectivePassword,
+      // Usa la route server-side con IP forwarding per rate limiting
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nickname: effectiveNickname, password: effectivePassword }),
       });
+      const data = await res.json();
 
-      if (loginError) {
-        throw new Error("Credenziali non valide");
+      if (!res.ok) {
+        if (res.status === 429) {
+          setError("Troppi tentativi di accesso. Riprova tra qualche secondo.");
+          return;
+        }
+        throw new Error(data.error ?? "Credenziali non valide");
       }
 
-      // Verifica ruolo staff lato client (il middleware lo verifica anche lato server)
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("role")
-        .eq("id", data.user.id)
-        .maybeSingle();
+      // Imposta la sessione nel client con i token ricevuti
+      if (data.access_token && data.refresh_token) {
+        const supabase = createClient();
+        await supabase.auth.setSession({
+          access_token: data.access_token,
+          refresh_token: data.refresh_token,
+        });
 
-      if (profile?.role !== "staff") {
-        await supabase.auth.signOut();
-        throw new Error("Accesso non autorizzato: account non staff");
+        // Verifica ruolo staff
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", data.user_id)
+          .maybeSingle();
+
+        if (profile?.role !== "staff") {
+          await supabase.auth.signOut();
+          throw new Error("Accesso non autorizzato: account non staff");
+        }
       }
 
-      // Hard navigation per assicurarsi che il proxy legga i cookie aggiornati
       window.location.href = "/admin";
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Si è verificato un errore");
@@ -76,13 +83,13 @@ export function AdminLoginForm({ className }: { className?: string }) {
 
   return (
     <div className={cn("flex flex-col gap-6", className)}>
-      <Card className="border-foreground/10">
+      <Card className="border-foreground/10 bg-[#3D2545] text-white">
         <CardHeader className="text-center pb-4">
           <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-[#996C9E]">
             <ShieldCheck className="h-6 w-6 text-white" />
           </div>
-          <CardTitle className="text-2xl">Area Admin</CardTitle>
-          <CardDescription>Accesso riservato allo staff</CardDescription>
+          <CardTitle className="text-2xl text-white">Area Admin</CardTitle>
+          <CardDescription className="text-white/70">Accesso riservato allo staff</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleLogin}>
@@ -93,7 +100,7 @@ export function AdminLoginForm({ className }: { className?: string }) {
                 </div>
               )}
               <div className="flex flex-col gap-2">
-                <label htmlFor="nickname" className="text-lg font-bold text-[#7d4d7f]">
+                <label htmlFor="nickname" className="text-lg font-bold text-[#C5A3C9]">
                   Nickname
                 </label>
                 <input
@@ -108,11 +115,11 @@ export function AdminLoginForm({ className }: { className?: string }) {
                   onAnimationStart={(e) => {
                     if (e.animationName === "onAutoFillStart") setNickname(e.currentTarget.value);
                   }}
-                  className="h-12 w-full rounded-lg border border-foreground/15 bg-[#D4B3E3] px-4 text-base text-foreground outline-none transition-all focus:border-foreground/30 focus:ring-2 focus:ring-foreground/20 placeholder:text-foreground/60"
+                  className="h-12 w-full rounded-lg border border-white/15 bg-[#4A2D54] px-4 text-base text-white outline-none transition-all focus:border-white/30 focus:ring-2 focus:ring-white/20 placeholder:text-white/50"
                 />
               </div>
               <div className="flex flex-col gap-2">
-                <label htmlFor="password" className="text-lg font-bold text-[#7d4d7f]">
+                <label htmlFor="password" className="text-lg font-bold text-[#C5A3C9]">
                   Password
                 </label>
                 <input
@@ -126,7 +133,7 @@ export function AdminLoginForm({ className }: { className?: string }) {
                   onAnimationStart={(e) => {
                     if (e.animationName === "onAutoFillStart") setPassword(e.currentTarget.value);
                   }}
-                  className="h-12 w-full rounded-lg border border-foreground/15 bg-[#D4B3E3] px-4 text-base text-foreground outline-none transition-all focus:border-foreground/30 focus:ring-2 focus:ring-foreground/20 placeholder:text-foreground/60"
+                  className="h-12 w-full rounded-lg border border-white/15 bg-[#4A2D54] px-4 text-base text-white outline-none transition-all focus:border-white/30 focus:ring-2 focus:ring-white/20 placeholder:text-white/50"
                 />
               </div>
               {error && (
@@ -143,7 +150,7 @@ export function AdminLoginForm({ className }: { className?: string }) {
 
               <Link
                 href="/auth/sign-up"
-                className="flex w-full items-center justify-center rounded-xl border border-foreground/15 px-4 py-3 text-base font-medium text-foreground/70 transition-colors hover:bg-foreground/5 hover:text-foreground"
+                className="flex w-full items-center justify-center rounded-xl border border-white/15 px-4 py-3 text-base font-medium text-white/70 transition-colors hover:bg-white/5 hover:text-white"
               >
                 Accedi come utente
               </Link>

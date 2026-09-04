@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react"
 import Image from "next/image"
+import { motion } from "motion/react"
 import { ArtistCard } from "@/components/artist-card"
 import { ArtistHoverCard, type Artist } from "@/components/artist-hover-card"
 import { useI18n } from "@/lib/i18n/context"
@@ -55,9 +56,33 @@ export function ArtistCards({ artists }: { artists: Artist[] }) {
     <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
       {tiles.map((tile) =>
         tile.isPair ? (
-          <PairArtistCard key={tile.id} artists={tile.artists} />
+          <motion.div
+            key={tile.id}
+            variants={{
+              hidden: { opacity: 0, scale: 0.8, filter: "blur(10px)" },
+              visible: {
+                opacity: 1,
+                scale: 1,
+                filter: "blur(0px)",
+              },
+            }}
+          >
+            <PairArtistCard artists={tile.artists} />
+          </motion.div>
         ) : (
-          <ArtistCard key={tile.id} artist={tile.artists[0]} />
+          <motion.div
+            key={tile.id}
+            variants={{
+              hidden: { opacity: 0, scale: 0.8, filter: "blur(10px)" },
+              visible: {
+                opacity: 1,
+                scale: 1,
+                filter: "blur(0px)",
+              },
+            }}
+          >
+            <ArtistCard artist={tile.artists[0]} />
+          </motion.div>
         )
       )}
     </div>

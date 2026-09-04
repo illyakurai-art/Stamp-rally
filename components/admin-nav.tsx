@@ -10,7 +10,7 @@ const NAV_ITEMS = [
   { href: "/admin/users", label: "Utenti", icon: Users, exact: false },
   { href: "/admin/stands", label: "Stand", icon: Store, exact: false },
   { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard, exact: true },
-  { href: "/admin/stamp-app", label: "StampApp", icon: Stamp, exact: false },
+  { href: "/protected", label: "StampApp", icon: Stamp, exact: false },
 ];
 
 function isActive(pathname: string, exact: boolean, href: string) {

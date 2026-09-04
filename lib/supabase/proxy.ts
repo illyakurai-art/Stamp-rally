@@ -89,12 +89,6 @@ export async function updateSession(request: NextRequest) {
     // Definiamo i livelli di autorizzazione abilitati alla sezione admin
     const hasAdminAccess = role === "admin" || role === "staff";
 
-    if (hasAdminAccess && pathname.startsWith("/protected")) {
-      const url = request.nextUrl.clone();
-      url.pathname = "/admin";
-      return NextResponse.redirect(url);
-    }
-
     if (hasAdminAccess && pathname === "/") {
       const url = request.nextUrl.clone();
       url.pathname = "/admin";

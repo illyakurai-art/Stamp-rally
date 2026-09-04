@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { UserSettings } from "@/components/user-settings";
 import { GameRules } from "@/components/game-rules";
 
@@ -13,6 +14,12 @@ export default function ProtectedLayout({
           <div className="flex items-center gap-2">
             <GameRules />
           </div>
+          <Link
+            href="/admin"
+            className="flex items-center gap-2 rounded-md border border-[#996C9E]/30 bg-[#996C9E]/10 px-3 py-2 text-sm font-semibold text-[#996C9E] transition-colors hover:bg-[#996C9E]/20"
+          >
+            Torna ad Admin
+          </Link>
           <UserSettings />
         </div>
       </nav>

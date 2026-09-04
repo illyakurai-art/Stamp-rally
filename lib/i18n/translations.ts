@@ -106,6 +106,7 @@ export const translations = {
   "repeat_password": { ITA: "Ripeti password", ENG: "Repeat password" },
   "wrong_nickname_or_password": { ITA: "Nickname o password errati", ENG: "Wrong nickname or password" },
   "welcome_back": { ITA: "Bentornato", ENG: "Welcome back" },
+  "welcome": { ITA: "Benvenuto", ENG: "Welcome" },
   "wrong_password_hint": { ITA: "Forse stai accedendo all'account di qualcun altro?", ENG: "Maybe you're accessing someone else's account?" },
   "forgot_my_password": { ITA: "Ho scordato la mia password", ENG: "I forgot my password" },
   "login_other_tab_warning": { ITA: "Sembra che questa pagina di login sia già aperta in un'altra scheda. Chiudi l'altra scheda e riprova: su iPhone/iPad il Face ID può fallire quando il login è aperto due volte.", ENG: "This login page seems to be open in another tab. Close the other tab and try again: on iPhone/iPad Face ID can fail when the login is open twice." },

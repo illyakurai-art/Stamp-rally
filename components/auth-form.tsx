@@ -6,6 +6,8 @@ import { checkNicknameAvailable } from "@/app/actions/check-nickname";
 import { useRouter } from "next/navigation";
 import { useI18n } from "@/lib/i18n/context";
 import { Eye, EyeOff } from "lucide-react";
+import { TextShimmer } from "@/components/motion/text-shimmer";
+import { TextMorph } from "@/components/motion/text-morph";
 
 function nicknameToFakeEmail(nickname: string): string {
   const safe = nickname.trim().toLowerCase().replace(/[^a-z0-9_.-]/g, "_");
@@ -232,7 +234,7 @@ export function AuthForm() {
       )}
 
       {/* Header */}
-      <div className="mb-2 flex justify-center">
+      <div className="mb-2 flex flex-col items-center gap-3">
         <img
           src="/stamprally-banner.png"
           alt="Stamp Rally"
@@ -243,9 +245,15 @@ export function AuthForm() {
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
         {/* Nickname */}
         <div className="flex flex-col gap-2">
-          <label htmlFor="nickname" className="text-lg font-bold text-[#7d4d7f]">
-            {t("nickname")}
-          </label>
+          <div className="h-8 flex items-center">
+            <TextMorph className="text-lg font-bold text-[#7d4d7f]">
+              {nickname.trim().length >= 2
+                ? nicknameStatus === "taken"
+                  ? `${t("welcome_back")} ${nickname.trim()}`
+                  : `${t("welcome")} ${nickname.trim()}`
+                : t("welcome")}
+            </TextMorph>
+          </div>
           <input
             id="nickname"
             name="nickname"
@@ -264,7 +272,9 @@ export function AuthForm() {
                 : "border-foreground/15 focus:border-foreground/30"
             }`}
           />
-          {nicknameHint()}
+          {nickname.trim().length >= 2 && nicknameStatus === "available" && (
+            <p className="text-xs text-emerald-600 dark:text-emerald-400">{t("nickname_available")}</p>
+          )}
           {wrongPassword && (
             <>
               <p className="text-xs text-red-500">{t("wrong_password_hint")}</p>
