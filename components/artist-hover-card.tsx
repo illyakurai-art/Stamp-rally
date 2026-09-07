@@ -55,51 +55,70 @@ export function ArtistHoverCard({
 
   useEffect(() => {
     if (!open || fixed || !ref.current) return
-    const rect = ref.current.getBoundingClientRect()
-    const elW = 320
-    const elH = 400
-    const gap = 8
-    let x = rect.left + rect.width / 2 - elW / 2
-    if (x < 8) x = 8
-    if (x + elW > window.innerWidth - 8) x = window.innerWidth - elW - 8
-    const spaceAbove = rect.top
-    const spaceBelow = window.innerHeight - rect.bottom
-    let above: boolean
-    if (spaceBelow >= elH + gap) {
-      above = false
-    } else if (spaceAbove >= elH + gap) {
-      above = true
-    } else {
-      above = spaceAbove > spaceBelow
+    const updatePosition = () => {
+      if (!ref.current) return
+      const rect = ref.current.getBoundingClientRect()
+      const elW = Math.min(320, window.innerWidth - 32)
+      const elH = 400
+      const gap = 8
+      let x = rect.left + rect.width / 2 - elW / 2
+      if (x < 8) x = 8
+      if (x + elW > window.innerWidth - 8) x = window.innerWidth - elW - 8
+      const spaceAbove = rect.top
+      const spaceBelow = window.innerHeight - rect.bottom
+      let above: boolean
+      if (spaceBelow >= elH + gap) {
+        above = false
+      } else if (spaceAbove >= elH + gap) {
+        above = true
+      } else {
+        above = spaceAbove > spaceBelow
+      }
+      setAbsStyle({
+        position: "fixed" as const,
+        left: x,
+        ...(above ? { bottom: window.innerHeight - rect.top + gap } : { top: rect.bottom + gap }),
+      })
     }
-    const offsetX = x - rect.left
-    setAbsStyle({
-      position: "fixed" as const,
-      left: x,
-      ...(above ? { bottom: window.innerHeight - rect.top + gap } : { top: rect.bottom + gap }),
-    })
+    updatePosition()
+    window.addEventListener("scroll", updatePosition, { passive: true })
+    window.addEventListener("resize", updatePosition, { passive: true })
+    return () => {
+      window.removeEventListener("scroll", updatePosition)
+      window.removeEventListener("resize", updatePosition)
+    }
   }, [open, fixed])
 
   useEffect(() => {
     if (!open || !fixed || !ref.current) return
-    const rect = ref.current.getBoundingClientRect()
-    const elW = 320
-    const elH = 400
-    const gap = 8
-    let x = rect.left + rect.width / 2 - elW / 2
-    if (x < 8) x = 8
-    if (x + elW > window.innerWidth - 8) x = window.innerWidth - elW - 8
-    const spaceAbove = rect.top
-    const spaceBelow = window.innerHeight - rect.bottom
-    let y: number
-    if (spaceBelow >= elH + gap) {
-      y = rect.bottom + gap
-    } else if (spaceAbove >= elH + gap) {
-      y = rect.top - elH - gap
-    } else {
-      y = spaceBelow >= spaceAbove ? rect.bottom + gap : rect.top - elH - gap
+    const updatePosition = () => {
+      if (!ref.current) return
+      const rect = ref.current.getBoundingClientRect()
+      const elW = 320
+      const elH = 400
+      const gap = 8
+      let x = rect.left + rect.width / 2 - elW / 2
+      if (x < 8) x = 8
+      if (x + elW > window.innerWidth - 8) x = window.innerWidth - elW - 8
+      const spaceAbove = rect.top
+      const spaceBelow = window.innerHeight - rect.bottom
+      let y: number
+      if (spaceBelow >= elH + gap) {
+        y = rect.bottom + gap
+      } else if (spaceAbove >= elH + gap) {
+        y = rect.top - elH - gap
+      } else {
+        y = spaceBelow >= spaceAbove ? rect.bottom + gap : rect.top - elH - gap
+      }
+      setFixedPos({ x, y })
     }
-    setFixedPos({ x, y })
+    updatePosition()
+    window.addEventListener("scroll", updatePosition, { passive: true })
+    window.addEventListener("resize", updatePosition, { passive: true })
+    return () => {
+      window.removeEventListener("scroll", updatePosition)
+      window.removeEventListener("resize", updatePosition)
+    }
   }, [open, fixed])
 
   useEffect(() => {
@@ -302,7 +321,7 @@ export function ArtistHoverCard({
       {open && fixed && fixedPos && typeof window !== "undefined" && createPortal(
         <div
           ref={portalRef}
-          className="z-[9999] w-80 comic-pop comic-bubble bg-foreground text-background border-2 border-white/60 p-4 rounded-2xl shadow-2xl"
+          className="z-[9999] w-[calc(100vw-32px)] max-w-80 comic-pop comic-bubble bg-foreground text-background border-2 border-white/60 p-4 rounded-2xl shadow-2xl"
           style={{ position: "fixed", left: fixedPos.x, top: fixedPos.y }}
           onContextMenu={(e) => e.preventDefault()}
         >
@@ -314,7 +333,7 @@ export function ArtistHoverCard({
       {open && !fixed && absStyle && typeof window !== "undefined" && createPortal(
         <div
           ref={portalRef}
-          className="z-[9999] w-80 comic-pop comic-bubble bg-foreground text-background border-2 border-white/60 p-4 rounded-2xl shadow-2xl"
+          className="z-[9999] w-[calc(100vw-32px)] max-w-80 comic-pop comic-bubble bg-foreground text-background border-2 border-white/60 p-4 rounded-2xl shadow-2xl"
           style={absStyle}
           onContextMenu={(e) => e.preventDefault()}
         >

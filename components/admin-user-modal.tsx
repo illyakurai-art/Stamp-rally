@@ -8,6 +8,7 @@ import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import { adminRedeem, getUserStamps } from "@/app/actions/admin-redeem";
 import type { RedeemResult } from "@/app/actions/admin-redeem";
 import { getStampsGradient } from "@/lib/stamp-gradient";
+import { RedeemFlow } from "@/components/admin/redeem-flow";
 
 const TIERS = [
   { stamps: 50, label: "Full collection", gacha: null, extra: null },
@@ -41,7 +42,7 @@ interface Props {
   onClose: () => void;
 }
 
-type View = "main" | "stamps" | "confirm" | "result";
+type View = "main" | "stamps" | "confirm" | "redeem-flow" | "result";
 
 export function AdminUserModal({ userId, nickname, stampCount, open, initialView = "main", onClose }: Props) {
   const [view, setView] = useState<View>(initialView);
@@ -56,6 +57,10 @@ export function AdminUserModal({ userId, nickname, stampCount, open, initialView
     onClose();
     setTimeout(() => { setView("main"); setStamps(null); setResult(null); }, 300);
     if (result?.success) router.refresh();
+  };
+
+  const handleRedeemFlowCancel = () => {
+    setView("main");
   };
 
   const loadStamps = () => {
@@ -91,6 +96,11 @@ export function AdminUserModal({ userId, nickname, stampCount, open, initialView
         }, 4000);
       }
     });
+  };
+
+  const handleRedeemFlowSuccess = () => {
+    // Dopo che il flusso premi è completato, esegui il redeem per rimuovere i timbri
+    handleRedeem();
   };
 
   return (
@@ -210,51 +220,18 @@ export function AdminUserModal({ userId, nickname, stampCount, open, initialView
                 Conferma riscatto per <span className="font-extrabold">{nickname}</span>
               </h2>
             </div>
-            <div className="px-6 py-5 flex flex-col gap-4">
+            <div className="px-6 py-5">
               {tier ? (
-                <>
-                  {/* Riepilogo premio */}
-                  <div className="rounded-xl p-4 text-white" style={{ background: getStampsGradient(stampCount) }}>
-                    <p className="text-xs font-semibold uppercase tracking-wider text-white/80 mb-3">Premio da consegnare</p>
-                    {tier.gacha !== null ? (
-                      <div className="flex flex-col gap-2">
-                        <div className="flex items-center gap-2.5 text-3xl font-extrabold">
-                          <Trophy className="h-7 w-7 text-white" />
-                          {tier.gacha} Gacha
-                        </div>
-                        {tier.extra !== null && tier.extra > 0 && (
-                          <div className="flex items-center gap-2.5 text-xl font-bold">
-                            <Gift className="h-6 w-6 text-white/80" />
-                            + {tier.extra} extra a scelta
-                          </div>
-                        )}
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-2.5 text-2xl font-extrabold">
-                        <Trophy className="h-7 w-7 text-white" />
-                        Full Collection
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Info rimozione */}
-                  <div className="rounded-lg bg-foreground/[0.03] border border-foreground/10 px-4 py-3 text-sm text-foreground/60">
-                    <p>Verranno rimossi i <span className="font-semibold text-foreground">{tier.stamps} timbri più vecchi</span> di <span className="font-bold text-foreground">{nickname}</span>.</p>
-                    <p className="mt-1">Timbri rimanenti dopo il riscatto: <span className="font-semibold text-foreground">{stampCount - tier.stamps}</span></p>
-                  </div>
-
-                  <button
-                    onClick={handleRedeem}
-                    disabled={isPending}
-                    className="w-full rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 flex items-center justify-center gap-2 transition-all shadow-[0_5px_0_rgba(74,93,79,0.7)] active:translate-y-[5px] active:shadow-[0_0_0_rgba(74,93,79,0.7)] disabled:translate-y-0 disabled:shadow-none"
-                  >
-                    {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trophy className="h-4 w-4" />}
-                    {isPending ? "Riscatto in corso…" : "Conferma e consegna premio"}
-                  </button>
-                </>
+                <RedeemFlow
+                  extraCount={tier.extra ?? 0}
+                  gatchaCount={tier.gacha ?? 0}
+                  userId={userId}
+                  nickname={nickname}
+                  onSuccess={handleRedeemFlowSuccess}
+                  onCancel={() => setView("main")}
+                />
               ) : (
-                <>
-                  {/* Timbri collezionati */}
+                <div className="flex flex-col gap-4">
                   <div className="rounded-xl bg-red-500/8 border border-red-500/20 p-4">
                     <p className="text-xs font-semibold uppercase tracking-wider text-red-600 dark:text-red-400 mb-3">Timbri collezionati</p>
                     <div className="flex items-center gap-2 text-lg font-bold">
@@ -263,20 +240,17 @@ export function AdminUserModal({ userId, nickname, stampCount, open, initialView
                       <span className="text-sm text-foreground/60">timbri</span>
                     </div>
                   </div>
-
-                  {/* Messaggio insufficienza */}
                   <div className="rounded-lg bg-red-500/10 border border-red-500/30 px-4 py-3.5 text-center">
                     <p className="font-bold text-red-600 dark:text-red-400 text-base">Non hai abbastanza timbri</p>
                     <p className="mt-1 text-sm text-foreground/60">Il primo premio è disponibile con almeno {TIERS[TIERS.length - 1].stamps} timbri.</p>
                   </div>
-
                   <button
                     onClick={() => setView("main")}
                     className="w-full rounded-xl border border-foreground/15 py-3 text-sm font-medium hover:bg-foreground/5 transition-colors"
                   >
                     Torna indietro
                   </button>
-                </>
+                </div>
               )}
             </div>
           </div>
