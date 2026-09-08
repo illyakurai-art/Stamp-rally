@@ -53,7 +53,7 @@ export function GatchaReveal({ prizes, nickname, onDone }: GatchaRevealProps) {
   return (
     <div className="flex flex-col items-center gap-6">
       <h3 className="text-lg font-bold text-[#2D1B33]">
-        Estrazione Gatcha di {nickname}
+        Estrazione Gacha di {nickname}
       </h3>
 
       <div

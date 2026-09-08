@@ -12,16 +12,16 @@ import { RedeemFlow } from "@/components/admin/redeem-flow";
 import { Confetti } from "@/components/ui/confetti";
 
 const TIERS = [
-  { stamps: 50, label: "Full collection", gacha: null, extra: null },
-  { stamps: 45, gacha: 24, extra: 12, label: "24 gacha + 12 extra" },
-  { stamps: 40, gacha: 20, extra: 10, label: "20 gacha + 10 extra" },
-  { stamps: 35, gacha: 16, extra: 8,  label: "16 gacha + 8 extra"  },
-  { stamps: 30, gacha: 12, extra: 6,  label: "12 gacha + 6 extra"  },
-  { stamps: 25, gacha: 8,  extra: 4,  label: "8 gacha + 4 extra"   },
-  { stamps: 20, gacha: 6,  extra: 3,  label: "6 gacha + 3 extra"   },
-  { stamps: 15, gacha: 4,  extra: 2,  label: "4 gacha + 2 extra"   },
-  { stamps: 10, gacha: 2,  extra: 1,  label: "2 gacha + 1 extra"   },
-  { stamps: 5,  gacha: 1,  extra: 0,  label: "1 gacha"             },
+  { stamps: 50, label: "Full collection", gacha: null, extra: null, is_full_collection: true },
+  { stamps: 45, gacha: 24, extra: 12, label: "24 gacha + 12 extra", is_full_collection: false },
+  { stamps: 40, gacha: 20, extra: 10, label: "20 gacha + 10 extra", is_full_collection: false },
+  { stamps: 35, gacha: 16, extra: 8,  label: "16 gacha + 8 extra", is_full_collection: false },
+  { stamps: 30, gacha: 12, extra: 6,  label: "12 gacha + 6 extra", is_full_collection: false },
+  { stamps: 25, gacha: 8,  extra: 4,  label: "8 gacha + 4 extra", is_full_collection: false },
+  { stamps: 20, gacha: 6,  extra: 3,  label: "6 gacha + 3 extra", is_full_collection: false },
+  { stamps: 15, gacha: 4,  extra: 2,  label: "4 gacha + 2 extra", is_full_collection: false },
+  { stamps: 10, gacha: 2,  extra: 1,  label: "2 gacha + 1 extra", is_full_collection: false },
+  { stamps: 5,  gacha: 1,  extra: 0,  label: "1 gacha", is_full_collection: false },
 ];
 
 function getTier(n: number) {
@@ -227,7 +227,13 @@ export function AdminUserModal({ userId, nickname, stampCount, open, initialView
 
               {/* Scarica timbri */}
               <button
-                onClick={() => setView("confirm")}
+                onClick={() => {
+                  if (tier?.is_full_collection) {
+                    handleRedeem();
+                  } else {
+                    setView("confirm");
+                  }
+                }}
                 disabled={!tier}
                 className={`flex items-center justify-between w-full rounded-xl px-4 py-3.5 text-sm font-medium transition-all ${
                   tier
@@ -294,7 +300,7 @@ export function AdminUserModal({ userId, nickname, stampCount, open, initialView
               style={{ background: getStampsGradient(stampCount) }}
             >
               <h2 className="text-2xl text-white">
-                Estrazione Gatcha di <span className="font-extrabold">{nickname}</span>
+                Estrazione Gacha di <span className="font-extrabold">{nickname}</span>
               </h2>
             </div>
             <div className="px-6 py-5">
