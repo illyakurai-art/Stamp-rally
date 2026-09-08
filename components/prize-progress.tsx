@@ -29,7 +29,7 @@ const GRADIENTS = [
   "linear-gradient(to right, #E88CB5 0%, #C9A0DC 100%)", // 35
   "linear-gradient(to right, #C9A0DC 0%, #9B72CF 100%)", // 40
   "linear-gradient(to right, #9B72CF 0%, #C5A3C9 100%)", // 45
-  "linear-gradient(to right, #C5A3C9 0%, #9B72CF 100%)", // 50
+  "linear-gradient(to right, #9B72CF 0%, #5BC0EB 100%)", // 50 full collection (viola → blu)
 ];
 
 function getCurrentTier(count: number) {

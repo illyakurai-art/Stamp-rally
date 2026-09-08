@@ -11,7 +11,7 @@ export const STAMP_GRADIENTS: string[] = [
   "linear-gradient(to right, #E88CB5 0%, #C9A0DC 100%)", // 35 rosa → lilla
   "linear-gradient(to right, #C9A0DC 0%, #9B72CF 100%)", // 40 lilla → violetto
   "linear-gradient(to right, #9B72CF 0%, #C5A3C9 100%)", // 45 violetto → full collection
-  "linear-gradient(to right, #C5A3C9 0%, #9B72CF 100%)", // 50 full collection
+  "linear-gradient(to right, #9B72CF 0%, #5BC0EB 100%)", // 50 full collection (viola → blu)
 ];
 
 export function getStampsGradientIndex(n: number): number {
@@ -47,7 +47,7 @@ export const TENUE_GRADIENTS: string[] = [
   "linear-gradient(to right, rgba(232,140,181,0.25) 0%, rgba(201,160,220,0.25) 100%)", // 35
   "linear-gradient(to right, rgba(201,160,220,0.25) 0%, rgba(155,114,207,0.25) 100%)", // 40
   "linear-gradient(to right, rgba(155,114,207,0.25) 0%, rgba(197,163,201,0.25) 100%)", // 45
-  "linear-gradient(to right, rgba(197,163,201,0.25) 0%, rgba(155,114,207,0.25) 100%)", // 50
+  "linear-gradient(to right, rgba(155,114,207,0.25) 0%, rgba(91,192,235,0.25) 100%)", // 50
 ];
 
 export function getStampsTenueGradient(n: number): string {
@@ -66,7 +66,7 @@ export const DARK_STAMP_GRADIENTS: string[] = [
   "linear-gradient(to right, #D97AA3 0%, #B88ECB 100%)", // 35
   "linear-gradient(to right, #B88ECB 0%, #8A60BE 100%)", // 40
   "linear-gradient(to right, #8A60BE 0%, #B08DB5 100%)", // 45
-  "linear-gradient(to right, #B08DB5 0%, #8A60BE 100%)", // 50
+  "linear-gradient(to right, #8A60BE 0%, #4AA8D8 100%)", // 50
 ];
 
 export function getStampsDarkGradient(n: number): string {
