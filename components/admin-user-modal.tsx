@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useEffect, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Stamp, Trophy, Gift, Clock, ChevronRight, Loader2, CheckCircle2 } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
@@ -31,6 +31,70 @@ interface StampEntry {
   id: string;
   stamped_at: string;
   artist_name: string;
+}
+
+function ResultView({
+  result,
+  stampCount,
+  onClose,
+}: {
+  result: RedeemResult;
+  stampCount: number;
+  onClose: () => void;
+}) {
+  useEffect(() => {
+    if (result.success) {
+      const timer = setTimeout(() => onClose(), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [result.success, onClose]);
+
+  return (
+    <div>
+      <div className={`px-6 pt-8 pb-6 ${result.success ? "bg-emerald-500/8" : "bg-red-500/8"}`}>
+        <div className="flex items-center gap-3 mb-2">
+          {result.success
+            ? <CheckCircle2 className="h-7 w-7 text-emerald-500" />
+            : <Trophy className="h-7 w-7 text-red-500" />}
+          <h2 className="text-xl font-bold">
+            {result.success ? "Premio consegnato!" : "Errore"}
+          </h2>
+        </div>
+      </div>
+
+      <div className="px-6 py-5 flex flex-col gap-4">
+        {result.success ? (
+          <>
+            <div className="rounded-xl p-4 flex flex-col gap-2 text-white" style={{ background: getStampsGradient(stampCount) }}>
+              <p className="text-xs font-semibold uppercase tracking-wider text-white/80 mb-1">Premio consegnato</p>
+              {result.is_full_collection ? (
+                <p className="text-2xl font-extrabold">Full Collection 🎉</p>
+              ) : (
+                <>
+                  <p className="text-3xl font-extrabold">{result.gacha_included} Gacha</p>
+                  {result.extra_choice !== undefined && result.extra_choice > 0 && (
+                    <p className="text-xl font-bold">+ {result.extra_choice} extra a scelta</p>
+                  )}
+                </>
+              )}
+              <div className="mt-2 pt-2 border-t border-white/30 flex justify-between text-sm text-white/80">
+                <span>Timbri rimossi: <span className="font-bold text-white">{result.stamps_removed}</span></span>
+                <span>Rimanenti: <span className="font-bold text-white">{result.stamps_remaining}</span></span>
+              </div>
+            </div>
+            <p className="text-xs text-foreground/40 text-center">Si chiude automaticamente...</p>
+          </>
+        ) : (
+          <>
+            <p className="text-sm text-red-500">{result.error}</p>
+            <button onClick={onClose} className="w-full rounded-xl border border-foreground/15 py-3 text-sm font-medium hover:bg-foreground/5 transition-colors">
+              Torna indietro
+            </button>
+          </>
+        )}
+      </div>
+    </div>
+  );
 }
 
 interface Props {
@@ -252,57 +316,11 @@ export function AdminUserModal({ userId, nickname, stampCount, open, initialView
 
         {/* ── RESULT VIEW ── */}
         {view === "result" && result && (
-          <div>
-            <div className={`px-6 pt-8 pb-6 ${result.success ? "bg-emerald-500/8" : "bg-red-500/8"}`}>
-              <div className="flex items-center gap-3 mb-2">
-                {result.success
-                  ? <CheckCircle2 className="h-7 w-7 text-emerald-500" />
-                  : <Trophy className="h-7 w-7 text-red-500" />}
-                <h2 className="text-xl font-bold">
-                  {result.success ? "Premio consegnato!" : "Errore"}
-                </h2>
-              </div>
-              {result.success && (
-                <p className="text-sm text-foreground/60">
-                  Notifica inviata a <span className="font-semibold">{result.nickname}</span>
-                </p>
-              )}
-            </div>
-
-            <div className="px-6 py-5 flex flex-col gap-4">
-              {result.success ? (
-                <>
-                  <div className="rounded-xl p-4 flex flex-col gap-2 text-white" style={{ background: getStampsGradient(stampCount) }}>
-                    <p className="text-xs font-semibold uppercase tracking-wider text-white/80 mb-1">Premio consegnato</p>
-                    {result.is_full_collection ? (
-                      <p className="text-2xl font-extrabold">Full Collection 🎉</p>
-                    ) : (
-                      <>
-                        <p className="text-3xl font-extrabold">{result.gacha_included} Gacha</p>
-                        {result.extra_choice !== undefined && result.extra_choice > 0 && (
-                          <p className="text-xl font-bold">+ {result.extra_choice} extra a scelta</p>
-                        )}
-                      </>
-                    )}
-                    <div className="mt-2 pt-2 border-t border-white/30 flex justify-between text-sm text-white/80">
-                      <span>Timbri rimossi: <span className="font-bold text-white">{result.stamps_removed}</span></span>
-                      <span>Rimanenti: <span className="font-bold text-white">{result.stamps_remaining}</span></span>
-                    </div>
-                  </div>
-                  <button onClick={handleClose} className="w-full rounded-xl border border-foreground/15 py-3 text-sm font-medium hover:bg-foreground/5 transition-colors">
-                    Chiudi
-                  </button>
-                </>
-              ) : (
-                <>
-                  <p className="text-sm text-red-500">{result.error}</p>
-                  <button onClick={() => setView("main")} className="w-full rounded-xl border border-foreground/15 py-3 text-sm font-medium hover:bg-foreground/5 transition-colors">
-                    Torna indietro
-                  </button>
-                </>
-              )}
-            </div>
-          </div>
+          <ResultView
+            result={result}
+            stampCount={stampCount}
+            onClose={handleClose}
+          />
         )}
       </DialogContent>
     </Dialog>
