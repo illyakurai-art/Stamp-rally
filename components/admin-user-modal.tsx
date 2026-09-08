@@ -42,14 +42,38 @@ function FullCollectionCard({
   stampCount: number;
   onClose: () => void;
 }) {
-  const [cards] = useState(() => {
-    const allCards = Array.from({ length: 51 }, (_, i) => {
-      const num = String(i + 1).padStart(4, "0");
-      return `https://qoniejhhzixwzgtzlngo.supabase.co/storage/v1/object/public/artists-cards/Premi%20artisti/A${num}.webp`;
-    });
-    const shuffled = [...allCards].sort(() => Math.random() - 0.5);
-    return shuffled.slice(0, 5);
-  });
+  const [cards, setCards] = useState<string[]>([]);
+
+  useEffect(() => {
+    const fetchAvailable = async () => {
+      try {
+        const { createClient } = await import("@/lib/supabase/client");
+        const supabase = createClient();
+
+        // Query stand_inventory per artisti con card disponibili
+        const { data: inventory, error: invError } = await supabase
+          .from("stand_inventory")
+          .select("artist_id, remaining")
+          .gt("remaining", 0)
+          .order("artist_id");
+
+        console.log("[FullCollectionCard] stand_inventory:", inventory?.length, "error:", invError?.message);
+
+        if (inventory && inventory.length > 0) {
+          setCards(inventory.slice(0, 9).map(
+            (s) => `https://qoniejhhzixwzgtzlngo.supabase.co/storage/v1/render/image/public/artists-cards/Premi%20artisti/${s.artist_id}.webp?width=150&height=220`
+          ));
+        }
+      } catch (err) {
+        console.error("[FullCollectionCard] fetch error:", err);
+      }
+    };
+    fetchAvailable();
+  }, []);
+
+  const cardCount = Math.max(cards.length, 1);
+  const fanAngle = 100;
+  const startAngle = -fanAngle / 2;
 
   return (
     <div
@@ -63,67 +87,92 @@ function FullCollectionCard({
         Complimenti Full Collection
       </h2>
 
-      <div className="relative flex-1 flex items-center justify-center w-full">
-        {/* Card backs - same shape as front, peeking from below */}
-        <div className="absolute" style={{ bottom: "10%" }}>
-          <div className="relative" style={{ perspective: "500px" }}>
-            {[...Array(5)].map((_, i) => {
-              const offset = i - 2;
-              const rotation = offset * 12;
-              const translateY = Math.abs(offset) * 8 + 20;
+      <div className="relative w-full flex-1 flex items-center justify-center overflow-hidden">
+        {/* Shadow under the fan */}
+        {cards.length > 0 && (
+          <div
+            className="absolute left-1/2"
+            style={{
+              transform: "translateX(-50%) translateY(60%)",
+              width: "200px",
+              height: "22px",
+              borderRadius: "50%",
+              background: "radial-gradient(ellipse at center, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.2) 40%, transparent 70%)",
+              zIndex: 0,
+            }}
+          />
+        )}
+
+        {/* Card backs - same fan shape, behind front cards */}
+        {cards.length > 0 && (
+          <div className="absolute left-1/2" style={{ transform: "translateX(-50%) translateY(15%)" }}>
+            {[...Array(cardCount)].map((_, i) => {
+              const angle = startAngle + (fanAngle / Math.max(cardCount - 1, 1)) * i;
+              const rad = (angle * Math.PI) / 180;
+              const offsetX = Math.sin(rad) * 55;
+              const offsetY = (1 - Math.cos(rad)) * 28 + 16;
 
               return (
                 <div
                   key={`back-${i}`}
-                  className="absolute w-16 h-24 rounded-lg border-2 border-white/40"
+                  className="absolute rounded-xl border-2 border-white/30"
                   style={{
+                    width: "62px",
+                    height: "94px",
                     background: "linear-gradient(135deg, #996C9E 0%, #7d4d7f 100%)",
-                    transform: `rotate(${rotation}deg) translateY(${translateY}px)`,
+                    transform: `translateX(${offsetX}px) translateY(-${offsetY}px) rotate(${angle}deg)`,
                     transformOrigin: "bottom center",
-                    marginLeft: i === 0 ? 0 : "-20px",
-                    zIndex: 5 - Math.abs(offset),
+                    bottom: 0,
+                    left: "-31px",
+                    zIndex: i,
                   }}
                 />
               );
             })}
           </div>
-        </div>
+        )}
 
-        {/* Fan of 5 prize cards */}
-        <div className="relative" style={{ perspective: "500px" }}>
-          {cards.map((card, i) => {
-            const offset = i - 2;
-            const rotation = offset * 12;
-            const translateY = Math.abs(offset) * 8;
+        {/* Fan of 9 prize cards */}
+        {cards.length > 0 && (
+          <div className="absolute left-1/2" style={{ transform: "translateX(-50%) translateY(15%)" }}>
+            {cards.map((card, i) => {
+              const angle = startAngle + (fanAngle / Math.max(cardCount - 1, 1)) * i;
+              const rad = (angle * Math.PI) / 180;
+              const offsetX = Math.sin(rad) * 55;
+              const offsetY = (1 - Math.cos(rad)) * 28;
 
-            return (
-              <div
-                key={card}
-                className="relative w-16 h-24 rounded-lg overflow-hidden border-2 border-white/60 shadow-lg"
-                style={{
-                  transform: `rotate(${rotation}deg) translateY(${translateY}px)`,
-                  transformOrigin: "bottom center",
-                  marginLeft: i === 0 ? 0 : "-20px",
-                  zIndex: 10 - Math.abs(offset),
-                }}
-              >
-                <Image
-                  src={card}
-                  alt="Card premio"
-                  fill
-                  className="object-cover"
-                  sizes="64px"
-                />
-              </div>
-            );
-          })}
-        </div>
+              return (
+                <div
+                  key={card}
+                  className="absolute rounded-xl overflow-hidden border-2 border-white/70"
+                  style={{
+                    width: "62px",
+                    height: "94px",
+                    transform: `translateX(${offsetX}px) translateY(-${offsetY}px) rotate(${angle}deg)`,
+                    transformOrigin: "bottom center",
+                    bottom: 0,
+                    left: "-31px",
+                    zIndex: 10 + i,
+                  }}
+                >
+                  <Image
+                    src={card}
+                    alt="Card premio"
+                    fill
+                    className="object-cover"
+                    sizes="62px"
+                  />
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       <button
         type="button"
         onClick={onClose}
-        className="rounded-lg bg-white/20 px-6 py-2 text-sm font-semibold text-white backdrop-blur-sm hover:bg-white/30 transition-colors z-10"
+        className="rounded-lg bg-white/20 px-6 py-2 text-sm font-semibold text-white backdrop-blur-sm hover:bg-white/30 transition-colors z-50"
       >
         Chiudi
       </button>
