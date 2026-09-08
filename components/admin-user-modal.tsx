@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useTransition } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Stamp, Trophy, Gift, Clock, ChevronRight, Loader2, CheckCircle2 } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
@@ -34,6 +35,109 @@ interface StampEntry {
   artist_name: string;
 }
 
+function FullCollectionCard({
+  stampCount,
+  onClose,
+}: {
+  stampCount: number;
+  onClose: () => void;
+}) {
+  const [cards] = useState(() => {
+    const allCards = [
+      "/qr-stand/A0001_Asunicha.png",
+      "/qr-stand/A0002_Cristychan96.png",
+      "/qr-stand/A0003_Aeritus.png",
+      "/qr-stand/A0004_Yumii_art.png",
+      "/qr-stand/A0005_Antheal.png",
+      "/qr-stand/A0006_Cherbox.png",
+      "/qr-stand/A0007_Chiara_Mazzetti.png",
+      "/qr-stand/A0008_Chizuruleech.png",
+      "/qr-stand/A0009_Doffyy_art.png",
+      "/qr-stand/A0010_Mewslab.png",
+      "/qr-stand/A0011_Faleneee.png",
+      "/qr-stand/A0012_Irartchan.png",
+      "/qr-stand/A0013_Mamapou.png",
+      "/qr-stand/A0014_Maryaic.png",
+      "/qr-stand/A0015_Mogekodraws.png",
+      "/qr-stand/A0016_Noyaxart.png",
+      "/qr-stand/A0017_Phasenite.png",
+      "/qr-stand/A0018_Pollina.png",
+      "/qr-stand/A0019_Ririzaurahel.png",
+      "/qr-stand/A0020_Sophyret.png",
+    ];
+    const shuffled = [...allCards].sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, 5);
+  });
+
+  return (
+    <div
+      className="flex flex-col items-center justify-between p-6 overflow-hidden"
+      style={{
+        background: getStampsGradient(stampCount),
+        aspectRatio: "1 / 1",
+      }}
+    >
+      <h2 className="text-2xl font-bold text-white text-center drop-shadow-md z-10">
+        Complimenti Full Collection
+      </h2>
+
+      <div className="relative w-full flex-1 flex items-end justify-center pb-4">
+        {/* Card backs peeking from bottom */}
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 flex gap-1">
+          {[...Array(8)].map((_, i) => (
+            <div
+              key={`back-${i}`}
+              className="w-8 h-10 rounded-md border-2 border-white/40"
+              style={{
+                background: "linear-gradient(135deg, #996C9E 0%, #7d4d7f 100%)",
+                transform: `translateY(${4 + (i % 3) * 2}px) rotate(${(i - 3.5) * 3}deg)`,
+              }}
+            />
+          ))}
+        </div>
+
+        {/* Fan of 5 prize cards */}
+        <div className="relative flex justify-center" style={{ perspective: "500px" }}>
+          {cards.map((card, i) => {
+            const offset = i - 2;
+            const rotation = offset * 12;
+            const translateY = Math.abs(offset) * 8;
+
+            return (
+              <div
+                key={card}
+                className="relative w-14 h-20 rounded-lg overflow-hidden border-2 border-white/60 shadow-lg"
+                style={{
+                  transform: `rotate(${rotation}deg) translateY(${translateY}px)`,
+                  transformOrigin: "bottom center",
+                  marginLeft: i === 0 ? 0 : "-16px",
+                  zIndex: 5 - Math.abs(offset),
+                }}
+              >
+                <Image
+                  src={card}
+                  alt="Card"
+                  fill
+                  className="object-cover"
+                  sizes="56px"
+                />
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <button
+        type="button"
+        onClick={onClose}
+        className="mt-4 rounded-lg bg-white/20 px-6 py-2 text-sm font-semibold text-white backdrop-blur-sm hover:bg-white/30 transition-colors z-10"
+      >
+        Chiudi
+      </button>
+    </div>
+  );
+}
+
 function ResultView({
   result,
   stampCount,
@@ -45,26 +149,21 @@ function ResultView({
 }) {
   const isFullCollection = result.success && result.is_full_collection;
 
-  useEffect(() => {
-    if (result.success) {
-      const timer = setTimeout(() => onClose(), isFullCollection ? 4000 : 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [result.success, isFullCollection, onClose]);
-
   if (isFullCollection) {
     return (
       <>
         <Confetti />
-        <div className="flex flex-col items-center gap-6 py-8">
-          <h2 className="text-2xl font-bold text-center" style={{ background: getStampsGradient(stampCount), WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-            Complimenti Full Collection
-          </h2>
-          <p className="text-sm text-foreground/60 text-center">Si chiude automaticamente...</p>
-        </div>
+        <FullCollectionCard stampCount={stampCount} onClose={onClose} />
       </>
     );
   }
+
+  useEffect(() => {
+    if (result.success) {
+      const timer = setTimeout(() => onClose(), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [result.success, onClose]);
 
   return (
     <div>
