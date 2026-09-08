@@ -110,11 +110,14 @@ export async function adminRedeem(userId: string): Promise<RedeemResult> {
     };
   }
 
+  const actualRemoved = deletedCount ?? toRemove.length;
+  const remainingAfter = stampCount - actualRemoved;
+
   // Insert redeem via RPC security definer
   const { error: redeemError } = await supabase.rpc("insert_redeem", {
     p_user_id: targetProfile.id,
     p_tier_threshold: tier.tier_threshold,
-    p_stamps_removed_count: tier.tier_threshold,
+    p_stamps_removed_count: actualRemoved,
     p_confirmed_by: user.id,
   });
   console.log("[adminRedeem] insert_redeem error:", redeemError?.message ?? "none");
@@ -128,8 +131,8 @@ export async function adminRedeem(userId: string): Promise<RedeemResult> {
       gacha_included: tier.gacha_included,
       extra_choice: tier.extra_choice,
       is_full_collection: tier.is_full_collection,
-      stamps_removed: tier.tier_threshold,
-      stamps_remaining: stampCount - tier.tier_threshold,
+      stamps_removed: actualRemoved,
+      stamps_remaining: remainingAfter,
     },
   });
   console.log("[adminRedeem] notification error:", notifError?.message ?? "none");
@@ -144,8 +147,8 @@ export async function adminRedeem(userId: string): Promise<RedeemResult> {
     gacha_included: tier.gacha_included,
     extra_choice: tier.extra_choice,
     is_full_collection: tier.is_full_collection,
-    stamps_removed: tier.tier_threshold,
-    stamps_remaining: stampCount - tier.tier_threshold,
+    stamps_removed: actualRemoved,
+    stamps_remaining: remainingAfter,
     nickname: targetProfile.nickname,
   };
 }

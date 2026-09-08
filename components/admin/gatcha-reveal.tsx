@@ -16,6 +16,7 @@ export function GatchaReveal({ prizes, nickname, onDone }: GatchaRevealProps) {
     () => new Array(prizes.length).fill(false)
   );
   const [allDone, setAllDone] = useState(false);
+  const [scrolledToEnd, setScrolledToEnd] = useState(false);
   const listRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -34,6 +35,21 @@ export function GatchaReveal({ prizes, nickname, onDone }: GatchaRevealProps) {
     return () => clearTimeout(timer);
   }, [prizes]);
 
+  useEffect(() => {
+    const el = listRef.current;
+    if (!el) return;
+
+    const handleScroll = () => {
+      const { scrollTop, scrollHeight, clientHeight } = el;
+      const isAtBottom = scrollHeight - scrollTop - clientHeight < 10;
+      setScrolledToEnd(isAtBottom);
+    };
+
+    el.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll();
+    return () => el.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
     <div className="flex flex-col items-center gap-6">
       <h3 className="text-lg font-bold text-[#2D1B33]">
@@ -47,7 +63,7 @@ export function GatchaReveal({ prizes, nickname, onDone }: GatchaRevealProps) {
         <div className="sticky top-0 left-0 w-full z-10">
           <ScrollProgress containerRef={listRef} className="w-full" />
         </div>
-        <div className="flex flex-wrap justify-center gap-4 p-4">
+        <div className="grid grid-cols-3 gap-4 p-4">
           {prizes.map((prize, i) => (
             <div key={prize.artist_id} className="gatcha-card-wrapper">
               <div className={`gatcha-card ${flipped[i] ? "flipped" : ""}`}>
@@ -70,7 +86,7 @@ export function GatchaReveal({ prizes, nickname, onDone }: GatchaRevealProps) {
                         sizes="120px"
                       />
                       <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent p-2 pt-6">
-                        <span className="text-xs font-bold text-white text-center leading-tight block">
+                        <span className="text-[10px] font-bold text-white text-center leading-tight block line-clamp-2">
                           {prize.name}
                         </span>
                       </div>
@@ -89,20 +105,17 @@ export function GatchaReveal({ prizes, nickname, onDone }: GatchaRevealProps) {
         </div>
       </div>
 
-      {allDone && (
-        <div className="flex flex-col items-center gap-4 animate-in fade-in duration-300">
-          <p className="text-sm text-emerald-600 font-medium">
-            Riscatto completato!
-          </p>
+      <div className="h-10">
+        {allDone && scrolledToEnd && (
           <button
             type="button"
             onClick={onDone}
-            className="rounded-lg bg-[#996C9E] px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#8a5f8e]"
+            className="rounded-lg bg-[#996C9E] px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#8a5f8e] animate-in fade-in duration-300"
           >
             Cards Consegnate
           </button>
-        </div>
-      )}
+        )}
+      </div>
 
       <style jsx>{`
         .gatcha-card-wrapper {
