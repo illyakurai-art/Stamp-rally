@@ -83,11 +83,48 @@ export async function adminRedeem(userId: string): Promise<RedeemResult> {
     return { success: false, error: "Timbri insufficienti per qualsiasi fascia premio" };
   }
 
-  // Timbri da rimuovere (FIFO)
-  const toRemove = (stamps ?? []).slice(0, tier.tier_threshold).map((s) => s.id);
-  console.log("[adminRedeem] toRemove count:", toRemove.length);
+  // Timbri da rimuovere (FIFO) con gestione K&K
+  const { SECRET_PAIRS } = await import("@/lib/secret-pairs");
+  const stampsToRemove: string[] = [];
+  let count = 0;
+  const targetCount = tier.tier_threshold;
 
-  if (toRemove.length === 0) {
+  for (const stamp of stamps ?? []) {
+    if (count >= targetCount) break;
+
+    const artistName = artistNameById.get(stamp.artist_id);
+    stampsToRemove.push(stamp.id);
+    count++;
+
+    // Controlla se questo artista fa parte di una coppia K&K
+    for (const pair of SECRET_PAIRS) {
+      const isMember = pair.members.some(
+        (m) => m.toLowerCase() === artistName?.toLowerCase()
+      );
+      if (isMember) {
+        // Trova l'altro membro della coppia
+        const otherMember = pair.members.find(
+          (m) => m.toLowerCase() !== artistName?.toLowerCase()
+        );
+        if (otherMember) {
+          // Trova il timbro dell'altro membro (non ancora incluso)
+          const otherStamp = (stamps ?? []).find((s) => {
+            if (stampsToRemove.includes(s.id)) return false;
+            const otherName = artistNameById.get(s.artist_id);
+            return otherName?.toLowerCase() === otherMember.toLowerCase();
+          });
+          if (otherStamp) {
+            stampsToRemove.push(otherStamp.id);
+          }
+        }
+        break;
+      }
+    }
+  }
+
+  console.log("[adminRedeem] toRemove count:", stampsToRemove.length);
+
+  if (stampsToRemove.length === 0) {
     return { success: false, error: "Nessun timbro da rimuovere" };
   }
 
@@ -95,7 +132,7 @@ export async function adminRedeem(userId: string): Promise<RedeemResult> {
   const { error: deleteError, count: deletedCount } = await supabase
     .from("stamps")
     .delete({ count: "exact" })
-    .in("id", toRemove);
+    .in("id", stampsToRemove);
 
   console.log("[adminRedeem] deleted:", deletedCount, "error:", deleteError?.message);
 
@@ -103,14 +140,14 @@ export async function adminRedeem(userId: string): Promise<RedeemResult> {
     return { success: false, error: `Errore eliminazione timbri: ${deleteError.message}` };
   }
 
-  if (deletedCount !== null && deletedCount < toRemove.length) {
+  if (deletedCount !== null && deletedCount < stampsToRemove.length) {
     return {
       success: false,
-      error: `RLS bloccato: rimossi ${deletedCount}/${toRemove.length}. Esegui fix_stamps_delete_rls.sql.`,
+      error: `RLS bloccato: rimossi ${deletedCount}/${stampsToRemove.length}. Esegui fix_stamps_delete_rls.sql.`,
     };
   }
 
-  const actualRemoved = deletedCount ?? toRemove.length;
+  const actualRemoved = deletedCount ?? stampsToRemove.length;
   const remainingAfter = stampCount - actualRemoved;
 
   // Insert redeem via RPC security definer
