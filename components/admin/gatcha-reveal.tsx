@@ -33,8 +33,8 @@ export function GatchaReveal({ prizes, onDone }: GatchaRevealProps) {
 
   return (
     <div className="flex flex-col items-center gap-6">
-      <h3 className="text-lg font-bold text-white">
-        🎴 Estrazione Gatcha!
+      <h3 className="text-lg font-bold text-[#2D1B33]">
+        Estrazione Gatcha!
       </h3>
 
       <div className="flex flex-wrap justify-center gap-4">
@@ -50,17 +50,25 @@ export function GatchaReveal({ prizes, onDone }: GatchaRevealProps) {
               </div>
               {/* Back — premio */}
               <div className="gatcha-card-face gatcha-card-back">
-                {prize.name ? (
-                  <div className="flex flex-col items-center justify-center h-full gap-2">
-                    <span className="text-lg font-bold text-white text-center leading-tight">
-                      {prize.name}
-                    </span>
-                    <span className="text-xs text-white/60">{prize.artist_id}</span>
+                {prize.prize_image_url ? (
+                  <div className="relative w-full h-full">
+                    <Image
+                      src={prize.prize_image_url}
+                      alt={prize.name ?? prize.artist_id}
+                      fill
+                      className="object-cover"
+                      sizes="120px"
+                    />
+                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-2">
+                      <span className="text-xs font-bold text-white text-center leading-tight block">
+                        {prize.name}
+                      </span>
+                    </div>
                   </div>
                 ) : (
                   <div className="flex flex-col items-center justify-center h-full gap-2">
-                    <span className="text-lg font-bold text-white">
-                      {prize.artist_id}
+                    <span className="text-lg font-bold text-white text-center leading-tight">
+                      {prize.name}
                     </span>
                   </div>
                 )}
@@ -72,8 +80,8 @@ export function GatchaReveal({ prizes, onDone }: GatchaRevealProps) {
 
       {allDone && (
         <div className="flex flex-col items-center gap-4 animate-in fade-in duration-300">
-          <p className="text-sm text-emerald-400 font-medium">
-            ✅ Riscatto completato!
+          <p className="text-sm text-emerald-600 font-medium">
+            Riscatto completato!
           </p>
           <button
             type="button"
@@ -126,7 +134,6 @@ export function GatchaReveal({ prizes, onDone }: GatchaRevealProps) {
           background: linear-gradient(135deg, #3D2545 0%, #2D1B33 100%);
           border: 2px solid rgba(153, 108, 158, 0.5);
           transform: rotateY(180deg);
-          padding: 12px;
         }
       `}</style>
     </div>

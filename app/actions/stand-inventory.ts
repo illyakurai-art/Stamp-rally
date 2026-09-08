@@ -15,6 +15,7 @@ export interface GatchaResult {
   artist_id: string;
   name: string;
   remaining: number;
+  prize_image_url?: string | null;
 }
 
 export async function getAvailableStands(): Promise<StandInfo[]> {
@@ -90,7 +91,23 @@ export async function drawGatchaPrizes(
     p_count: count,
   });
 
-  const results = (data as GatchaResult[]) ?? [];
+  const rpcResults = (data as { artist_id: string; name: string; remaining: number }[]) ?? [];
+
+  // Fetch prize images for each artist
+  const artistIds = rpcResults.map((r) => r.artist_id);
+  const { data: artists } = await supabase
+    .from("artists")
+    .select("display_id, prize_image_url")
+    .in("display_id", artistIds);
+
+  const imageMap = new Map(
+    (artists ?? []).map((a) => [a.display_id, a.prize_image_url])
+  );
+
+  const results: GatchaResult[] = rpcResults.map((r) => ({
+    ...r,
+    prize_image_url: imageMap.get(r.artist_id) ?? null,
+  }));
 
   // Randomizza l'ordine di visualizzazione
   const shuffled = [...results].sort(() => Math.random() - 0.5);
