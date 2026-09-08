@@ -48,7 +48,7 @@ export function UserQrCode({ displayId, nickname }: Props) {
             </div>
 
             <p className="text-sm font-semibold text-center max-w-[220px] leading-snug bg-gradient-to-r from-purple-500 via-pink-500 to-orange-400 bg-clip-text text-transparent animate-gradient-flow">
-              {t("show_qr_to_staff")}
+              Mostra questo QR allo stand <span className="font-extrabold">Asunicha</span> per riscattare i tuoi premi
             </p>
           </div>
         </DialogContent>
