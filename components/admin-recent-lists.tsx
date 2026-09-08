@@ -6,7 +6,7 @@ import type { RecentRedeem, RecentStamp } from "@/lib/admin-recent";
 
 const REDEEM_TIER_GRADIENTS: { threshold: number; gradient: string; badge: string }[] = [
   { threshold: 50, gradient: "from-purple-400/25 to-sky-300/20", badge: "bg-purple-400/25 text-purple-700 dark:text-purple-300" },
-  { threshold: 45, gradient: "from-purple-400/25 to-purple-300/20", badge: "bg-purple-400/25 text-purple-700 dark:text-purple-300" },
+  { threshold: 45, gradient: "from-purple-300/25 to-purple-400/20", badge: "bg-purple-300/25 text-purple-700 dark:text-purple-300" },
   { threshold: 40, gradient: "from-purple-400/25 to-purple-500/20", badge: "bg-purple-400/25 text-purple-700 dark:text-purple-300" },
   { threshold: 35, gradient: "from-pink-300/25 to-pink-400/20", badge: "bg-pink-300/25 text-pink-700 dark:text-pink-300" },
   { threshold: 30, gradient: "from-red-400/25 to-red-500/20", badge: "bg-red-400/25 text-red-700 dark:text-red-300" },
