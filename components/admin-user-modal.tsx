@@ -138,7 +138,7 @@ function FullCollectionCard({
 
         {/* Card backs - same fan shape, behind front cards */}
         {cards.length > 0 && (
-          <div className="absolute left-1/2" style={{ transform: "translateX(-50%) translateY(15%)" }}>
+          <div className="absolute left-1/2" style={{ transform: "translateX(-50%) translateY(25%)" }}>
             {[...Array(cardCount)].map((_, i) => {
               const angle = startAngle + (fanAngle / Math.max(cardCount - 1, 1)) * i;
               const rad = (angle * Math.PI) / 180;
@@ -167,7 +167,7 @@ function FullCollectionCard({
 
         {/* Fan of 9 prize cards */}
         {cards.length > 0 && (
-          <div className="absolute left-1/2" style={{ transform: "translateX(-50%) translateY(15%)" }}>
+          <div className="absolute left-1/2" style={{ transform: "translateX(-50%) translateY(25%)" }}>
             {cards.map((card, i) => {
               const angle = startAngle + (fanAngle / Math.max(cardCount - 1, 1)) * i;
               const rad = (angle * Math.PI) / 180;
