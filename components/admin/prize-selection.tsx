@@ -160,7 +160,7 @@ export function PrizeSelectionScreen({
             onClick={() => onConfirm(Array.from(selected))}
             className="rounded-lg bg-[#996C9E] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#8a5f8e] disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            {isLoading ? "Elaborazione..." : "Conferma selezione"}
+            {isLoading ? "Elaborazione..." : "Continua per il Gacha"}
           </button>
         </div>
       </div>
