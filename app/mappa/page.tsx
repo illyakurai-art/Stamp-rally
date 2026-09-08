@@ -88,8 +88,8 @@ export default function MappaPage() {
     const nw = img.naturalWidth;
     const nh = img.naturalHeight;
     if (!nw || !nh) return;
-    const contentW = 1200;
-    const contentH = (1200 * nh) / nw;
+    const contentW = 1600;
+    const contentH = (1600 * nh) / nw;
     const scale = 2;
     const cx = (artist.map_x / 100) * contentW;
     const cy = (artist.map_y / 100) * contentH;
@@ -107,8 +107,8 @@ export default function MappaPage() {
     const nw = img.naturalWidth;
     const nh = img.naturalHeight;
     if (!nw || !nh) return;
-    const contentW = 1200;
-    const contentH = (1200 * nh) / nw;
+    const contentW = 1600;
+    const contentH = (1600 * nh) / nw;
     const scale = 2;
     const cx = ((artist.map_x ?? 0) / 100) * contentW;
     const cy = ((artist.map_y ?? 0) / 100) * contentH;
@@ -175,14 +175,14 @@ export default function MappaPage() {
               </div>
               <div ref={viewportRef} className="relative overflow-hidden rounded-xl border border-foreground/10 flex-1 min-h-0 mb-2" style={{ background: "#FBCFE8" }}>
                 <TransformComponent wrapperClass="!w-full !h-full">
-                  <div className="relative" style={{ width: 1200 }}>
+                  <div className="relative" style={{ width: 1600 }}>
                     <img
                       ref={imgRef}
                       onLoad={centerOnTarget}
                       src="/mappa.webp"
                       alt="Mappa"
                       className="max-w-none block"
-                      style={{ width: 1200, height: "auto" }}
+                      style={{ width: 1600, height: "auto" }}
                       draggable={false}
                     />
                     {!loading &&
