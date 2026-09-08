@@ -43,28 +43,10 @@ function FullCollectionCard({
   onClose: () => void;
 }) {
   const [cards] = useState(() => {
-    const allCards = [
-      "/qr-stand/A0001_Asunicha.png",
-      "/qr-stand/A0002_Cristychan96.png",
-      "/qr-stand/A0003_Aeritus.png",
-      "/qr-stand/A0004_Yumii_art.png",
-      "/qr-stand/A0005_Antheal.png",
-      "/qr-stand/A0006_Cherbox.png",
-      "/qr-stand/A0007_Chiara_Mazzetti.png",
-      "/qr-stand/A0008_Chizuruleech.png",
-      "/qr-stand/A0009_Doffyy_art.png",
-      "/qr-stand/A0010_Mewslab.png",
-      "/qr-stand/A0011_Faleneee.png",
-      "/qr-stand/A0012_Irartchan.png",
-      "/qr-stand/A0013_Mamapou.png",
-      "/qr-stand/A0014_Maryaic.png",
-      "/qr-stand/A0015_Mogekodraws.png",
-      "/qr-stand/A0016_Noyaxart.png",
-      "/qr-stand/A0017_Phasenite.png",
-      "/qr-stand/A0018_Pollina.png",
-      "/qr-stand/A0019_Ririzaurahel.png",
-      "/qr-stand/A0020_Sophyret.png",
-    ];
+    const allCards = Array.from({ length: 51 }, (_, i) => {
+      const num = String(i + 1).padStart(4, "0");
+      return `https://qoniejhhzixwzgtzlngo.supabase.co/storage/v1/object/public/artists-cards/Premi%20artisti/A${num}.webp`;
+    });
     const shuffled = [...allCards].sort(() => Math.random() - 0.5);
     return shuffled.slice(0, 5);
   });
@@ -81,23 +63,34 @@ function FullCollectionCard({
         Complimenti Full Collection
       </h2>
 
-      <div className="relative w-full flex-1 flex items-end justify-center pb-4">
-        {/* Card backs peeking from bottom */}
-        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 flex gap-1">
-          {[...Array(8)].map((_, i) => (
-            <div
-              key={`back-${i}`}
-              className="w-8 h-10 rounded-md border-2 border-white/40"
-              style={{
-                background: "linear-gradient(135deg, #996C9E 0%, #7d4d7f 100%)",
-                transform: `translateY(${4 + (i % 3) * 2}px) rotate(${(i - 3.5) * 3}deg)`,
-              }}
-            />
-          ))}
+      <div className="relative flex-1 flex items-center justify-center w-full">
+        {/* Card backs - same shape as front, peeking from below */}
+        <div className="absolute" style={{ bottom: "10%" }}>
+          <div className="relative" style={{ perspective: "500px" }}>
+            {[...Array(5)].map((_, i) => {
+              const offset = i - 2;
+              const rotation = offset * 12;
+              const translateY = Math.abs(offset) * 8 + 20;
+
+              return (
+                <div
+                  key={`back-${i}`}
+                  className="absolute w-16 h-24 rounded-lg border-2 border-white/40"
+                  style={{
+                    background: "linear-gradient(135deg, #996C9E 0%, #7d4d7f 100%)",
+                    transform: `rotate(${rotation}deg) translateY(${translateY}px)`,
+                    transformOrigin: "bottom center",
+                    marginLeft: i === 0 ? 0 : "-20px",
+                    zIndex: 5 - Math.abs(offset),
+                  }}
+                />
+              );
+            })}
+          </div>
         </div>
 
         {/* Fan of 5 prize cards */}
-        <div className="relative flex justify-center" style={{ perspective: "500px" }}>
+        <div className="relative" style={{ perspective: "500px" }}>
           {cards.map((card, i) => {
             const offset = i - 2;
             const rotation = offset * 12;
@@ -106,20 +99,20 @@ function FullCollectionCard({
             return (
               <div
                 key={card}
-                className="relative w-14 h-20 rounded-lg overflow-hidden border-2 border-white/60 shadow-lg"
+                className="relative w-16 h-24 rounded-lg overflow-hidden border-2 border-white/60 shadow-lg"
                 style={{
                   transform: `rotate(${rotation}deg) translateY(${translateY}px)`,
                   transformOrigin: "bottom center",
-                  marginLeft: i === 0 ? 0 : "-16px",
-                  zIndex: 5 - Math.abs(offset),
+                  marginLeft: i === 0 ? 0 : "-20px",
+                  zIndex: 10 - Math.abs(offset),
                 }}
               >
                 <Image
                   src={card}
-                  alt="Card"
+                  alt="Card premio"
                   fill
                   className="object-cover"
-                  sizes="56px"
+                  sizes="64px"
                 />
               </div>
             );
@@ -130,7 +123,7 @@ function FullCollectionCard({
       <button
         type="button"
         onClick={onClose}
-        className="mt-4 rounded-lg bg-white/20 px-6 py-2 text-sm font-semibold text-white backdrop-blur-sm hover:bg-white/30 transition-colors z-10"
+        className="rounded-lg bg-white/20 px-6 py-2 text-sm font-semibold text-white backdrop-blur-sm hover:bg-white/30 transition-colors z-10"
       >
         Chiudi
       </button>
