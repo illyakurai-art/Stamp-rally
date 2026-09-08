@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
 import { Search, Check } from "lucide-react";
 import type { StandInfo } from "@/app/actions/stand-inventory";
+import { ScrollProgress } from "@/components/ui/scroll-progress";
 
 interface PrizeSelectionScreenProps {
   stands: StandInfo[];
@@ -23,6 +24,7 @@ export function PrizeSelectionScreen({
 }: PrizeSelectionScreenProps) {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [query, setQuery] = useState("");
+  const listRef = useRef<HTMLDivElement>(null);
 
   const filtered = useMemo(() => {
     if (!query.trim()) return stands;
@@ -68,7 +70,10 @@ export function PrizeSelectionScreen({
         />
       </div>
 
-      <div className="max-h-[40vh] overflow-y-auto rounded-lg border border-[#7d4d7f]/20 bg-[#E8D5F0]">
+      <div className="relative max-h-[40vh] overflow-y-auto rounded-lg border border-[#7d4d7f]/20 bg-[#E8D5F0]" ref={listRef}>
+        <div className="sticky top-0 left-0 w-full z-10">
+          <ScrollProgress containerRef={listRef} className="w-full" />
+        </div>
         {filtered.length === 0 && (
           <p className="p-4 text-center text-sm text-[#7d4d7f]/60">
             Nessuno stand trovato
