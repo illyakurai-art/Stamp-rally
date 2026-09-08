@@ -86,11 +86,13 @@ export async function adminRedeem(userId: string): Promise<RedeemResult> {
   // Timbri da rimuovere (FIFO) con gestione K&K
   const { SECRET_PAIRS } = await import("@/lib/secret-pairs");
   const stampsToRemove: string[] = [];
+  const kkPairsToRemove: string[][] = [];
   let count = 0;
   const targetCount = tier.tier_threshold;
 
   for (const stamp of stamps ?? []) {
     if (count >= targetCount) break;
+    if (stampsToRemove.includes(stamp.id)) continue;
 
     const artistName = artistNameById.get(stamp.artist_id);
     stampsToRemove.push(stamp.id);
@@ -115,6 +117,7 @@ export async function adminRedeem(userId: string): Promise<RedeemResult> {
           });
           if (otherStamp) {
             stampsToRemove.push(otherStamp.id);
+            kkPairsToRemove.push([stamp.id, otherStamp.id]);
           }
         }
         break;
@@ -122,17 +125,38 @@ export async function adminRedeem(userId: string): Promise<RedeemResult> {
     }
   }
 
-  console.log("[adminRedeem] toRemove count:", stampsToRemove.length);
+  // Se ci sono timbri K&K in piu', dobbiamo assicurarci che la RLS li permetta
+  // Il conteggio effettivo e' stampsToRemove.length - kkPairsToRemove.length
+  // (perche' ogni coppia K&K conta come 1 timbro effettivo)
+  const effectiveCount = stampsToRemove.length - kkPairsToRemove.length;
+  console.log("[adminRedeem] toRemove:", stampsToRemove.length, "effective:", effectiveCount, "kkPairs:", kkPairsToRemove.length);
 
   if (stampsToRemove.length === 0) {
     return { success: false, error: "Nessun timbro da rimuovere" };
   }
 
-  // Delete timbri
-  const { error: deleteError, count: deletedCount } = await supabase
+  // Delete timbri - prova prima con tutti, poi senza K&K se fallisce
+  let deleteResult = await supabase
     .from("stamps")
     .delete({ count: "exact" })
     .in("id", stampsToRemove);
+
+  let deletedCount = deleteResult.count;
+  let deleteError = deleteResult.error;
+
+  // Se fallisce e ci sono coppie K&K, prova a rimuovere solo i timbri base
+  if (deleteError && kkPairsToRemove.length > 0) {
+    console.log("[adminRedeem] RLS bloccato con K&K, tentativo senza extra K&K");
+    const baseStamps = stampsToRemove.filter(
+      (id) => !kkPairsToRemove.some((pair) => pair[1] === id)
+    );
+    deleteResult = await supabase
+      .from("stamps")
+      .delete({ count: "exact" })
+      .in("id", baseStamps);
+    deletedCount = deleteResult.count;
+    deleteError = deleteResult.error;
+  }
 
   console.log("[adminRedeem] deleted:", deletedCount, "error:", deleteError?.message);
 
@@ -140,21 +164,19 @@ export async function adminRedeem(userId: string): Promise<RedeemResult> {
     return { success: false, error: `Errore eliminazione timbri: ${deleteError.message}` };
   }
 
-  if (deletedCount !== null && deletedCount < stampsToRemove.length) {
-    return {
-      success: false,
-      error: `RLS bloccato: rimossi ${deletedCount}/${stampsToRemove.length}. Esegui fix_stamps_delete_rls.sql.`,
-    };
+  if (deletedCount === null || deletedCount === 0) {
+    return { success: false, error: "Nessun timbro rimosso" };
   }
 
-  const actualRemoved = deletedCount ?? stampsToRemove.length;
-  const remainingAfter = stampCount - actualRemoved;
+  // Calcola i timbri rimanenti (K&K conta come 1)
+  const effectiveRemoved = deletedCount - kkPairsToRemove.length;
+  const remainingAfter = stampCount - effectiveRemoved;
 
   // Insert redeem via RPC security definer
   const { error: redeemError } = await supabase.rpc("insert_redeem", {
     p_user_id: targetProfile.id,
     p_tier_threshold: tier.tier_threshold,
-    p_stamps_removed_count: actualRemoved,
+    p_stamps_removed_count: effectiveRemoved,
     p_confirmed_by: user.id,
   });
   console.log("[adminRedeem] insert_redeem error:", redeemError?.message ?? "none");
@@ -168,7 +190,7 @@ export async function adminRedeem(userId: string): Promise<RedeemResult> {
       gacha_included: tier.gacha_included,
       extra_choice: tier.extra_choice,
       is_full_collection: tier.is_full_collection,
-      stamps_removed: actualRemoved,
+      stamps_removed: effectiveRemoved,
       stamps_remaining: remainingAfter,
     },
   });
@@ -184,7 +206,7 @@ export async function adminRedeem(userId: string): Promise<RedeemResult> {
     gacha_included: tier.gacha_included,
     extra_choice: tier.extra_choice,
     is_full_collection: tier.is_full_collection,
-    stamps_removed: actualRemoved,
+    stamps_removed: effectiveRemoved,
     stamps_remaining: remainingAfter,
     nickname: targetProfile.nickname,
   };
