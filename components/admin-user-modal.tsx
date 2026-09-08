@@ -43,6 +43,7 @@ function FullCollectionCard({
   onClose: () => void;
 }) {
   const [cards, setCards] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchAvailable = async () => {
@@ -60,12 +61,29 @@ function FullCollectionCard({
         console.log("[FullCollectionCard] stand_inventory:", inventory?.length, "error:", invError?.message);
 
         if (inventory && inventory.length > 0) {
-          setCards(inventory.slice(0, 9).map(
+          const imageUrls = inventory.slice(0, 9).map(
             (s) => `https://qoniejhhzixwzgtzlngo.supabase.co/storage/v1/render/image/public/artists-cards/Premi%20artisti/${s.artist_id}.webp?width=150&height=220`
-          ));
+          );
+
+          // Preload images
+          await Promise.all(
+            imageUrls.map(
+              (url) =>
+                new Promise<void>((resolve) => {
+                  const img = new window.Image();
+                  img.onload = () => resolve();
+                  img.onerror = () => resolve();
+                  img.src = url;
+                })
+            )
+          );
+
+          setCards(imageUrls);
         }
       } catch (err) {
         console.error("[FullCollectionCard] fetch error:", err);
+      } finally {
+        setLoading(false);
       }
     };
     fetchAvailable();
@@ -74,6 +92,20 @@ function FullCollectionCard({
   const cardCount = Math.max(cards.length, 1);
   const fanAngle = 100;
   const startAngle = -fanAngle / 2;
+
+  if (loading) {
+    return (
+      <div
+        className="flex flex-col items-center justify-center p-6 overflow-hidden"
+        style={{
+          background: getStampsGradient(stampCount),
+          aspectRatio: "1 / 1",
+        }}
+      >
+        <div className="text-white/80 text-sm animate-pulse">Caricamento...</div>
+      </div>
+    );
+  }
 
   return (
     <div
