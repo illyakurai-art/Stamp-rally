@@ -5,16 +5,16 @@ import { Loader2, ChevronDown, Trophy } from "lucide-react";
 import type { RecentRedeem, RecentStamp } from "@/lib/admin-recent";
 
 const REDEEM_TIER_GRADIENTS: { threshold: number; gradient: string; badge: string }[] = [
-  { threshold: 50, gradient: "from-purple-600/20 to-indigo-500/15", badge: "bg-purple-600/20 text-purple-700 dark:text-purple-300" },
-  { threshold: 45, gradient: "from-indigo-500/20 to-blue-500/15", badge: "bg-indigo-500/20 text-indigo-700 dark:text-indigo-300" },
-  { threshold: 40, gradient: "from-blue-500/20 to-cyan-500/15", badge: "bg-blue-500/20 text-blue-700 dark:text-blue-300" },
-  { threshold: 35, gradient: "from-cyan-500/20 to-teal-500/15", badge: "bg-cyan-500/20 text-cyan-700 dark:text-cyan-300" },
-  { threshold: 30, gradient: "from-teal-500/20 to-emerald-500/15", badge: "bg-teal-500/20 text-teal-700 dark:text-teal-300" },
-  { threshold: 25, gradient: "from-green-500/20 to-lime-500/15", badge: "bg-green-500/20 text-green-700 dark:text-green-300" },
-  { threshold: 20, gradient: "from-yellow-500/20 to-orange-400/15", badge: "bg-yellow-500/20 text-yellow-700 dark:text-yellow-300" },
-  { threshold: 15, gradient: "from-orange-500/20 to-red-400/15", badge: "bg-orange-500/20 text-orange-700 dark:text-orange-300" },
-  { threshold: 10, gradient: "from-red-500/20 to-pink-500/15", badge: "bg-red-500/20 text-red-700 dark:text-red-300" },
-  { threshold: 5, gradient: "from-pink-500/20 to-rose-500/15", badge: "bg-pink-500/20 text-pink-700 dark:text-pink-300" },
+  { threshold: 50, gradient: "from-yellow-400/20 to-amber-500/15", badge: "bg-yellow-400/20 text-yellow-700 dark:text-yellow-300" },
+  { threshold: 45, gradient: "from-purple-400/20 to-violet-500/15", badge: "bg-purple-400/20 text-purple-700 dark:text-purple-300" },
+  { threshold: 40, gradient: "from-purple-300/20 to-purple-400/15", badge: "bg-purple-300/20 text-purple-700 dark:text-purple-300" },
+  { threshold: 35, gradient: "from-pink-300/20 to-pink-400/15", badge: "bg-pink-300/20 text-pink-700 dark:text-pink-300" },
+  { threshold: 30, gradient: "from-red-400/20 to-red-500/15", badge: "bg-red-400/20 text-red-700 dark:text-red-300" },
+  { threshold: 25, gradient: "from-orange-300/20 to-orange-400/15", badge: "bg-orange-300/20 text-orange-700 dark:text-orange-300" },
+  { threshold: 20, gradient: "from-orange-400/20 to-amber-400/15", badge: "bg-orange-400/20 text-orange-700 dark:text-orange-300" },
+  { threshold: 15, gradient: "from-yellow-300/20 to-yellow-400/15", badge: "bg-yellow-300/20 text-yellow-700 dark:text-yellow-300" },
+  { threshold: 10, gradient: "from-green-300/20 to-green-400/15", badge: "bg-green-300/20 text-green-700 dark:text-green-300" },
+  { threshold: 5, gradient: "from-sky-300/20 to-sky-400/15", badge: "bg-sky-300/20 text-sky-700 dark:text-sky-300" },
 ];
 
 function getRedeemTier(stamps: number) {
@@ -128,16 +128,16 @@ export function RecentRedeemsList({ initial }: { initial: RecentRedeem[] }) {
 
   const TIERS = [50, 45, 40, 35, 30, 25, 20, 15, 10, 5];
   const TIER_COLORS: Record<number, string> = {
-    50: "#9333ea",
-    45: "#6366f1",
-    40: "#3b82f6",
-    35: "#06b6d4",
-    30: "#14b8a6",
-    25: "#22c55e",
-    20: "#eab308",
-    15: "#f97316",
-    10: "#ef4444",
-    5: "#ec4899",
+    50: "#FFD700", // oro full collection
+    45: "#9B72CF", // violetto
+    40: "#C9A0DC", // lilla
+    35: "#E88CB5", // rosa
+    30: "#E85D5D", // rosso
+    25: "#F08C7A", // salmone
+    20: "#F5A623", // arancio
+    15: "#F9D342", // giallo
+    10: "#7BC67E", // verde
+    5: "#5BC0EB",  // azzurro
   };
   const tierCounts = TIERS.map((t) => ({
     stamps: t,
