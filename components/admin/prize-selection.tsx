@@ -7,6 +7,7 @@ import type { StandInfo } from "@/app/actions/stand-inventory";
 interface PrizeSelectionScreenProps {
   stands: StandInfo[];
   requiredCount: number;
+  nickname: string;
   onConfirm: (selectedIds: string[]) => void;
   onCancel: () => void;
   isLoading?: boolean;
@@ -15,6 +16,7 @@ interface PrizeSelectionScreenProps {
 export function PrizeSelectionScreen({
   stands,
   requiredCount,
+  nickname,
   onConfirm,
   onCancel,
   isLoading,
@@ -51,12 +53,8 @@ export function PrizeSelectionScreen({
     <div className="flex flex-col gap-4">
       <div className="text-center">
         <h3 className="text-lg font-bold text-[#2D1B33]">
-          Seleziona {requiredCount} stand per gli extra
+          Seleziona le {requiredCount} card scelte da {nickname}
         </h3>
-        <p className="text-sm text-[#5a3d60]">
-          Seleziona esattamente {requiredCount} stand{" "}
-          {requiredCount === 1 ? "(1 card ciascuno)" : `(${requiredCount} card totali)`}
-        </p>
       </div>
 
       <div className="relative">

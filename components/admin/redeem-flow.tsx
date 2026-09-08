@@ -122,6 +122,7 @@ export function RedeemFlow({
       <PrizeSelectionScreen
         stands={stands}
         requiredCount={extraCount}
+        nickname={nickname}
         onConfirm={handleSelectConfirm}
         onCancel={onCancel}
       />
@@ -167,11 +168,11 @@ export function RedeemFlow({
         <div className="flex gap-2">
           <button
             type="button"
-            onClick={() => setStep("select")}
+            onClick={onCancel}
             disabled={isLoading}
             className="flex-1 rounded-lg border border-[#7d4d7f]/30 px-4 py-2.5 text-sm font-medium text-[#5a3d60] transition-colors hover:bg-[#7d4d7f]/10"
           >
-            Indietro
+            Annulla
           </button>
           <button
             type="button"
