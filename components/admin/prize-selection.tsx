@@ -50,29 +50,29 @@ export function PrizeSelectionScreen({
   return (
     <div className="flex flex-col gap-4">
       <div className="text-center">
-        <h3 className="text-lg font-bold text-white">
+        <h3 className="text-lg font-bold text-[#2D1B33]">
           Seleziona {requiredCount} stand per gli extra
         </h3>
-        <p className="text-sm text-white/60">
+        <p className="text-sm text-[#5a3d60]">
           Seleziona esattamente {requiredCount} stand{" "}
           {requiredCount === 1 ? "(1 card ciascuno)" : `(${requiredCount} card totali)`}
         </p>
       </div>
 
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#7d4d7f]/60" />
         <input
           type="text"
           placeholder="Cerca stand..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="h-10 w-full rounded-lg border border-white/15 bg-white/5 pl-9 pr-4 text-sm text-white outline-none placeholder:text-white/40 focus:border-white/30"
+          className="h-10 w-full rounded-lg border border-[#7d4d7f]/20 bg-[#f3e8f5] pl-9 pr-4 text-sm text-[#2D1B33] outline-none placeholder:text-[#7d4d7f]/50 focus:border-[#996C9E] focus:ring-2 focus:ring-[#996C9E]/20"
         />
       </div>
 
-      <div className="max-h-[40vh] overflow-y-auto rounded-lg border border-white/10">
+      <div className="max-h-[40vh] overflow-y-auto rounded-lg border border-[#7d4d7f]/20 bg-[#faf5fb]">
         {filtered.length === 0 && (
-          <p className="p-4 text-center text-sm text-white/40">
+          <p className="p-4 text-center text-sm text-[#7d4d7f]/60">
             Nessuno stand trovato
           </p>
         )}
@@ -86,36 +86,36 @@ export function PrizeSelectionScreen({
               type="button"
               disabled={isDisabled || isLoading}
               onClick={() => toggle(stand.artist_id)}
-              className={`flex w-full items-center gap-3 px-4 py-3 text-left transition-colors border-b border-white/5 last:border-b-0 ${
+              className={`flex w-full items-center gap-3 px-4 py-3 text-left transition-colors border-b border-[#7d4d7f]/10 last:border-b-0 ${
                 isSelected
-                  ? "bg-[#996C9E]/30"
+                  ? "bg-[#996C9E]/20"
                   : isDisabled
                     ? "opacity-40 cursor-not-allowed"
-                    : "hover:bg-white/5"
+                    : "hover:bg-[#996C9E]/10"
               }`}
             >
               <div
                 className={`flex h-5 w-5 shrink-0 items-center justify-center rounded border ${
                   isSelected
                     ? "border-[#996C9E] bg-[#996C9E]"
-                    : "border-white/30"
+                    : "border-[#7d4d7f]/30"
                 }`}
               >
                 {isSelected && <Check className="h-3 w-3 text-white" />}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-white truncate">
+                <p className="text-sm font-semibold text-[#2D1B33] truncate">
                   {stand.name}
                 </p>
-                <p className="text-xs text-white/50">{stand.artist_id}</p>
+                <p className="text-xs text-[#5a3d60]">{stand.artist_id}</p>
               </div>
               <span
-                className={`text-xs font-mono shrink-0 ${
+                className={`text-xs font-mono shrink-0 font-semibold ${
                   stand.remaining <= 5
-                    ? "text-red-400"
+                    ? "text-red-600"
                     : stand.remaining <= 10
-                      ? "text-amber-400"
-                      : "text-emerald-400"
+                      ? "text-amber-600"
+                      : "text-emerald-600"
                 }`}
               >
                 {stand.remaining}/{stand.total}
@@ -126,7 +126,7 @@ export function PrizeSelectionScreen({
       </div>
 
       <div className="flex items-center justify-between">
-        <span className="text-sm text-white/60">
+        <span className="text-sm font-medium text-[#5a3d60]">
           {selected.size}/{requiredCount} selezionati
         </span>
         <div className="flex gap-2">
@@ -134,7 +134,7 @@ export function PrizeSelectionScreen({
             type="button"
             onClick={onCancel}
             disabled={isLoading}
-            className="rounded-lg border border-white/15 px-4 py-2 text-sm font-medium text-white/70 transition-colors hover:bg-white/5"
+            className="rounded-lg border border-[#7d4d7f]/30 px-4 py-2 text-sm font-medium text-[#5a3d60] transition-colors hover:bg-[#7d4d7f]/10"
           >
             Annulla
           </button>

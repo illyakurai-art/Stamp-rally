@@ -112,7 +112,7 @@ export function RedeemFlow({
   if (step === "loading") {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="text-sm text-white/60">Caricamento...</div>
+        <div className="text-sm text-[#5a3d60]">Caricamento...</div>
       </div>
     );
   }
@@ -135,33 +135,33 @@ export function RedeemFlow({
 
     return (
       <div className="flex flex-col gap-4">
-        <h3 className="text-lg font-bold text-white text-center">
+        <h3 className="text-lg font-bold text-[#2D1B33] text-center">
           Conferma riscatto
         </h3>
 
-        <div className="rounded-lg border border-white/10 bg-white/5 p-4">
-          <p className="text-sm text-white/70 mb-2">
-            <span className="font-semibold text-white">{nickname}</span> riscuote:
+        <div className="rounded-lg border border-[#7d4d7f]/20 bg-[#f3e8f5] p-4">
+          <p className="text-sm text-[#5a3d60] mb-2">
+            <span className="font-semibold text-[#2D1B33]">{nickname}</span> riscuote:
           </p>
           {selectedStands.length > 0 && (
             <div className="mb-3">
-              <p className="text-xs text-white/50 mb-1">Extra ({selectedStands.length} card):</p>
+              <p className="text-xs text-[#7d4d7f] mb-1">Extra ({selectedStands.length} card):</p>
               {selectedStands.map((s) => (
-                <p key={s.artist_id} className="text-sm text-white pl-2">
-                  • {s.name} <span className="text-white/50">({s.artist_id})</span>
+                <p key={s.artist_id} className="text-sm text-[#2D1B33] font-medium pl-2">
+                  • {s.name} <span className="text-[#5a3d60]">({s.artist_id})</span>
                 </p>
               ))}
             </div>
           )}
           {gatchaCount > 0 && (
-            <p className="text-xs text-white/50">
+            <p className="text-xs text-[#7d4d7f]">
               Gatcha: {gatchaCount} card da estrarre
             </p>
           )}
         </div>
 
         {error && (
-          <p className="text-sm text-red-400 text-center">{error}</p>
+          <p className="text-sm text-red-600 text-center">{error}</p>
         )}
 
         <div className="flex gap-2">
@@ -169,7 +169,7 @@ export function RedeemFlow({
             type="button"
             onClick={() => setStep("select")}
             disabled={isLoading}
-            className="flex-1 rounded-lg border border-white/15 px-4 py-2.5 text-sm font-medium text-white/70 transition-colors hover:bg-white/5"
+            className="flex-1 rounded-lg border border-[#7d4d7f]/30 px-4 py-2.5 text-sm font-medium text-[#5a3d60] transition-colors hover:bg-[#7d4d7f]/10"
           >
             Indietro
           </button>
@@ -189,7 +189,7 @@ export function RedeemFlow({
   if (step === "drawing") {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="text-sm text-white/60 animate-pulse">
+        <div className="text-sm text-[#5a3d60] animate-pulse">
           Estrazione in corso...
         </div>
       </div>
