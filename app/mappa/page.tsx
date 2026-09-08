@@ -172,7 +172,7 @@ export default function MappaPage() {
                   <RotateCcw className="h-4 w-4" />
                 </button>
               </div>
-              <div ref={viewportRef} className="relative overflow-hidden rounded-xl border border-foreground/10 flex-1" style={{ background: "#FBCFE8", height: "calc(100vh - 160px)" }}>
+              <div ref={viewportRef} className="relative overflow-hidden rounded-xl border border-foreground/10 flex-1 min-h-0" style={{ background: "#FBCFE8" }}>
                 <TransformComponent wrapperClass="!w-full !h-full">
                   <div className="relative" style={{ width: 1200 }}>
                     <img
