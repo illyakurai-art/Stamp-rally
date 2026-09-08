@@ -66,11 +66,11 @@ export function PrizeSelectionScreen({
           placeholder="Cerca stand..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="h-10 w-full rounded-lg border border-[#7d4d7f]/20 bg-[#f3e8f5] pl-9 pr-4 text-sm text-[#2D1B33] outline-none placeholder:text-[#7d4d7f]/50 focus:border-[#996C9E] focus:ring-2 focus:ring-[#996C9E]/20"
+          className="h-10 w-full rounded-lg border border-[#7d4d7f]/20 bg-[#E8D5F0] pl-9 pr-4 text-sm text-[#2D1B33] outline-none placeholder:text-[#7d4d7f]/50 focus:border-[#996C9E] focus:ring-2 focus:ring-[#996C9E]/20"
         />
       </div>
 
-      <div className="max-h-[40vh] overflow-y-auto rounded-lg border border-[#7d4d7f]/20 bg-[#faf5fb]">
+      <div className="max-h-[40vh] overflow-y-auto rounded-lg border border-[#7d4d7f]/20 bg-[#E8D5F0]">
         {filtered.length === 0 && (
           <p className="p-4 text-center text-sm text-[#7d4d7f]/60">
             Nessuno stand trovato
@@ -110,7 +110,7 @@ export function PrizeSelectionScreen({
                 <p className="text-xs text-[#5a3d60]">{stand.artist_id}</p>
               </div>
               <span
-                className={`text-xs font-mono shrink-0 font-semibold ${
+                className={`text-sm font-mono shrink-0 font-bold ${
                   stand.remaining <= 5
                     ? "text-red-600"
                     : stand.remaining <= 10

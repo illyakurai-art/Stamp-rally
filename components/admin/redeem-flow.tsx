@@ -139,7 +139,7 @@ export function RedeemFlow({
           Conferma riscatto
         </h3>
 
-        <div className="rounded-lg border border-[#7d4d7f]/20 bg-[#f3e8f5] p-4">
+        <div className="rounded-lg border border-[#7d4d7f]/20 bg-[#E8D5F0] p-4">
           <p className="text-sm text-[#5a3d60] mb-2">
             <span className="font-semibold text-[#2D1B33]">{nickname}</span> riscuote:
           </p>
