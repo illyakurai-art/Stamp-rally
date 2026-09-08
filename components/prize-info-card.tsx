@@ -36,7 +36,7 @@ const GRADIENTS = [
   "linear-gradient(135deg, #E88CB5 0%, #D97AA3 100%)", // 35 rosa
   "linear-gradient(135deg, #C9A0DC 0%, #B88ECB 100%)", // 40 lilla
   "linear-gradient(135deg, #9B72CF 0%, #8A60BE 100%)", // 45 violetto
-  "linear-gradient(135deg, #7B4FA0 0%, #6A3E8F 100%)", // 50 full collection (viola)
+  "linear-gradient(135deg, #2D1B33 0%, #1a0f20 100%)", // 50 full collection (viola scuro sito)
 ];
 
 function getCurrentTier(count: number) {

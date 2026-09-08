@@ -128,7 +128,7 @@ export function RecentRedeemsList({ initial }: { initial: RecentRedeem[] }) {
 
   const TIERS = [50, 45, 40, 35, 30, 25, 20, 15, 10, 5];
   const TIER_COLORS: Record<number, string> = {
-    50: "#7B4FA0", // viola full collection
+    50: "#2D1B33", // viola scuro sito full collection
     45: "#9B72CF", // violetto
     40: "#C9A0DC", // lilla
     35: "#E88CB5", // rosa
