@@ -475,7 +475,12 @@ export function AdminUserModal({ userId, nickname, stampCount, open, initialView
               </h2>
             </div>
             <div className="px-6 py-5">
-              {tier ? (
+              {isPending ? (
+                <div className="flex flex-col items-center gap-3 py-8">
+                  <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#996C9E] border-t-transparent" />
+                  <p className="text-sm text-foreground/60">Elaborazione in corso...</p>
+                </div>
+              ) : tier ? (
                 <RedeemFlow
                   extraCount={tier.extra ?? 0}
                   gatchaCount={tier.gacha ?? 0}
