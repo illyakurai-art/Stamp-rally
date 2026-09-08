@@ -37,6 +37,15 @@ export function PrizeSelectionScreen({
     );
   }, [stands, query]);
 
+  const selectedStands = useMemo(
+    () => filtered.filter((s) => selected.has(s.artist_id)),
+    [filtered, selected]
+  );
+  const unselectedStands = useMemo(
+    () => filtered.filter((s) => !selected.has(s.artist_id)),
+    [filtered, selected]
+  );
+
   const toggle = (id: string) => {
     setSelected((prev) => {
       const next = new Set(prev);
@@ -70,6 +79,23 @@ export function PrizeSelectionScreen({
         />
       </div>
 
+      {selectedStands.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {selectedStands.map((stand) => (
+            <button
+              key={stand.artist_id}
+              type="button"
+              onClick={() => toggle(stand.artist_id)}
+              disabled={isLoading}
+              className="flex items-center gap-1.5 rounded-lg bg-[#996C9E] px-3 py-1.5 text-xs font-semibold text-white shadow-sm"
+            >
+              {stand.name}
+              <Check className="h-3 w-3" />
+            </button>
+          ))}
+        </div>
+      )}
+
       <div className="relative max-h-[40vh] overflow-y-auto rounded-lg border border-[#7d4d7f]/20 bg-[#E8D5F0] scrollbar-hide" ref={listRef}>
         <div className="sticky top-0 left-0 w-full z-10">
           <ScrollProgress containerRef={listRef} className="w-full" />
@@ -79,9 +105,8 @@ export function PrizeSelectionScreen({
             Nessuno stand trovato
           </p>
         )}
-        {filtered.map((stand) => {
-          const isSelected = selected.has(stand.artist_id);
-          const isDisabled = !isSelected && selected.size >= requiredCount;
+        {unselectedStands.map((stand) => {
+          const isDisabled = selected.size >= requiredCount;
 
           return (
             <button
@@ -90,22 +115,11 @@ export function PrizeSelectionScreen({
               disabled={isDisabled || isLoading}
               onClick={() => toggle(stand.artist_id)}
               className={`flex w-full items-center gap-3 px-4 py-3 text-left transition-colors border-b border-[#7d4d7f]/10 last:border-b-0 ${
-                isSelected
-                  ? "bg-[#996C9E]/20"
-                  : isDisabled
-                    ? "opacity-40 cursor-not-allowed"
-                    : "hover:bg-[#996C9E]/10"
+                isDisabled
+                  ? "opacity-40 cursor-not-allowed"
+                  : "hover:bg-[#996C9E]/10"
               }`}
             >
-              <div
-                className={`flex h-5 w-5 shrink-0 items-center justify-center rounded border ${
-                  isSelected
-                    ? "border-[#996C9E] bg-[#996C9E]"
-                    : "border-[#7d4d7f]/30"
-                }`}
-              >
-                {isSelected && <Check className="h-3 w-3 text-white" />}
-              </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold text-[#2D1B33] truncate">
                   {stand.name}

@@ -20,7 +20,7 @@ interface RedeemFlowProps {
   onCancel: () => void;
 }
 
-type Step = "loading" | "select" | "confirm" | "drawing" | "gatcha" | "done";
+type Step = "loading" | "select" | "drawing" | "gatcha" | "done";
 
 export function RedeemFlow({
   extraCount,
@@ -70,17 +70,13 @@ export function RedeemFlow({
 
   const handleSelectConfirm = async (ids: string[]) => {
     setSelectedIds(ids);
-    setStep("confirm");
-  };
-
-  const handleConfirmRedeem = async () => {
     setIsLoading(true);
     setError(null);
 
     try {
       // 1. Sottrae card extra dal DB
-      if (selectedIds.length > 0) {
-        const result = await redeemStandCards(selectedIds);
+      if (ids.length > 0) {
+        const result = await redeemStandCards(ids);
         if (!result.success) {
           throw new Error(result.error ?? "Errore sottrazione card");
         }
@@ -98,7 +94,7 @@ export function RedeemFlow({
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Errore durante il riscatto");
-      setStep("confirm");
+      setStep("select");
     } finally {
       setIsLoading(false);
     }
@@ -126,64 +122,6 @@ export function RedeemFlow({
         onConfirm={handleSelectConfirm}
         onCancel={onCancel}
       />
-    );
-  }
-
-  if (step === "confirm") {
-    const selectedStands = stands.filter((s) =>
-      selectedIds.includes(s.artist_id)
-    );
-
-    return (
-      <div className="flex flex-col gap-4">
-        <h3 className="text-lg font-bold text-[#2D1B33] text-center">
-          Conferma riscatto
-        </h3>
-
-        <div className="rounded-lg border border-[#7d4d7f]/20 bg-[#E8D5F0] p-4">
-          <p className="text-sm text-[#5a3d60] mb-2">
-            <span className="font-semibold text-[#2D1B33]">{nickname}</span> riscuote:
-          </p>
-          {selectedStands.length > 0 && (
-            <div className="mb-3">
-              <p className="text-xs text-[#7d4d7f] mb-1">Extra ({selectedStands.length} card):</p>
-              {selectedStands.map((s) => (
-                <p key={s.artist_id} className="text-sm text-[#2D1B33] font-medium pl-2">
-                  • {s.name} <span className="text-[#5a3d60]">({s.artist_id})</span>
-                </p>
-              ))}
-            </div>
-          )}
-          {gatchaCount > 0 && (
-            <p className="text-xs text-[#7d4d7f]">
-              Gatcha: {gatchaCount} card da estrarre
-            </p>
-          )}
-        </div>
-
-        {error && (
-          <p className="text-sm text-red-600 text-center">{error}</p>
-        )}
-
-        <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={onCancel}
-            disabled={isLoading}
-            className="flex-1 rounded-lg border border-[#7d4d7f]/30 px-4 py-2.5 text-sm font-medium text-[#5a3d60] transition-colors hover:bg-[#7d4d7f]/10"
-          >
-            Annulla
-          </button>
-          <button
-            type="button"
-            onClick={handleConfirmRedeem}
-            disabled={isLoading}
-            className="flex-1 rounded-lg bg-[#996C9E] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#8a5f8e] disabled:opacity-40"
-          >
-            {isLoading ? "Elaborazione..." : "Conferma e procedi"}
-          </button>
-        </div>
-      </div>
     );
   }
 
