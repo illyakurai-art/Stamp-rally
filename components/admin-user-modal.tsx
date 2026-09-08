@@ -9,6 +9,7 @@ import { adminRedeem, getUserStamps } from "@/app/actions/admin-redeem";
 import type { RedeemResult } from "@/app/actions/admin-redeem";
 import { getStampsGradient } from "@/lib/stamp-gradient";
 import { RedeemFlow } from "@/components/admin/redeem-flow";
+import { Confetti } from "@/components/ui/confetti";
 
 const TIERS = [
   { stamps: 50, label: "Full collection", gacha: null, extra: null },
@@ -42,12 +43,28 @@ function ResultView({
   stampCount: number;
   onClose: () => void;
 }) {
+  const isFullCollection = result.success && result.is_full_collection;
+
   useEffect(() => {
     if (result.success) {
-      const timer = setTimeout(() => onClose(), 3000);
+      const timer = setTimeout(() => onClose(), isFullCollection ? 4000 : 3000);
       return () => clearTimeout(timer);
     }
-  }, [result.success, onClose]);
+  }, [result.success, isFullCollection, onClose]);
+
+  if (isFullCollection) {
+    return (
+      <>
+        <Confetti />
+        <div className="flex flex-col items-center gap-6 py-8">
+          <h2 className="text-2xl font-bold text-center" style={{ background: getStampsGradient(stampCount), WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+            Complimenti Full Collection
+          </h2>
+          <p className="text-sm text-foreground/60 text-center">Si chiude automaticamente...</p>
+        </div>
+      </>
+    );
+  }
 
   return (
     <div>
@@ -70,16 +87,12 @@ function ResultView({
           <>
             <div className="rounded-xl p-4 flex flex-col gap-2 text-white" style={{ background: getStampsGradient(stampCount) }}>
               <p className="text-xs font-semibold uppercase tracking-wider text-white/80 mb-1">Premio consegnato</p>
-              {result.is_full_collection ? (
-                <p className="text-2xl font-extrabold">Full Collection 🎉</p>
-              ) : (
-                <>
-                  <p className="text-3xl font-extrabold">{result.gacha_included} Gacha</p>
-                  {result.extra_choice !== undefined && result.extra_choice > 0 && (
-                    <p className="text-xl font-bold">+ {result.extra_choice} extra a scelta</p>
-                  )}
-                </>
-              )}
+              <>
+                <p className="text-3xl font-extrabold">{result.gacha_included} Gacha</p>
+                {result.extra_choice !== undefined && result.extra_choice > 0 && (
+                  <p className="text-xl font-bold">+ {result.extra_choice} extra a scelta</p>
+                )}
+              </>
               <div className="mt-2 pt-2 border-t border-white/30 flex justify-between text-sm text-white/80">
                 <span>Timbri rimossi: <span className="font-bold text-white">{result.stamps_removed}</span></span>
                 <span>Rimanenti: <span className="font-bold text-white">{result.stamps_remaining}</span></span>
