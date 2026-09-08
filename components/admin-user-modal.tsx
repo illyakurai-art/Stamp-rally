@@ -181,9 +181,6 @@ export function AdminUserModal({ userId, nickname, stampCount, open, initialView
               className="px-6 pt-8 pb-4 border-b border-foreground/10"
               style={{ background: getStampsGradient(stampCount) }}
             >
-              <button onClick={() => setView("main")} className="text-xs text-white/70 hover:text-white mb-3 flex items-center gap-1">
-                ← Indietro
-              </button>
               <h2 className="text-xl font-bold text-white drop-shadow-sm">{nickname}</h2>
               <p className="text-sm text-white/80 mt-0.5">{stamps?.length ?? 0} timbri raccolti</p>
             </div>
@@ -213,9 +210,6 @@ export function AdminUserModal({ userId, nickname, stampCount, open, initialView
         {view === "confirm" && (
           <div>
             <div className="bg-foreground/[0.04] px-6 pt-8 pb-4 border-b border-foreground/10">
-              <button onClick={() => setView("main")} className="text-xs text-foreground/50 hover:text-foreground mb-3 flex items-center gap-1">
-                ← Indietro
-              </button>
               <h2 className="text-2xl">
                 Conferma riscatto per <span className="font-extrabold">{nickname}</span>
               </h2>
