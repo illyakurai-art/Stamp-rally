@@ -136,7 +136,7 @@ export function RedeemFlow({
   }
 
   if (step === "gatcha") {
-    return <GatchaReveal prizes={gatchaPrizes} onDone={handleGatchaDone} />;
+    return <GatchaReveal prizes={gatchaPrizes} nickname={nickname} onDone={handleGatchaDone} />;
   }
 
   return null;

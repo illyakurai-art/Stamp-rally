@@ -211,7 +211,7 @@ export function AdminUserModal({ userId, nickname, stampCount, open, initialView
           <div>
             <div className="bg-foreground/[0.04] px-6 pt-8 pb-4 border-b border-foreground/10">
               <h2 className="text-2xl">
-                Conferma riscatto per <span className="font-extrabold">{nickname}</span>
+                Estrazione Gatcha di <span className="font-extrabold">{nickname}</span>
               </h2>
             </div>
             <div className="px-6 py-5">
