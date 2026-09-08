@@ -5,7 +5,7 @@ import { Loader2, ChevronDown, Trophy } from "lucide-react";
 import type { RecentRedeem, RecentStamp } from "@/lib/admin-recent";
 
 const REDEEM_TIER_GRADIENTS: { threshold: number; gradient: string; badge: string }[] = [
-  { threshold: 50, gradient: "from-yellow-400/20 to-amber-500/15", badge: "bg-yellow-400/20 text-yellow-700 dark:text-yellow-300" },
+  { threshold: 50, gradient: "from-purple-500/20 to-purple-600/15", badge: "bg-purple-500/20 text-purple-700 dark:text-purple-300" },
   { threshold: 45, gradient: "from-purple-400/20 to-violet-500/15", badge: "bg-purple-400/20 text-purple-700 dark:text-purple-300" },
   { threshold: 40, gradient: "from-purple-300/20 to-purple-400/15", badge: "bg-purple-300/20 text-purple-700 dark:text-purple-300" },
   { threshold: 35, gradient: "from-pink-300/20 to-pink-400/15", badge: "bg-pink-300/20 text-pink-700 dark:text-pink-300" },
@@ -128,7 +128,7 @@ export function RecentRedeemsList({ initial }: { initial: RecentRedeem[] }) {
 
   const TIERS = [50, 45, 40, 35, 30, 25, 20, 15, 10, 5];
   const TIER_COLORS: Record<number, string> = {
-    50: "#FFD700", // oro full collection
+    50: "#7B4FA0", // viola full collection
     45: "#9B72CF", // violetto
     40: "#C9A0DC", // lilla
     35: "#E88CB5", // rosa
