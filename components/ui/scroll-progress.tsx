@@ -31,7 +31,7 @@ export function ScrollProgress({ containerRef, className }: ScrollProgressProps)
 
   return (
     <div
-      className={`h-1 bg-[#996C9E]/20 ${className ?? ""}`}
+      className={`h-1 bg-[#7d4d7f] ${className ?? ""}`}
       style={{ width: `${progress}%` }}
     />
   );

@@ -70,7 +70,7 @@ export function PrizeSelectionScreen({
         />
       </div>
 
-      <div className="relative max-h-[40vh] overflow-y-auto rounded-lg border border-[#7d4d7f]/20 bg-[#E8D5F0]" ref={listRef}>
+      <div className="relative max-h-[40vh] overflow-y-auto rounded-lg border border-[#7d4d7f]/20 bg-[#E8D5F0] scrollbar-hide" ref={listRef}>
         <div className="sticky top-0 left-0 w-full z-10">
           <ScrollProgress containerRef={listRef} className="w-full" />
         </div>

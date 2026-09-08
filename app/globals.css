@@ -304,6 +304,14 @@ select:-webkit-autofill {
   background: #B08DB5;
 }
 
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
 /* ── html5-qrcode: rimuove elementi duplicati su mobile ── */
 #qr-reader {
   border: none !important;
