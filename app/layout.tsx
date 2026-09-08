@@ -18,7 +18,17 @@ export const metadata: Metadata = {
   title: "Stamp Rally",
   description: "Colleziona timbri e riscatta premi durante l'evento",
   icons: {
-    icon: "/favicon.ico",
+    icon: "/stamp-badge.png",
+  },
+  openGraph: {
+    images: [
+      {
+        url: "/stamp-badge.png",
+        width: 512,
+        height: 512,
+        alt: "Stamp Rally",
+      },
+    ],
   },
 };
 
