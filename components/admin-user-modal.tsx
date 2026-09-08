@@ -115,8 +115,8 @@ function FullCollectionCard({
         aspectRatio: "1 / 1",
       }}
     >
-      <h2 className="text-2xl font-bold text-white text-center drop-shadow-md z-10">
-        Complimenti Full Collection
+      <h2 className="text-3xl font-extrabold text-white text-center drop-shadow-lg z-10">
+        Complimenti
       </h2>
 
       <div className="relative w-full flex-1 flex items-center justify-center overflow-hidden">
@@ -126,8 +126,8 @@ function FullCollectionCard({
             className="absolute left-1/2"
             style={{
               transform: "translateX(-50%) translateY(60%)",
-              width: "200px",
-              height: "22px",
+              width: "240px",
+              height: "26px",
               borderRadius: "50%",
               background: "radial-gradient(ellipse at center, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.2) 40%, transparent 70%)",
               zIndex: 0,
@@ -141,21 +141,21 @@ function FullCollectionCard({
             {[...Array(cardCount)].map((_, i) => {
               const angle = startAngle + (fanAngle / Math.max(cardCount - 1, 1)) * i;
               const rad = (angle * Math.PI) / 180;
-              const offsetX = Math.sin(rad) * 55;
-              const offsetY = (1 - Math.cos(rad)) * 28 + 16;
+              const offsetX = Math.sin(rad) * 68;
+              const offsetY = (1 - Math.cos(rad)) * 34 + 16;
 
               return (
                 <div
                   key={`back-${i}`}
                   className="absolute rounded-xl border-2 border-white/30"
                   style={{
-                    width: "62px",
-                    height: "94px",
+                    width: "72px",
+                    height: "108px",
                     background: "linear-gradient(135deg, #996C9E 0%, #7d4d7f 100%)",
                     transform: `translateX(${offsetX}px) translateY(-${offsetY}px) rotate(${angle}deg)`,
                     transformOrigin: "bottom center",
                     bottom: 0,
-                    left: "-31px",
+                    left: "-36px",
                     zIndex: i,
                   }}
                 />
@@ -170,20 +170,20 @@ function FullCollectionCard({
             {cards.map((card, i) => {
               const angle = startAngle + (fanAngle / Math.max(cardCount - 1, 1)) * i;
               const rad = (angle * Math.PI) / 180;
-              const offsetX = Math.sin(rad) * 55;
-              const offsetY = (1 - Math.cos(rad)) * 28;
+              const offsetX = Math.sin(rad) * 68;
+              const offsetY = (1 - Math.cos(rad)) * 34;
 
               return (
                 <div
                   key={card}
                   className="absolute rounded-xl overflow-hidden border-2 border-white/70"
                   style={{
-                    width: "62px",
-                    height: "94px",
+                    width: "72px",
+                    height: "108px",
                     transform: `translateX(${offsetX}px) translateY(-${offsetY}px) rotate(${angle}deg)`,
                     transformOrigin: "bottom center",
                     bottom: 0,
-                    left: "-31px",
+                    left: "-36px",
                     zIndex: 10 + i,
                   }}
                 >
@@ -192,7 +192,7 @@ function FullCollectionCard({
                     alt="Card premio"
                     fill
                     className="object-cover"
-                    sizes="62px"
+                    sizes="72px"
                   />
                 </div>
               );
@@ -201,13 +201,9 @@ function FullCollectionCard({
         )}
       </div>
 
-      <button
-        type="button"
-        onClick={onClose}
-        className="rounded-lg bg-white/20 px-6 py-2 text-sm font-semibold text-white backdrop-blur-sm hover:bg-white/30 transition-colors z-50"
-      >
-        Chiudi
-      </button>
+      <h3 className="text-xl font-bold text-white text-center drop-shadow-md z-10">
+        Full Collection
+      </h3>
     </div>
   );
 }
@@ -358,7 +354,7 @@ export function AdminUserModal({ userId, nickname, stampCount, open, initialView
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && handleClose()}>
-      <DialogContent className="overflow-hidden max-w-sm sm:max-w-md" aria-describedby={undefined}>
+      <DialogContent className={`overflow-hidden ${view === "result" && result?.is_full_collection ? "max-w-sm sm:max-w-lg" : "max-w-sm sm:max-w-md"}`} aria-describedby={undefined}>
         <VisuallyHidden.Root>
           <DialogTitle>Gestione utente {nickname}</DialogTitle>
         </VisuallyHidden.Root>
