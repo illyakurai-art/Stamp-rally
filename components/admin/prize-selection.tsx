@@ -105,7 +105,6 @@ export function PrizeSelectionScreen({
                 <p className="text-sm font-semibold text-[#2D1B33] truncate">
                   {stand.name}
                 </p>
-                <p className="text-xs text-[#5a3d60]">{stand.artist_id}</p>
               </div>
               <span
                 className={`text-sm font-mono shrink-0 font-bold ${
