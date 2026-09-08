@@ -135,10 +135,7 @@ export default function MappaPage() {
   return (
     <main className="h-screen flex flex-col overflow-hidden">
       <div className="px-4 pt-4 sm:px-6">
-        <div className="mx-auto w-full max-w-5xl flex items-center gap-3">
-          <Image src="/map-icon.png" alt="Mappa" width={32} height={32} className="h-8 w-8" />
-          <h1 className="text-3xl font-bold tracking-tight">{t("map")}</h1>
-        </div>
+        <div className="mx-auto w-full max-w-5xl"></div>
       </div>
       <div className="flex-1 mt-4 mx-auto w-full max-w-5xl px-4 sm:px-6 min-h-0">
         <TransformWrapper
@@ -152,25 +149,29 @@ export default function MappaPage() {
         >
           {({ zoomIn, zoomOut, resetTransform }) => (
             <>
-              <div className="mb-3 flex items-center gap-2">
-                <button
-                  onClick={() => zoomIn()}
-                  className="flex h-9 w-9 items-center justify-center rounded-md border border-foreground/20 transition-colors hover:bg-foreground/5"
-                >
-                  <ZoomIn className="h-4 w-4" />
-                </button>
-                <button
-                  onClick={() => zoomOut()}
-                  className="flex h-9 w-9 items-center justify-center rounded-md border border-foreground/20 transition-colors hover:bg-foreground/5"
-                >
-                  <ZoomOut className="h-4 w-4" />
-                </button>
-                <button
-                  onClick={() => resetTransform()}
-                  className="flex h-9 w-9 items-center justify-center rounded-md border border-foreground/20 transition-colors hover:bg-foreground/5"
-                >
-                  <RotateCcw className="h-4 w-4" />
-                </button>
+              <div className="mb-3 flex items-center gap-3">
+                <Image src="/map-icon.png" alt="Mappa" width={24} height={24} className="h-6 w-6" />
+                <span className="text-xl font-bold tracking-tight">{t("map")}</span>
+                <div className="flex items-center gap-2 ml-auto">
+                  <button
+                    onClick={() => zoomIn()}
+                    className="flex h-9 w-9 items-center justify-center rounded-md border border-foreground/20 transition-colors hover:bg-foreground/5"
+                  >
+                    <ZoomIn className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={() => zoomOut()}
+                    className="flex h-9 w-9 items-center justify-center rounded-md border border-foreground/20 transition-colors hover:bg-foreground/5"
+                  >
+                    <ZoomOut className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={() => resetTransform()}
+                    className="flex h-9 w-9 items-center justify-center rounded-md border border-foreground/20 transition-colors hover:bg-foreground/5"
+                  >
+                    <RotateCcw className="h-4 w-4" />
+                  </button>
+                </div>
               </div>
               <div ref={viewportRef} className="relative overflow-hidden rounded-xl border border-foreground/10 flex-1 min-h-0 mb-2" style={{ background: "#FBCFE8" }}>
                 <TransformComponent wrapperClass="!w-full !h-full">
