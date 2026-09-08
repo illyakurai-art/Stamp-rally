@@ -172,6 +172,15 @@ export async function adminRedeem(userId: string): Promise<RedeemResult> {
   const effectiveRemoved = deletedCount - kkPairsToRemove.length;
   const remainingAfter = stampCount - effectiveRemoved;
 
+  // Full Collection: riduci tutte le card rimanenti di 1
+  if (tier.is_full_collection) {
+    console.log("[adminRedeem] Full Collection: riduco inventory di 1 per ogni stand");
+    const { error: inventoryError } = await supabase.rpc("decrement_all_inventory");
+    if (inventoryError) {
+      console.error("[adminRedeem] inventory decrement error:", inventoryError.message);
+    }
+  }
+
   // Insert redeem via RPC security definer
   const { error: redeemError } = await supabase.rpc("insert_redeem", {
     p_user_id: targetProfile.id,
