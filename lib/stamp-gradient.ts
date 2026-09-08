@@ -2,16 +2,16 @@
 // getCurrentTier): mapping numbero di timbri → gradiente pieno.
 
 export const STAMP_GRADIENTS: string[] = [
-  "linear-gradient(135deg, #3ABF0A 0%, #C4B239 100%)", // 5
-  "linear-gradient(135deg, #C4B239 0%, #E8963E 100%)", // 10
-  "linear-gradient(135deg, #E8963E 0%, #E85D3E 100%)", // 15
-  "linear-gradient(135deg, #E85D3E 0%, #D93D3D 100%)", // 20
-  "linear-gradient(135deg, #D93D3D 0%, #C44DB8 100%)", // 25
-  "linear-gradient(135deg, #C44DB8 0%, #8B4DB8 100%)", // 30
-  "linear-gradient(135deg, #8B4DB8 0%, #4D7DB8 100%)", // 35
-  "linear-gradient(135deg, #4D7DB8 0%, #4DB8A0 100%)", // 40
-  "linear-gradient(135deg, #4DB8A0 0%, #3ABF0A 100%)", // 45
-  "linear-gradient(135deg, #3ABF0A 0%, #C4B239 100%)", // 50 full
+  "linear-gradient(135deg, #5BC0EB 0%, #4AA8D8 100%)", // 5  azzurro
+  "linear-gradient(135deg, #7BC67E 0%, #5DAE60 100%)", // 10 verde
+  "linear-gradient(135deg, #F9D342 0%, #E8C12A 100%)", // 15 giallo
+  "linear-gradient(135deg, #F5A623 0%, #E8912D 100%)", // 20 arancio
+  "linear-gradient(135deg, #F08C7A 0%, #E87A68 100%)", // 25 salmone
+  "linear-gradient(135deg, #E85D5D 0%, #D94A4A 100%)", // 30 rosso
+  "linear-gradient(135deg, #E88CB5 0%, #D97AA3 100%)", // 35 rosa
+  "linear-gradient(135deg, #C9A0DC 0%, #B88ECB 100%)", // 40 lilla
+  "linear-gradient(135deg, #9B72CF 0%, #8A60BE 100%)", // 45 violetto
+  "linear-gradient(135deg, #FFD700 0%, #FFC107 100%)", // 50 full collection (oro)
 ];
 
 export function getStampsGradientIndex(n: number): number {
@@ -30,7 +30,7 @@ export function getStampsGradientIndex(n: number): number {
 
 export function getStampsGradient(n: number): string {
   const i = getStampsGradientIndex(n);
-  return i >= 0 ? STAMP_GRADIENTS[i] : "rgba(139,92,246,0.2)";
+  return i >= 0 ? STAMP_GRADIENTS[i] : "rgba(91,192,235,0.2)";
 }
 
 export function getStampsGradientAngle(n: number): string {
@@ -38,38 +38,38 @@ export function getStampsGradientAngle(n: number): string {
 }
 
 export const TENUE_GRADIENTS: string[] = [
-  "linear-gradient(135deg, rgba(58,191,10,0.2) 0%, rgba(196,178,57,0.13) 100%)", // 5
-  "linear-gradient(135deg, rgba(196,178,57,0.2) 0%, rgba(232,150,62,0.13) 100%)", // 10
-  "linear-gradient(135deg, rgba(232,150,62,0.2) 0%, rgba(232,93,62,0.13) 100%)", // 15
-  "linear-gradient(135deg, rgba(232,93,62,0.2) 0%, rgba(217,61,61,0.13) 100%)", // 20
-  "linear-gradient(135deg, rgba(217,61,61,0.2) 0%, rgba(196,77,184,0.13) 100%)", // 25
-  "linear-gradient(135deg, rgba(196,77,184,0.2) 0%, rgba(139,77,184,0.13) 100%)", // 30
-  "linear-gradient(135deg, rgba(139,77,184,0.2) 0%, rgba(77,125,184,0.13) 100%)", // 35
-  "linear-gradient(135deg, rgba(77,125,184,0.2) 0%, rgba(77,184,160,0.13) 100%)", // 40
-  "linear-gradient(135deg, rgba(77,184,160,0.2) 0%, rgba(58,191,10,0.13) 100%)", // 45
-  "linear-gradient(135deg, rgba(58,191,10,0.2) 0%, rgba(196,178,57,0.13) 100%)", // 50
+  "linear-gradient(135deg, rgba(91,192,235,0.2) 0%, rgba(74,168,216,0.13) 100%)", // 5
+  "linear-gradient(135deg, rgba(123,198,126,0.2) 0%, rgba(93,174,96,0.13) 100%)", // 10
+  "linear-gradient(135deg, rgba(249,211,66,0.2) 0%, rgba(232,193,42,0.13) 100%)", // 15
+  "linear-gradient(135deg, rgba(245,166,35,0.2) 0%, rgba(232,145,45,0.13) 100%)", // 20
+  "linear-gradient(135deg, rgba(240,140,122,0.2) 0%, rgba(232,122,104,0.13) 100%)", // 25
+  "linear-gradient(135deg, rgba(232,93,93,0.2) 0%, rgba(217,74,74,0.13) 100%)", // 30
+  "linear-gradient(135deg, rgba(232,140,181,0.2) 0%, rgba(217,122,163,0.13) 100%)", // 35
+  "linear-gradient(135deg, rgba(201,160,220,0.2) 0%, rgba(184,142,203,0.13) 100%)", // 40
+  "linear-gradient(135deg, rgba(155,114,207,0.2) 0%, rgba(138,96,190,0.13) 100%)", // 45
+  "linear-gradient(135deg, rgba(255,215,0,0.2) 0%, rgba(255,193,7,0.13) 100%)", // 50
 ];
 
 export function getStampsTenueGradient(n: number): string {
   const i = getStampsGradientIndex(n);
-  return i >= 0 ? TENUE_GRADIENTS[i] : "linear-gradient(135deg, rgba(139,92,246,0.2), rgba(99,102,241,0.12))";
+  return i >= 0 ? TENUE_GRADIENTS[i] : "linear-gradient(135deg, rgba(91,192,235,0.2), rgba(74,168,216,0.12))";
 }
 
 // Versioni leggermente scurite e marcate, usate per le tile utenti in /admin/users.
 export const DARK_STAMP_GRADIENTS: string[] = [
-  "linear-gradient(135deg, #33A90B 0%, #A6952F 100%)", // 5
-  "linear-gradient(135deg, #A6952F 0%, #B67D38 100%)", // 10
-  "linear-gradient(135deg, #B67D38 0%, #B95A3A 100%)", // 15
-  "linear-gradient(135deg, #B95A3A 0%, #B34040 100%)", // 20
-  "linear-gradient(135deg, #B34040 0%, #A55AA0 100%)", // 25
-  "linear-gradient(135deg, #A55AA0 0%, #7A55A0 100%)", // 30
-  "linear-gradient(135deg, #7A55A0 0%, #4D6F9E 100%)", // 35
-  "linear-gradient(135deg, #4D6F9E 0%, #4D9E8C 100%)", // 40
-  "linear-gradient(135deg, #4D9E8C 0%, #33A90B 100%)", // 45
-  "linear-gradient(135deg, #33A90B 0%, #A6952F 100%)", // 50
+  "linear-gradient(135deg, #4AA8D8 0%, #3D96C5 100%)", // 5
+  "linear-gradient(135deg, #5DAE60 0%, #4E9C51 100%)", // 10
+  "linear-gradient(135deg, #E8C12A 0%, #D5AF22 100%)", // 15
+  "linear-gradient(135deg, #E8912D 0%, #D58025 100%)", // 20
+  "linear-gradient(135deg, #E87A68 0%, #D56958 100%)", // 25
+  "linear-gradient(135deg, #D94A4A 0%, #C63C3C 100%)", // 30
+  "linear-gradient(135deg, #D97AA3 0%, #C66891 100%)", // 35
+  "linear-gradient(135deg, #B88ECB 0%, #A57CB8 100%)", // 40
+  "linear-gradient(135deg, #8A60BE 0%, #7852AB 100%)", // 45
+  "linear-gradient(135deg, #FFC107 0%, #E8A800 100%)", // 50
 ];
 
 export function getStampsDarkGradient(n: number): string {
   const i = getStampsGradientIndex(n);
-  return i >= 0 ? DARK_STAMP_GRADIENTS[i] : "linear-gradient(135deg, #5A3A66 0%, #4A2F55 100%)";
+  return i >= 0 ? DARK_STAMP_GRADIENTS[i] : "linear-gradient(135deg, #4AA8D8 0%, #3D96C5 100%)";
 }
