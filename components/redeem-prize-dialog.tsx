@@ -33,16 +33,16 @@ const TIERS: PrizeTier[] = [
 ];
 
 const GRADIENTS = [
-  "linear-gradient(to right, #5BC0EB 0%, #7BC67E 100%)", // 5
-  "linear-gradient(to right, #7BC67E 0%, #F9D342 100%)", // 10
-  "linear-gradient(to right, #F9D342 0%, #F5A623 100%)", // 15
-  "linear-gradient(to right, #F5A623 0%, #F08C7A 100%)", // 20
-  "linear-gradient(to right, #F08C7A 0%, #E85D5D 100%)", // 25
-  "linear-gradient(to right, #E85D5D 0%, #E88CB5 100%)", // 30
-  "linear-gradient(to right, #E88CB5 0%, #C9A0DC 100%)", // 35
-  "linear-gradient(to right, #C9A0DC 0%, #9B72CF 100%)", // 40
-  "linear-gradient(to right, #C9A0DC 0%, #9B72CF 100%)", // 45 violetto pallido → viola
-  "linear-gradient(to right, #9B72CF 0%, #5BC0EB 100%)", // 50 full collection (viola → blu)
+  "linear-gradient(to right, #5BC0EB 0%, #7BC67E 100%)", // 5  azzurro → verdino
+  "linear-gradient(to right, #7BC67E 0%, #F9D342 100%)", // 10 verdino → giallino
+  "linear-gradient(to right, #F9D342 0%, #F5A623 100%)", // 15 giallino → arancino
+  "linear-gradient(to right, #F5A623 0%, #E85D5D 100%)", // 20 arancino → rosso chiaro
+  "linear-gradient(to right, #E85D5D 0%, #D94A4A 100%)", // 25 rosso chiaro → rosso carminio
+  "linear-gradient(to right, #D94A4A 0%, #E88CB5 100%)", // 30 rosso carminio → rosa
+  "linear-gradient(to right, #E88CB5 0%, #C9A0DC 100%)", // 35 rosa → fucsia
+  "linear-gradient(to right, #C9A0DC 0%, #E88CB5 100%)", // 40 fucsia → rosa
+  "linear-gradient(to right, #E88CB5 0%, #9B72CF 100%)", // 45 rosa → violetto
+  "linear-gradient(to right, #9B72CF 0%, #5BC0EB 100%)", // 50 violetto → bluetto
 ];
 
 function getCurrentTier(count: number) {

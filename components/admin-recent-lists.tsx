@@ -6,15 +6,15 @@ import type { RecentRedeem, RecentStamp } from "@/lib/admin-recent";
 
 const REDEEM_TIER_GRADIENTS: { threshold: number; gradient: string; badge: string }[] = [
   { threshold: 50, gradient: "from-purple-400/25 to-sky-300/20", badge: "bg-purple-400/25 text-purple-700 dark:text-purple-300" },
-  { threshold: 45, gradient: "from-purple-300/25 to-purple-400/20", badge: "bg-purple-300/25 text-purple-700 dark:text-purple-300" },
-  { threshold: 40, gradient: "from-purple-400/25 to-purple-500/20", badge: "bg-purple-400/25 text-purple-700 dark:text-purple-300" },
-  { threshold: 35, gradient: "from-pink-300/25 to-pink-400/20", badge: "bg-pink-300/25 text-pink-700 dark:text-pink-300" },
-  { threshold: 30, gradient: "from-red-400/25 to-red-500/20", badge: "bg-red-400/25 text-red-700 dark:text-red-300" },
-  { threshold: 25, gradient: "from-orange-300/25 to-orange-400/20", badge: "bg-orange-300/25 text-orange-700 dark:text-orange-300" },
-  { threshold: 20, gradient: "from-orange-400/25 to-amber-400/20", badge: "bg-orange-400/25 text-orange-700 dark:text-orange-300" },
-  { threshold: 15, gradient: "from-yellow-300/25 to-yellow-400/20", badge: "bg-yellow-300/25 text-yellow-700 dark:text-yellow-300" },
-  { threshold: 10, gradient: "from-green-300/25 to-green-400/20", badge: "bg-green-300/25 text-green-700 dark:text-green-300" },
-  { threshold: 5, gradient: "from-sky-300/25 to-sky-400/20", badge: "bg-sky-300/25 text-sky-700 dark:text-sky-300" },
+  { threshold: 45, gradient: "from-pink-300/25 to-purple-400/20", badge: "bg-pink-300/25 text-pink-700 dark:text-pink-300" },
+  { threshold: 40, gradient: "from-purple-300/25 to-pink-300/20", badge: "bg-purple-300/25 text-purple-700 dark:text-purple-300" },
+  { threshold: 35, gradient: "from-pink-300/25 to-purple-300/20", badge: "bg-pink-300/25 text-pink-700 dark:text-pink-300" },
+  { threshold: 30, gradient: "from-red-500/25 to-pink-300/20", badge: "bg-red-500/25 text-red-700 dark:text-red-300" },
+  { threshold: 25, gradient: "from-red-400/25 to-red-500/20", badge: "bg-red-400/25 text-red-700 dark:text-red-300" },
+  { threshold: 20, gradient: "from-orange-400/25 to-red-400/20", badge: "bg-orange-400/25 text-orange-700 dark:text-orange-300" },
+  { threshold: 15, gradient: "from-yellow-300/25 to-orange-400/20", badge: "bg-yellow-300/25 text-yellow-700 dark:text-yellow-300" },
+  { threshold: 10, gradient: "from-green-300/25 to-yellow-300/20", badge: "bg-green-300/25 text-green-700 dark:text-green-300" },
+  { threshold: 5, gradient: "from-sky-300/25 to-green-300/20", badge: "bg-sky-300/25 text-sky-700 dark:text-sky-300" },
 ];
 
 function getRedeemTier(stamps: number) {
