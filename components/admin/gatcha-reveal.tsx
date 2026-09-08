@@ -52,10 +52,6 @@ export function GatchaReveal({ prizes, nickname, onDone }: GatchaRevealProps) {
 
   return (
     <div className="flex flex-col items-center gap-6">
-      <h3 className="text-lg font-bold text-[#2D1B33]">
-        Estrazione Gacha di {nickname}
-      </h3>
-
       <div
         ref={listRef}
         className="relative w-full max-h-[50vh] overflow-y-auto scrollbar-hide"
