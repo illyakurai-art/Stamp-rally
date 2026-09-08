@@ -115,7 +115,8 @@ function FullCollectionCard({
         aspectRatio: "1 / 1",
       }}
     >
-      <h2 className="text-3xl font-extrabold text-white text-center drop-shadow-lg z-10">
+      <h2 className="text-3xl font-extrabold text-center drop-shadow-lg z-10"
+          style={{ color: "#F0E6F6" }}>
         Complimenti
       </h2>
 
@@ -201,7 +202,8 @@ function FullCollectionCard({
         )}
       </div>
 
-      <h3 className="text-xl font-bold text-white text-center drop-shadow-md z-10">
+      <h3 className="text-3xl font-extrabold text-center drop-shadow-md z-10"
+          style={{ color: "#F0E6F6" }}>
         Full Collection
       </h3>
     </div>
