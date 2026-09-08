@@ -51,12 +51,15 @@ function ResultView({
 
   return (
     <div>
-      <div className={`px-6 pt-8 pb-6 ${result.success ? "bg-emerald-500/8" : "bg-red-500/8"}`}>
+      <div
+        className="px-6 pt-8 pb-6 border-b border-foreground/10"
+        style={{ background: result.success ? getStampsGradient(stampCount) : undefined }}
+      >
         <div className="flex items-center gap-3 mb-2">
           {result.success
-            ? <CheckCircle2 className="h-7 w-7 text-emerald-500" />
+            ? <CheckCircle2 className="h-7 w-7 text-white" />
             : <Trophy className="h-7 w-7 text-red-500" />}
-          <h2 className="text-xl font-bold">
+          <h2 className={`text-xl font-bold ${result.success ? "text-white" : ""}`}>
             {result.success ? "Premio consegnato!" : "Errore"}
           </h2>
         </div>
@@ -273,8 +276,11 @@ export function AdminUserModal({ userId, nickname, stampCount, open, initialView
         {/* ── CONFIRM VIEW ── */}
         {view === "confirm" && (
           <div>
-            <div className="bg-foreground/[0.04] px-6 pt-8 pb-4 border-b border-foreground/10">
-              <h2 className="text-2xl">
+            <div
+              className="px-6 pt-8 pb-4 border-b border-foreground/10"
+              style={{ background: getStampsGradient(stampCount) }}
+            >
+              <h2 className="text-2xl text-white">
                 Estrazione Gatcha di <span className="font-extrabold">{nickname}</span>
               </h2>
             </div>
