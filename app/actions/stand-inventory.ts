@@ -21,6 +21,7 @@ export async function getAvailableStands(): Promise<StandInfo[]> {
   const supabase = await createClient();
 
   const { data: { user } } = await supabase.auth.getUser();
+  console.log("[getAvailableStands] user:", user?.id);
   if (!user) return [];
 
   const { data: profile } = await supabase
@@ -29,9 +30,11 @@ export async function getAvailableStands(): Promise<StandInfo[]> {
     .eq("id", user.id)
     .maybeSingle();
 
+  console.log("[getAvailableStands] profile:", profile);
   if (profile?.role !== "staff") return [];
 
-  const { data } = await supabase.rpc("get_available_stands");
+  const { data, error } = await supabase.rpc("get_available_stands");
+  console.log("[getAvailableStands] rpc result:", data, "error:", error);
   return (data as StandInfo[]) ?? [];
 }
 

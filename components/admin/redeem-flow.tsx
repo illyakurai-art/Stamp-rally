@@ -48,7 +48,9 @@ export function RedeemFlow({
   }, []);
 
   const loadStands = async () => {
+    console.log("[RedeemFlow] loading stands...");
     const data = await getAvailableStands();
+    console.log("[RedeemFlow] stands loaded:", data.length, data);
     setStands(data);
     setStep("select");
   };
