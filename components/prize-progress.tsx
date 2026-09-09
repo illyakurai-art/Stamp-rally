@@ -1,3 +1,5 @@
+import { STAMP_GRADIENTS } from "@/lib/stamp-gradient";
+
 interface PrizeTier {
   stamps: number;
   gacha: string;
@@ -19,18 +21,7 @@ const TIERS: PrizeTier[] = [
   { stamps: 50, gacha: "Full collection", extra: "-", isAll: true },
 ];
 
-const GRADIENTS = [
-  "linear-gradient(90deg, #5BC0EB 0%, #4AA8D8 100%)", // 5  azzurro
-  "linear-gradient(90deg, #7BC67E 0%, #5DAE60 100%)", // 10 verde
-  "linear-gradient(90deg, #F9D342 0%, #E8C12A 100%)", // 15 giallo
-  "linear-gradient(90deg, #F5A623 0%, #E8912D 100%)", // 20 arancio
-  "linear-gradient(90deg, #F08C7A 0%, #E87A68 100%)", // 25 salmone
-  "linear-gradient(90deg, #E85D5D 0%, #D94A4A 100%)", // 30 rosso
-  "linear-gradient(90deg, #E88CB5 0%, #D97AA3 100%)", // 35 rosa
-  "linear-gradient(90deg, #C9A0DC 0%, #B88ECB 100%)", // 40 lilla
-  "linear-gradient(90deg, #9B72CF 0%, #8A60BE 100%)", // 45 violetto
-  "linear-gradient(90deg, #7B4FA0 0%, #6A3E8F 100%)", // 50 full collection (viola)
-];
+const GRADIENTS = STAMP_GRADIENTS;
 
 function getCurrentTier(count: number) {
   for (let i = TIERS.length - 1; i >= 0; i--) {

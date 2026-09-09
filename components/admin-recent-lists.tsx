@@ -3,23 +3,12 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Loader2, ChevronDown, Trophy } from "lucide-react";
 import type { RecentRedeem, RecentStamp } from "@/lib/admin-recent";
-
-const REDEEM_TIER_GRADIENTS: { threshold: number; gradient: string; badge: string }[] = [
-  { threshold: 50, gradient: "from-purple-500/20 to-purple-600/15", badge: "bg-purple-500/20 text-purple-700 dark:text-purple-300" },
-  { threshold: 45, gradient: "from-purple-400/20 to-violet-500/15", badge: "bg-purple-400/20 text-purple-700 dark:text-purple-300" },
-  { threshold: 40, gradient: "from-purple-300/20 to-purple-400/15", badge: "bg-purple-300/20 text-purple-700 dark:text-purple-300" },
-  { threshold: 35, gradient: "from-pink-300/20 to-pink-400/15", badge: "bg-pink-300/20 text-pink-700 dark:text-pink-300" },
-  { threshold: 30, gradient: "from-red-400/20 to-red-500/15", badge: "bg-red-400/20 text-red-700 dark:text-red-300" },
-  { threshold: 25, gradient: "from-orange-300/20 to-orange-400/15", badge: "bg-orange-300/20 text-orange-700 dark:text-orange-300" },
-  { threshold: 20, gradient: "from-orange-400/20 to-amber-400/15", badge: "bg-orange-400/20 text-orange-700 dark:text-orange-300" },
-  { threshold: 15, gradient: "from-yellow-300/20 to-yellow-400/15", badge: "bg-yellow-300/20 text-yellow-700 dark:text-yellow-300" },
-  { threshold: 10, gradient: "from-green-300/20 to-green-400/15", badge: "bg-green-300/20 text-green-700 dark:text-green-300" },
-  { threshold: 5, gradient: "from-sky-300/20 to-sky-400/15", badge: "bg-sky-300/20 text-sky-700 dark:text-sky-300" },
-];
-
-function getRedeemTier(stamps: number) {
-  return REDEEM_TIER_GRADIENTS.find((t) => stamps >= t.threshold) ?? null;
-}
+import {
+  TIER_THRESHOLDS,
+  getTierAnchorColor,
+  getTierBadgeStyles,
+  getTierRowBackgroundByStamps,
+} from "@/lib/stamp-gradient";
 
 function useInfiniteScroll<T extends { id: string }>(type: "stamps" | "redeems", initial: T[]) {
   const [items, setItems] = useState<T[]>(initial);
@@ -126,26 +115,12 @@ export function RecentRedeemsList({ initial }: { initial: RecentRedeem[] }) {
   const { items, loading, hasMore, sentinelRef } = useInfiniteScroll<RecentRedeem>("redeems", initial);
   const [tiersOpen, setTiersOpen] = useState(false);
 
-  const TIERS = [50, 45, 40, 35, 30, 25, 20, 15, 10, 5];
-  const TIER_COLORS: Record<number, string> = {
-    50: "#C5A3C9", // viola testo scuro sito full collection
-    45: "#9B72CF", // violetto
-    40: "#C9A0DC", // lilla
-    35: "#E88CB5", // rosa
-    30: "#E85D5D", // rosso
-    25: "#F08C7A", // salmone
-    20: "#F5A623", // arancio
-    15: "#F9D342", // giallo
-    10: "#7BC67E", // verde
-    5: "#5BC0EB",  // azzurro
-  };
-  const tierCounts = TIERS.map((t) => ({
+  const tierCounts = [...TIER_THRESHOLDS].reverse().map((t) => ({
     stamps: t,
     count: items.filter((r) => r.tier_threshold === t).length,
   }));
   const totalCount = items.length;
   const maxCount = Math.max(...tierCounts.map((t) => t.count), 1);
-  const minCount = Math.min(...tierCounts.map((t) => t.count).filter((c) => c > 0), 0);
 
   return (
     <div className="flex flex-col gap-3">
@@ -172,12 +147,13 @@ export function RecentRedeemsList({ initial }: { initial: RecentRedeem[] }) {
                 <div
                   key={tc.stamps}
                   className="flex items-center justify-between rounded-md px-2.5 py-1.5 text-sm"
+                  style={{ background: getTierRowBackgroundByStamps(tc.stamps, tc.count > 0) }}
                 >
                   <div className="flex items-center gap-2">
                     <div
                       className="h-2 w-2 rounded-full shrink-0"
                       style={{
-                        background: TIER_COLORS[tc.stamps],
+                        background: getTierAnchorColor(tc.stamps),
                         opacity: tc.count > 0 ? ratio : 0.5,
                       }}
                     />
@@ -205,20 +181,20 @@ export function RecentRedeemsList({ initial }: { initial: RecentRedeem[] }) {
       {items.length > 0 ? (
         <>
           {items.map((r) => {
-            const tier = getRedeemTier(r.tier_threshold);
+            const badgeStyles = getTierBadgeStyles(r.tier_threshold);
             return (
               <div
                 key={r.id}
-                className={`flex items-center justify-between rounded-lg bg-gradient-to-r px-3 py-2 text-sm shrink-0 ${
-                  tier ? tier.gradient : "bg-foreground/5"
-                }`}
+                className="flex items-center justify-between rounded-lg px-3 py-2 text-sm shrink-0"
+                style={{ background: getTierRowBackgroundByStamps(r.tier_threshold) }}
               >
                 <div className="flex flex-col gap-0.5 min-w-0">
                   <div className="flex items-center gap-1.5">
                     <span className="font-medium truncate">{r.userLabel}</span>
-                    <span className={`rounded-full px-2 py-0.5 text-xs font-semibold shrink-0 ${
-                      tier ? tier.badge : "bg-foreground/10 text-foreground/70"
-                    }`}>
+                    <span
+                      className="rounded-full px-2 py-0.5 text-xs font-semibold shrink-0"
+                      style={badgeStyles}
+                    >
                       -{r.tier_threshold} timbri
                     </span>
                   </div>

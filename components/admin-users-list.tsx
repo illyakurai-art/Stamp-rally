@@ -7,16 +7,16 @@ import { AdminQrScanner } from "@/components/admin-qr-scanner";
 import { getStampsDarkGradient } from "@/lib/stamp-gradient";
 
 const TIERS = [
-  { stamps: 50, label: "Full collection", color: "from-purple-500 to-indigo-500" },
-  { stamps: 45, label: "24 gacha + 12 extra", color: "from-indigo-500 to-blue-500" },
-  { stamps: 40, label: "20 gacha + 10 extra", color: "from-blue-500 to-cyan-500" },
-  { stamps: 35, label: "16 gacha + 8 extra",  color: "from-cyan-500 to-teal-500" },
-  { stamps: 30, label: "12 gacha + 6 extra",  color: "from-teal-500 to-emerald-500" },
-  { stamps: 25, label: "8 gacha + 4 extra",   color: "from-green-500 to-lime-500" },
-  { stamps: 20, label: "6 gacha + 3 extra",   color: "from-yellow-500 to-orange-400" },
-  { stamps: 15, label: "4 gacha + 2 extra",   color: "from-orange-500 to-red-400" },
-  { stamps: 10, label: "2 gacha + 1 extra",   color: "from-red-500 to-pink-500" },
-  { stamps: 5,  label: "1 gacha",             color: "from-pink-500 to-rose-500" },
+  { stamps: 50, label: "Full collection" },
+  { stamps: 45, label: "24 gacha + 12 extra" },
+  { stamps: 40, label: "20 gacha + 10 extra" },
+  { stamps: 35, label: "16 gacha + 8 extra" },
+  { stamps: 30, label: "12 gacha + 6 extra" },
+  { stamps: 25, label: "8 gacha + 4 extra" },
+  { stamps: 20, label: "6 gacha + 3 extra" },
+  { stamps: 15, label: "4 gacha + 2 extra" },
+  { stamps: 10, label: "2 gacha + 1 extra" },
+  { stamps: 5,  label: "1 gacha" },
 ];
 
 function getTier(stamps: number) {

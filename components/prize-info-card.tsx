@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Stamp, Gift, Star, ChevronDown, Crown } from "lucide-react";
 import { UserQrCode } from "@/components/user-qr-code";
 import { useI18n } from "@/lib/i18n/context";
+import { STAMP_GRADIENTS, getTierRowBackground, tierBaseColor } from "@/lib/stamp-gradient";
 
 interface PrizeTier {
   stamps: number;
@@ -26,28 +27,13 @@ const TIERS: PrizeTier[] = [
   { stamps: 50, gacha: "Full collection", extra: "-", isAll: true },
 ];
 
-const GRADIENTS = [
-  "linear-gradient(135deg, #5BC0EB 0%, #4AA8D8 100%)", // 5  azzurro
-  "linear-gradient(135deg, #7BC67E 0%, #5DAE60 100%)", // 10 verde
-  "linear-gradient(135deg, #F9D342 0%, #E8C12A 100%)", // 15 giallo
-  "linear-gradient(135deg, #F5A623 0%, #E8912D 100%)", // 20 arancio
-  "linear-gradient(135deg, #F08C7A 0%, #E87A68 100%)", // 25 salmone
-  "linear-gradient(135deg, #E85D5D 0%, #D94A4A 100%)", // 30 rosso
-  "linear-gradient(135deg, #E88CB5 0%, #D97AA3 100%)", // 35 rosa
-  "linear-gradient(135deg, #C9A0DC 0%, #B88ECB 100%)", // 40 lilla
-  "linear-gradient(135deg, #9B72CF 0%, #8A60BE 100%)", // 45 violetto
-  "linear-gradient(135deg, #7B4FA0 0%, #6A3E8F 100%)", // 50 full collection (viola)
-];
+const GRADIENTS = STAMP_GRADIENTS;
 
 function getCurrentTier(count: number) {
   for (let i = TIERS.length - 1; i >= 0; i--) {
     if (count >= TIERS[i].stamps) return i;
   }
   return 0;
-}
-
-function tierBaseColor(gradient: string) {
-  return gradient.match(/#[0-9A-Fa-f]{6}/)?.[0] ?? "#000000";
 }
 
 export function PrizeInfoCard({
@@ -230,7 +216,7 @@ export function PrizeInfoCard({
                                 : "border border-dashed border-[#A58CA9]/45"
                             }`}
                             style={{
-                              background: isReached ? `${tierBaseColor(tierGradient)}4D` : `${tierBaseColor(tierGradient)}1A`,
+                              background: getTierRowBackground(i, isReached),
                               boxShadow: isReached ? "6px 6px 0 rgba(0, 0, 0, 0.25)" : "3px 3px 0 rgba(0, 0, 0, 0.12)",
                               opacity: rowOpacity,
                               filter: `blur(${rowBlur}px)`,
@@ -322,7 +308,7 @@ export function PrizeInfoCard({
                               : "border border-dashed border-[#A58CA9]/45"
                           }`}
                           style={{
-                            background: isReached ? `${tierBaseColor(tierGradient)}4D` : `${tierBaseColor(tierGradient)}1A`,
+                            background: getTierRowBackground(i, isReached),
                             boxShadow: isReached ? "6px 6px 0 rgba(0, 0, 0, 0.25)" : "3px 3px 0 rgba(0, 0, 0, 0.12)",
                             opacity: rowOpacity,
                             filter: `blur(${rowBlur}px)`,
