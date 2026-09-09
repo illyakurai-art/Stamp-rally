@@ -276,7 +276,7 @@ export function ProtectedDashboard() {
       <StampRealtimeRefresh userId={userId!} userDisplayId={userDisplayId ?? null} />
 
       <div className="flex items-center justify-center">
-        <h1 className="text-2xl font-bold leading-snug text-center bg-gradient-to-b from-purple-500 to-pink-500 bg-clip-text text-transparent">
+        <h1 className="text-2xl font-bold leading-snug text-center bg-gradient-to-b from-purple-500 via-pink-500 to-orange-400 bg-clip-text text-transparent animate-gradient-flow">
           {t("welcome_prefix")}
           <br />
           <span className="text-nowrap">{t("welcome_event_name")}</span>
@@ -306,17 +306,25 @@ export function ProtectedDashboard() {
         ) : (
           <button
             aria-disabled="true"
-            className="relative w-full min-h-12 rounded-md bg-[#996C9E] px-5 py-4 text-sm font-medium text-white flex items-center justify-center gap-3 cursor-not-allowed select-none sm:w-auto sm:min-w-[340px]"
+            className="relative w-full min-h-12 rounded-md bg-[#996C9E] px-5 py-4 text-sm font-medium text-white flex items-center justify-center gap-3 cursor-not-allowed select-none sm:w-auto sm:min-w-[340px] overflow-hidden"
             style={{ boxShadow: "6px 6px 0 rgba(0, 0, 0, 0.25)" }}
           >
-            <span className="text-center leading-snug">
+            <span className="nfc-pulse-ring" />
+            <span className="nfc-pulse-ring" />
+            <span className="nfc-pulse-ring" />
+            <span className="text-center leading-snug z-10">
               {t("scan_nfc_line1")}
               <br />
               {t("scan_nfc_line2")}
               <br />
               {t("scan_nfc_line3")}
             </span>
-            <img src="/nfc-icon.png" alt="" className="absolute right-4 h-12 w-12 shrink-0 object-contain" style={{ filter: "brightness(0) invert(1)" }} />
+            <img
+              src="/nfc-icon.png"
+              alt=""
+              className="absolute right-6 h-12 w-12 shrink-0 object-contain z-10"
+              style={{ filter: "brightness(0) invert(1)" }}
+            />
           </button>
         )}
         <Link

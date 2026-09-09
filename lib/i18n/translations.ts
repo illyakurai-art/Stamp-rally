@@ -56,6 +56,8 @@ export const translations = {
   "my_qr": { ITA: "Il mio QR", ENG: "My QR" },
   "qr_of": { ITA: "QR Code di", ENG: "QR Code of" },
   "show_qr_to_staff": { ITA: "Mostra questo QR allo stand Asunicha per riscattare i tuoi premi", ENG: "Show this QR to Asunicha stand to redeem your prizes" },
+  "show_qr_to_stand": { ITA: "Mostra il QR allo stand", ENG: "Show the QR to the stand" },
+  "show_qr_to_stand_end": { ITA: "per riscattare i premi", ENG: "to redeem your prizes" },
   "scan_in_progress": { ITA: "Scansione in corso", ENG: "Scanning" },
   "scan_instruction": { ITA: "Inquadra il QR code dello stand per registrare il timbro.", ENG: "Point at the stand QR code to register your stamp." },
   "scan_stand_qr": { ITA: "Inquadra il QR code dello stand", ENG: "Point at the stand QR code" },

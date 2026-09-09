@@ -388,6 +388,12 @@ img {
 }
 
 @keyframes gradient-flow {
+  0% { background-position: 50% 0%; }
+  50% { background-position: 50% 100%; }
+  100% { background-position: 50% 0%; }
+}
+
+@keyframes gradient-flow-horizontal {
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
@@ -396,4 +402,40 @@ img {
 .animate-gradient-flow {
   background-size: 200% 200%;
   animation: gradient-flow 3s ease infinite;
+}
+
+.animate-gradient-flow-horizontal {
+  background-size: 200% 200%;
+  animation: gradient-flow-horizontal 3s ease infinite;
+}
+
+@keyframes nfc-pulse {
+  0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
+  60% { transform: translate(-50%, -50%) scale(2.2); opacity: 0.9; }
+  100% { transform: translate(-50%, -50%) scale(3.5); opacity: 0; }
+}
+
+.nfc-pulse-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100px;
+  height: 100px;
+  border-radius: 9999px;
+  border: 6px solid rgba(60, 30, 70, 0.8);
+  box-shadow: 
+    0 0 0 2px rgba(100, 50, 110, 0.5),
+    0 0 8px 4px rgba(120, 60, 130, 0.3),
+    0 0 16px 8px rgba(140, 80, 150, 0.15);
+  animation: nfc-pulse 6s linear infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.nfc-pulse-ring:nth-child(2) {
+  animation-delay: 2s;
+}
+
+.nfc-pulse-ring:nth-child(3) {
+  animation-delay: 4s;
 }

@@ -27,17 +27,17 @@ export function UserQrCode({ displayId, nickname }: Props) {
       </button>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-xs" aria-describedby={undefined}>
+        <DialogContent className="max-w-xs !bg-[#2D1B33]" aria-describedby={undefined}>
           <VisuallyHidden.Root>
             <DialogTitle>{t("qr_of")} {nickname}</DialogTitle>
           </VisuallyHidden.Root>
 
           <div className="flex flex-col items-center gap-5 px-4 pt-8 pb-6">
             <div>
-              <p className="text-center text-lg font-bold">{nickname}</p>
+              <p className="text-center text-2xl font-bold bg-gradient-to-r from-purple-500 via-pink-500 to-orange-400 bg-clip-text text-transparent animate-gradient-flow">{nickname}</p>
             </div>
 
-            <div className="rounded-2xl border border-foreground/10 bg-white p-4 shadow-sm">
+            <div className="rounded-2xl border-2 border-[#996C9E] bg-white p-4 shadow-sm">
               <QRCodeSVG
                 value={displayId}
                 size={200}
@@ -47,8 +47,8 @@ export function UserQrCode({ displayId, nickname }: Props) {
               />
             </div>
 
-            <p className="text-sm font-semibold text-center max-w-[220px] leading-snug bg-gradient-to-r from-purple-500 via-pink-500 to-orange-400 bg-clip-text text-transparent animate-gradient-flow">
-              Mostra il QR allo stand <span className="font-extrabold">Asunicha</span> per riscattare i premi
+            <p className="text-sm font-semibold text-center max-w-[220px] leading-snug text-[#C9A0DC]">
+              {t("show_qr_to_stand")} <span className="bg-gradient-to-r from-purple-500 via-pink-500 to-orange-400 bg-clip-text text-transparent animate-gradient-flow font-extrabold">Asunicha</span> {t("show_qr_to_stand_end")}
             </p>
           </div>
         </DialogContent>
