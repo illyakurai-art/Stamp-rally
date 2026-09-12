@@ -150,13 +150,13 @@ function FullCollectionCard({
                   key={`back-${i}`}
                   className="absolute rounded-xl border-2 border-white/30"
                   style={{
-                    width: "72px",
-                    height: "108px",
+                    width: "clamp(50px, 12vw, 72px)",
+                    height: "clamp(75px, 18vw, 108px)",
                     background: "linear-gradient(135deg, #996C9E 0%, #7d4d7f 100%)",
                     transform: `translateX(${offsetX}px) translateY(-${offsetY}px) rotate(${angle}deg)`,
                     transformOrigin: "bottom center",
                     bottom: 0,
-                    left: "-36px",
+                    left: "calc(-1 * clamp(25px, 6vw, 36px))",
                     zIndex: i,
                   }}
                 />
@@ -179,12 +179,12 @@ function FullCollectionCard({
                   key={card}
                   className="absolute rounded-xl overflow-hidden border-2 border-white/70"
                   style={{
-                    width: "72px",
-                    height: "108px",
+                    width: "clamp(50px, 12vw, 72px)",
+                    height: "clamp(75px, 18vw, 108px)",
                     transform: `translateX(${offsetX}px) translateY(-${offsetY}px) rotate(${angle}deg)`,
                     transformOrigin: "bottom center",
                     bottom: 0,
-                    left: "-36px",
+                    left: "calc(-1 * clamp(25px, 6vw, 36px))",
                     zIndex: 10 + i,
                   }}
                 >
@@ -193,7 +193,7 @@ function FullCollectionCard({
                     alt="Card premio"
                     fill
                     className="object-cover"
-                    sizes="72px"
+                    sizes="clamp(50px, 12vw, 72px)"
                   />
                 </div>
               );

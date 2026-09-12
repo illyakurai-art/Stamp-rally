@@ -428,6 +428,7 @@ img {
     0 0 8px 4px rgba(120, 60, 130, 0.3),
     0 0 16px 8px rgba(140, 80, 150, 0.15);
   animation: nfc-pulse 6s linear infinite;
+  animation-fill-mode: backwards;
   pointer-events: none;
   z-index: 0;
 }

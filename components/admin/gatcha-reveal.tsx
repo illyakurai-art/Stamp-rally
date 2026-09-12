@@ -116,8 +116,8 @@ export function GatchaReveal({ prizes, nickname, onDone }: GatchaRevealProps) {
       <style jsx>{`
         .gatcha-card-wrapper {
           perspective: 1000px;
-          width: 120px;
-          height: 160px;
+          width: clamp(80px, 20vw, 140px);
+          height: clamp(107px, 26.6vw, 187px);
         }
         .gatcha-card {
           width: 100%;
