@@ -89,7 +89,7 @@ export function GatchaReveal({ prizes, selectedCards = [], nickname, onDone }: G
                             alt={card.name}
                             fill
                             className="object-cover"
-                            sizes="clamp(80px, 20vw, 140px)"
+                            sizes="(max-width: 640px) 30vw, 150px"
                           />
                           <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent p-2 pt-6">
                             <span className="text-[10px] font-bold text-white text-center leading-tight block line-clamp-2">
@@ -143,7 +143,7 @@ export function GatchaReveal({ prizes, selectedCards = [], nickname, onDone }: G
                         alt={prize.name ?? prize.artist_id}
                         fill
                         className="object-cover"
-                        sizes="120px"
+                        sizes="(max-width: 640px) 30vw, 150px"
                       />
                       <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent p-2 pt-6">
                         <span className="text-[10px] font-bold text-white text-center leading-tight block line-clamp-2">
@@ -180,8 +180,8 @@ export function GatchaReveal({ prizes, selectedCards = [], nickname, onDone }: G
       <style jsx>{`
         .gatcha-card-wrapper {
           perspective: 1000px;
-          width: clamp(80px, 20vw, 140px);
-          height: clamp(107px, 26.6vw, 187px);
+          width: 100%;
+          aspect-ratio: 3 / 4;
         }
         .gatcha-card {
           width: 100%;
