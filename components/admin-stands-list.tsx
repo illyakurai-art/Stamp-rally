@@ -9,6 +9,8 @@ export interface StandEntry {
   name: string;
   display_id: string | null;
   stamps: number;
+  remaining?: number | null;
+  total?: number | null;
 }
 
 type SortMode = "alpha" | "stamps";
@@ -98,6 +100,19 @@ export function AdminStandsList({ stands }: { stands: StandEntry[] }) {
                 <Stamp className="h-3.5 w-3.5" />
                 {stand.stamps}
               </div>
+              {stand.remaining != null && stand.total != null && (
+                <p
+                  className={`text-[10px] font-bold ${
+                    stand.remaining <= 3
+                      ? "text-red-400"
+                      : stand.remaining <= 8
+                        ? "text-amber-400"
+                        : "text-emerald-400"
+                  }`}
+                >
+                  {stand.remaining}/{stand.total}
+                </p>
+              )}
             </div>
           ))}
         </div>

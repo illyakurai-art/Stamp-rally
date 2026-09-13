@@ -27,12 +27,29 @@ async function StandsContent() {
     {}
   );
 
-  const stands: StandEntry[] = (artists ?? []).map((a) => ({
-    id: a.id,
-    name: a.name,
-    display_id: a.display_id,
-    stamps: stampsByArtist[a.display_id ?? ""] ?? 0,
-  }));
+  const { data: inventory } = await supabase
+    .from("stand_inventory")
+    .select("artist_id, remaining, total");
+
+  const inventoryByArtist = (inventory ?? []).reduce<Record<string, { remaining: number; total: number }>>(
+    (acc, row) => {
+      acc[row.artist_id] = { remaining: row.remaining, total: row.total };
+      return acc;
+    },
+    {}
+  );
+
+  const stands: StandEntry[] = (artists ?? []).map((a) => {
+    const inv = inventoryByArtist[a.display_id ?? ""];
+    return {
+      id: a.id,
+      name: a.name,
+      display_id: a.display_id,
+      stamps: stampsByArtist[a.display_id ?? ""] ?? 0,
+      remaining: inv?.remaining ?? null,
+      total: inv?.total ?? null,
+    };
+  });
 
   return (
     <>
