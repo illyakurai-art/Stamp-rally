@@ -16,4 +16,7 @@ BEGIN
     WHERE artist_id = p_artist_ids[i];
   END LOOP;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Grant per autenticati
+GRANT EXECUTE ON FUNCTION restore_stand_cards(text[]) TO authenticated;
