@@ -5,13 +5,20 @@ import Image from "next/image";
 import type { GatchaResult } from "@/app/actions/stand-inventory";
 import { ScrollProgress } from "@/components/ui/scroll-progress";
 
+type SelectedCard = {
+  artist_id: string;
+  name: string;
+  prize_image_url?: string | null;
+};
+
 interface GatchaRevealProps {
   prizes: GatchaResult[];
+  selectedCards?: SelectedCard[];
   nickname: string;
   onDone: () => void;
 }
 
-export function GatchaReveal({ prizes, nickname, onDone }: GatchaRevealProps) {
+export function GatchaReveal({ prizes, selectedCards = [], nickname, onDone }: GatchaRevealProps) {
   const [flipped, setFlipped] = useState<boolean[]>(
     () => new Array(prizes.length).fill(false)
   );
@@ -59,7 +66,64 @@ export function GatchaReveal({ prizes, nickname, onDone }: GatchaRevealProps) {
         <div className="sticky top-0 left-0 w-full z-10">
           <ScrollProgress containerRef={listRef} className="w-full" />
         </div>
-        <div className="grid grid-cols-3 gap-4 p-4">
+
+        {/* Card selezionate manualmente */}
+        {selectedCards.length > 0 && (
+          <div className="p-4 pb-2">
+            <p className="text-xs font-bold uppercase tracking-wider text-[#996C9E] mb-3">Card selezionate</p>
+            <div className="grid grid-cols-3 gap-4">
+              {selectedCards.map((card) => (
+                <div key={card.artist_id} className="gatcha-card-wrapper">
+                  <div className="gatcha-card flipped">
+                    <div className="gatcha-card-face gatcha-card-front">
+                      <div className="flex flex-col items-center justify-center h-full">
+                        <span className="text-4xl">?</span>
+                        <span className="text-xs text-white/50 mt-1">???</span>
+                      </div>
+                    </div>
+                    <div className="gatcha-card-face gatcha-card-back">
+                      {card.prize_image_url ? (
+                        <div className="relative w-full h-full">
+                          <Image
+                            src={card.prize_image_url}
+                            alt={card.name}
+                            fill
+                            className="object-cover"
+                            sizes="clamp(80px, 20vw, 140px)"
+                          />
+                          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent p-2 pt-6">
+                            <span className="text-[10px] font-bold text-white text-center leading-tight block line-clamp-2">
+                              {card.name}
+                            </span>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col items-center justify-center h-full gap-2">
+                          <span className="text-lg font-bold text-white text-center leading-tight">
+                            {card.name}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Separatore */}
+        {selectedCards.length > 0 && prizes.length > 0 && (
+          <div className="mx-4 border-t border-[#996C9E]/30" />
+        )}
+
+        {/* Card estratte dal gatcha */}
+        {selectedCards.length > 0 && prizes.length > 0 && (
+          <div className="px-4 pt-2 pb-0">
+            <p className="text-xs font-bold uppercase tracking-wider text-[#996C9E] mb-3">Estrazione Gacha</p>
+          </div>
+        )}
+        <div className="grid grid-cols-3 gap-4 px-4 pb-4">
           {prizes.map((prize, i) => (
             <div key={prize.artist_id} className="gatcha-card-wrapper">
               <div className={`gatcha-card ${flipped[i] ? "flipped" : ""}`}>

@@ -9,7 +9,7 @@ interface PrizeSelectionScreenProps {
   stands: StandInfo[];
   requiredCount: number;
   nickname: string;
-  onConfirm: (selectedIds: string[]) => void;
+  onConfirm: (selectedIds: string[], selectedStands: StandInfo[]) => void;
   onCancel: () => void;
   isLoading?: boolean;
 }
@@ -157,7 +157,10 @@ export function PrizeSelectionScreen({
           <button
             type="button"
             disabled={!isComplete || isLoading}
-            onClick={() => onConfirm(Array.from(selected))}
+            onClick={() => {
+              const selectedStandInfos = stands.filter((s) => selected.has(s.artist_id));
+              onConfirm(Array.from(selected), selectedStandInfos);
+            }}
             className="rounded-lg bg-[#996C9E] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#8a5f8e] disabled:opacity-40 disabled:cursor-not-allowed"
           >
             {isLoading ? "Elaborazione..." : "Continua per il Gacha"}

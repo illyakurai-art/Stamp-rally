@@ -9,6 +9,7 @@ export interface StandInfo {
   display_id: string;
   total: number;
   remaining: number;
+  prize_image_url?: string | null;
 }
 
 export interface GatchaResult {

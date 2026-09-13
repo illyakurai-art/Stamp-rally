@@ -11,6 +11,12 @@ import {
   type GatchaResult,
 } from "@/app/actions/stand-inventory";
 
+type SelectedCard = {
+  artist_id: string;
+  name: string;
+  prize_image_url?: string | null;
+};
+
 interface RedeemFlowProps {
   extraCount: number;
   gatchaCount: number;
@@ -34,6 +40,7 @@ export function RedeemFlow({
   const [stands, setStands] = useState<StandInfo[]>([]);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [gatchaPrizes, setGatchaPrizes] = useState<GatchaResult[]>([]);
+  const [selectedCards, setSelectedCards] = useState<SelectedCard[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -68,8 +75,13 @@ export function RedeemFlow({
     }
   };
 
-  const handleSelectConfirm = async (ids: string[]) => {
+  const handleSelectConfirm = async (ids: string[], selectedStandInfos: StandInfo[]) => {
     setSelectedIds(ids);
+    setSelectedCards(selectedStandInfos.map((s) => ({
+      artist_id: s.artist_id,
+      name: s.name,
+      prize_image_url: s.prize_image_url,
+    })));
     setIsLoading(true);
     setError(null);
 
@@ -136,7 +148,7 @@ export function RedeemFlow({
   }
 
   if (step === "gatcha") {
-    return <GatchaReveal prizes={gatchaPrizes} nickname={nickname} onDone={handleGatchaDone} />;
+    return <GatchaReveal prizes={gatchaPrizes} selectedCards={selectedCards} nickname={nickname} onDone={handleGatchaDone} />;
   }
 
   return null;
