@@ -6,7 +6,6 @@ import { GatchaReveal } from "./gatcha-reveal";
 import {
   getAvailableStands,
   redeemStandCards,
-  restoreStandCards,
   drawGatchaPrizes,
   type StandInfo,
   type GatchaResult,
@@ -25,6 +24,8 @@ interface RedeemFlowProps {
   nickname: string;
   onSuccess: () => void;
   onCancel: () => void;
+  subtractedIdsRef?: React.MutableRefObject<string[]>;
+  completedRef?: React.MutableRefObject<boolean>;
 }
 
 type Step = "loading" | "select" | "drawing" | "gatcha" | "done";
@@ -36,6 +37,8 @@ export function RedeemFlow({
   nickname,
   onSuccess,
   onCancel,
+  subtractedIdsRef: externalSubtractedIdsRef,
+  completedRef: externalCompletedRef,
 }: RedeemFlowProps) {
   const [step, setStep] = useState<Step>("loading");
   const [stands, setStands] = useState<StandInfo[]>([]);
@@ -44,16 +47,10 @@ export function RedeemFlow({
   const [selectedCards, setSelectedCards] = useState<SelectedCard[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const completedRef = useRef(false);
-  const subtractedIdsRef = useRef<string[]>([]);
-
-  useEffect(() => {
-    return () => {
-      if (!completedRef.current && subtractedIdsRef.current.length > 0) {
-        restoreStandCards(subtractedIdsRef.current);
-      }
-    };
-  }, []);
+  const internalCompletedRef = useRef(false);
+  const internalSubtractedIdsRef = useRef<string[]>([]);
+  const completedRef = externalCompletedRef ?? internalCompletedRef;
+  const subtractedIdsRef = externalSubtractedIdsRef ?? internalSubtractedIdsRef;
 
   useEffect(() => {
     if (extraCount === 0) {
