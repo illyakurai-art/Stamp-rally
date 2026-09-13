@@ -7,7 +7,6 @@ import { Stamp, Trophy, Gift, Clock, ChevronRight, Loader2, CheckCircle2 } from 
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import { adminRedeem, getUserStamps } from "@/app/actions/admin-redeem";
-import { restoreStandCards } from "@/app/actions/stand-inventory";
 import type { RedeemResult } from "@/app/actions/admin-redeem";
 import { getStampsGradient } from "@/lib/stamp-gradient";
 import { RedeemFlow } from "@/components/admin/redeem-flow";
@@ -308,8 +307,14 @@ export function AdminUserModal({ userId, nickname, stampCount, open, initialView
 
   const handleClose = () => {
     if (!flowCompletedRef.current && flowSubtractedIdsRef.current.length > 0) {
-      restoreStandCards(flowSubtractedIdsRef.current);
+      const ids = [...flowSubtractedIdsRef.current];
       flowSubtractedIdsRef.current = [];
+      fetch("/api/restore-stand-cards", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ artist_ids: ids }),
+        keepalive: true,
+      });
     }
     onClose();
     setTimeout(() => { setView("main"); setStamps(null); setResult(null); }, 300);
