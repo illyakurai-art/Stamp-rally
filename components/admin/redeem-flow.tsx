@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { PrizeSelectionScreen } from "./prize-selection";
 import { GatchaReveal } from "./gatcha-reveal";
 import {
   getAvailableStands,
   redeemStandCards,
+  restoreStandCards,
   drawGatchaPrizes,
   type StandInfo,
   type GatchaResult,
@@ -43,6 +44,16 @@ export function RedeemFlow({
   const [selectedCards, setSelectedCards] = useState<SelectedCard[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const completedRef = useRef(false);
+  const subtractedIdsRef = useRef<string[]>([]);
+
+  useEffect(() => {
+    return () => {
+      if (!completedRef.current && subtractedIdsRef.current.length > 0) {
+        restoreStandCards(subtractedIdsRef.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (extraCount === 0) {
@@ -90,6 +101,7 @@ export function RedeemFlow({
         if (!result.success) {
           throw new Error(result.error ?? "Errore sottrazione card");
         }
+        subtractedIdsRef.current = [...subtractedIdsRef.current, ...ids];
       }
 
       // 2. Estrai gatcha
@@ -100,6 +112,7 @@ export function RedeemFlow({
         setStep("gatcha");
       } else {
         setStep("done");
+        completedRef.current = true;
         onSuccess();
       }
     } catch (err) {
@@ -111,6 +124,7 @@ export function RedeemFlow({
   };
 
   const handleGatchaDone = () => {
+    completedRef.current = true;
     setStep("done");
     onSuccess();
   };
