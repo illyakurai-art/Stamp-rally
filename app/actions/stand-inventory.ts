@@ -23,7 +23,6 @@ export async function getAvailableStands(): Promise<StandInfo[]> {
   const supabase = await createClient();
 
   const { data: { user } } = await supabase.auth.getUser();
-  console.log("[getAvailableStands] user:", user?.id);
   if (!user) return [];
 
   const { data: profile } = await supabase
@@ -32,33 +31,20 @@ export async function getAvailableStands(): Promise<StandInfo[]> {
     .eq("id", user.id)
     .maybeSingle();
 
-  console.log("[getAvailableStands] profile:", profile);
   if (profile?.role !== "staff") return [];
 
   const { data, error } = await supabase.rpc("get_available_stands");
-  console.log("[getAvailableStands] rpc result:", data, "error:", error);
+  if (error) {
+    console.error("[getAvailableStands] rpc error:", error.message);
+    return [];
+  }
 
-  const stands = (data as StandInfo[]) ?? [];
+  const stands = (data as { artist_id: string; name: string; display_id: string; total: number; remaining: number }[]) ?? [];
 
-  // Fetch prize images
-  const artistIds = stands.map((s) => s.artist_id);
-  console.log("[getAvailableStands] artistIds:", artistIds.slice(0, 5));
-  const { data: artists, error: artistError } = await supabase
-    .from("artists")
-    .select("display_id, prize_image_url")
-    .in("display_id", artistIds);
-  console.log("[getAvailableStands] artists:", artists?.slice(0, 3), "error:", artistError);
-
-  const imageMap = new Map(
-    (artists ?? []).map((a) => [a.display_id, a.prize_image_url])
-  );
-
-  const result = stands.map((s) => ({
+  return stands.map((s) => ({
     ...s,
-    prize_image_url: imageMap.get(s.artist_id) ?? null,
+    prize_image_url: `https://qoniejhhzixwzgtzlngo.supabase.co/storage/v1/render/image/public/artists-cards/Premi%20artisti/${s.artist_id}.webp?width=150&height=220`,
   }));
-  console.log("[getAvailableStands] result sample:", result.slice(0, 2));
-  return result;
 }
 
 export async function redeemStandCards(

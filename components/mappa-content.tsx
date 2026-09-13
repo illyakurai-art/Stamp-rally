@@ -44,9 +44,6 @@ export async function MappaContent() {
     stampsResult.data?.map((s) => s.artist_id) ?? []
   );
 
-  console.log("[mappa] userIdsToMatch:", userIdsToMatch);
-  console.log("[mappa] stamps found:", stampsResult.data?.length, stampsResult.data);
-  console.log("[mappa] scannedIdentifiers:", [...scannedIdentifiers]);
 
   const artistsWithStatus = artists.map((a) => ({
     ...a,

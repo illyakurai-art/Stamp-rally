@@ -58,7 +58,6 @@ function FullCollectionCard({
           .gt("remaining", 0)
           .order("artist_id");
 
-        console.log("[FullCollectionCard] stand_inventory:", inventory?.length, "error:", invError?.message);
 
         if (inventory && inventory.length > 0) {
           const imageUrls = inventory.slice(0, 9).map(
