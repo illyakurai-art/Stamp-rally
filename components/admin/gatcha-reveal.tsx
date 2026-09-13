@@ -71,7 +71,7 @@ export function GatchaReveal({ prizes, selectedCards = [], nickname, onDone }: G
         {selectedCards.length > 0 && (
           <div className="p-4 pb-2">
             <p className="text-xs font-bold uppercase tracking-wider text-[#996C9E] mb-3">Card selezionate</p>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-3 gap-1">
               {selectedCards.map((card) => (
                 <div key={card.artist_id} className="gatcha-card-wrapper">
                   <div className="gatcha-card flipped">
@@ -123,7 +123,7 @@ export function GatchaReveal({ prizes, selectedCards = [], nickname, onDone }: G
             <p className="text-xs font-bold uppercase tracking-wider text-[#996C9E] mb-3">Estrazione Gacha</p>
           </div>
         )}
-        <div className="grid grid-cols-3 gap-4 px-4 pb-4">
+        <div className="grid grid-cols-3 gap-1 px-4 pb-4">
           {prizes.map((prize, i) => (
             <div key={prize.artist_id} className="gatcha-card-wrapper">
               <div className={`gatcha-card ${flipped[i] ? "flipped" : ""}`}>
