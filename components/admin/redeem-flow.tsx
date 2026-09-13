@@ -123,7 +123,17 @@ export function RedeemFlow({
     }
   };
 
-  const handleGatchaDone = () => {
+  const handleGatchaDone = async () => {
+    // Sottrai le card gatcha dal DB
+    if (gatchaPrizes.length > 0) {
+      const gatchaIds = gatchaPrizes.map((p) => p.artist_id);
+      const result = await redeemStandCards(gatchaIds);
+      if (!result.success) {
+        setError(result.error ?? "Errore sottrazione card gatcha");
+        return;
+      }
+      subtractedIdsRef.current = [...subtractedIdsRef.current, ...gatchaIds];
+    }
     completedRef.current = true;
     setStep("done");
     onSuccess();
