@@ -77,11 +77,13 @@ export function RedeemFlow({
 
   const handleSelectConfirm = async (ids: string[], selectedStandInfos: StandInfo[]) => {
     setSelectedIds(ids);
-    setSelectedCards(selectedStandInfos.map((s) => ({
+    const cards = selectedStandInfos.map((s) => ({
       artist_id: s.artist_id,
       name: s.name,
       prize_image_url: s.prize_image_url,
-    })));
+    }));
+    console.log("[RedeemFlow] selectedCards:", cards);
+    setSelectedCards(cards);
     setIsLoading(true);
     setError(null);
 
