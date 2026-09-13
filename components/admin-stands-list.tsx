@@ -101,15 +101,7 @@ export function AdminStandsList({ stands }: { stands: StandEntry[] }) {
                 {stand.stamps}
               </div>
               {stand.remaining != null && stand.total != null && (
-                <p
-                  className={`text-[10px] font-bold ${
-                    stand.remaining <= 3
-                      ? "text-red-400"
-                      : stand.remaining <= 8
-                        ? "text-amber-400"
-                        : "text-emerald-400"
-                  }`}
-                >
+                <p className="text-[10px] font-bold text-[#5a3d60]">
                   {stand.remaining}/{stand.total}
                 </p>
               )}
