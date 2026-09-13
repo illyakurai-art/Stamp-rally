@@ -42,19 +42,23 @@ export async function getAvailableStands(): Promise<StandInfo[]> {
 
   // Fetch prize images
   const artistIds = stands.map((s) => s.artist_id);
-  const { data: artists } = await supabase
+  console.log("[getAvailableStands] artistIds:", artistIds.slice(0, 5));
+  const { data: artists, error: artistError } = await supabase
     .from("artists")
     .select("display_id, prize_image_url")
     .in("display_id", artistIds);
+  console.log("[getAvailableStands] artists:", artists?.slice(0, 3), "error:", artistError);
 
   const imageMap = new Map(
     (artists ?? []).map((a) => [a.display_id, a.prize_image_url])
   );
 
-  return stands.map((s) => ({
+  const result = stands.map((s) => ({
     ...s,
     prize_image_url: imageMap.get(s.artist_id) ?? null,
   }));
+  console.log("[getAvailableStands] result sample:", result.slice(0, 2));
+  return result;
 }
 
 export async function redeemStandCards(
