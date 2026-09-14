@@ -3,7 +3,7 @@
 import { useState, useEffect, useTransition, useRef } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Stamp, Trophy, Gift, Clock, ChevronRight, Loader2, CheckCircle2 } from "lucide-react";
+import { Stamp, Trophy, Clock, ChevronRight, Loader2, CheckCircle2 } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import { adminRedeem, getUserStamps } from "@/app/actions/admin-redeem";
@@ -37,10 +37,8 @@ interface StampEntry {
 
 function FullCollectionCard({
   stampCount,
-  onClose,
 }: {
   stampCount: number;
-  onClose: () => void;
 }) {
   const [cards, setCards] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
@@ -52,7 +50,7 @@ function FullCollectionCard({
         const supabase = createClient();
 
         // Query stand_inventory per artisti con card disponibili
-        const { data: inventory, error: invError } = await supabase
+        const { data: inventory } = await supabase
           .from("stand_inventory")
           .select("artist_id, remaining")
           .gt("remaining", 0)
@@ -224,7 +222,7 @@ function ResultView({
     return (
       <>
         <Confetti />
-        <FullCollectionCard stampCount={stampCount} onClose={onClose} />
+        <FullCollectionCard stampCount={stampCount} />
       </>
     );
   }
@@ -292,7 +290,7 @@ interface Props {
   onClose: () => void;
 }
 
-type View = "main" | "stamps" | "confirm" | "redeem-flow" | "result";
+type View = "main" | "stamps" | "confirm" | "result";
 
 export function AdminUserModal({ userId, nickname, stampCount, open, initialView = "main", onClose }: Props) {
   const [view, setView] = useState<View>(initialView);
@@ -319,10 +317,6 @@ export function AdminUserModal({ userId, nickname, stampCount, open, initialView
     onClose();
     setTimeout(() => { setView("main"); setStamps(null); setResult(null); }, 300);
     if (result?.success) router.refresh();
-  };
-
-  const handleRedeemFlowCancel = () => {
-    setView("main");
   };
 
   const loadStamps = () => {
@@ -495,7 +489,6 @@ export function AdminUserModal({ userId, nickname, stampCount, open, initialView
                 <RedeemFlow
                   extraCount={tier.extra ?? 0}
                   gatchaCount={tier.gacha ?? 0}
-                  userId={userId}
                   nickname={nickname}
                   onSuccess={handleRedeemFlowSuccess}
                   onCancel={() => setView("main")}

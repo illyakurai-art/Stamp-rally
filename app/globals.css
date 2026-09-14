@@ -348,16 +348,6 @@ img {
   user-select: none;
 }
 
-/* ── Traguardo non ancora raggiunto: bordo seghettato tipo francobollo ── */
-.stamp-notched {
-  border: 1px dashed #A58CA9;
-  -webkit-mask:
-    linear-gradient(#000 0 0) 0 0 / 100% 100% no-repeat,
-    radial-gradient(4px at 2px 8px, transparent 97%, #000 101%) 0 0 / 14px 16px repeat-y,
-    radial-gradient(4px at calc(100% - 2px) 8px, transparent 97%, #000 101%) 0 0 / 14px 16px repeat-y;
-  -webkit-mask-composite: source-over, xor, xor;
-          mask-composite: add, exclude, exclude;
-}
 /* Nasconde altri elementi extra */
 #qr-reader > img,
 #qr-reader__dashboard,
@@ -393,20 +383,9 @@ img {
   100% { background-position: 50% 0%; }
 }
 
-@keyframes gradient-flow-horizontal {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
 .animate-gradient-flow {
   background-size: 200% 200%;
   animation: gradient-flow 3s ease infinite;
-}
-
-.animate-gradient-flow-horizontal {
-  background-size: 200% 200%;
-  animation: gradient-flow-horizontal 3s ease infinite;
 }
 
 @keyframes nfc-pulse {

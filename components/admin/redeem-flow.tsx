@@ -20,7 +20,6 @@ type SelectedCard = {
 interface RedeemFlowProps {
   extraCount: number;
   gatchaCount: number;
-  userId: string;
   nickname: string;
   onSuccess: () => void;
   onCancel: () => void;
@@ -33,7 +32,6 @@ type Step = "loading" | "select" | "drawing" | "gatcha" | "done";
 export function RedeemFlow({
   extraCount,
   gatchaCount,
-  userId,
   nickname,
   onSuccess,
   onCancel,
@@ -42,11 +40,8 @@ export function RedeemFlow({
 }: RedeemFlowProps) {
   const [step, setStep] = useState<Step>("loading");
   const [stands, setStands] = useState<StandInfo[]>([]);
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [gatchaPrizes, setGatchaPrizes] = useState<GatchaResult[]>([]);
   const [selectedCards, setSelectedCards] = useState<SelectedCard[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
   const internalCompletedRef = useRef(false);
   const internalSubtractedIdsRef = useRef<string[]>([]);
   const completedRef = externalCompletedRef ?? internalCompletedRef;
@@ -71,25 +66,20 @@ export function RedeemFlow({
   const handleJustGatcha = async () => {
     setStep("drawing");
     try {
-      // Sottrai card per gatcha direttamente
       const prizes = await drawGatchaPrizes(gatchaCount);
       setGatchaPrizes(prizes);
       setStep("gatcha");
     } catch {
-      setError("Errore nell'estrazione gatcha");
       setStep("select");
     }
   };
 
   const handleSelectConfirm = async (ids: string[], selectedStandInfos: StandInfo[]) => {
-    setSelectedIds(ids);
     setSelectedCards(selectedStandInfos.map((s) => ({
       artist_id: s.artist_id,
       name: s.name,
       prize_image_url: s.prize_image_url,
     })));
-    setIsLoading(true);
-    setError(null);
 
     try {
       // 1. Sottrae card extra dal DB
@@ -112,23 +102,16 @@ export function RedeemFlow({
         completedRef.current = true;
         onSuccess();
       }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Errore durante il riscatto");
+    } catch {
       setStep("select");
-    } finally {
-      setIsLoading(false);
     }
   };
 
   const handleGatchaDone = async () => {
-    // Sottrai le card gatcha dal DB
     if (gatchaPrizes.length > 0) {
       const gatchaIds = gatchaPrizes.map((p) => p.artist_id);
       const result = await redeemStandCards(gatchaIds);
-      if (!result.success) {
-        setError(result.error ?? "Errore sottrazione card gatcha");
-        return;
-      }
+      if (!result.success) return;
       subtractedIdsRef.current = [...subtractedIdsRef.current, ...gatchaIds];
     }
     completedRef.current = true;

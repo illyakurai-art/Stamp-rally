@@ -71,17 +71,6 @@ export const STAMP_GRADIENTS: string[] = TIER_ANCHORS.map((_, i) => {
   return buildGradient(from, to, CARD_GRADIENT_ANGLE);
 });
 
-/** Gradienti orizzontali per le righe milestone (sinistra → destra verso il tier successivo). */
-export const STAMP_ROW_GRADIENTS: string[] = TIER_ANCHORS.map((_, i) => {
-  const [from, to] = getTierColorPair(i);
-  return buildGradient(from, to, ROW_GRADIENT_ANGLE);
-});
-
-export const TENUE_GRADIENTS: string[] = TIER_ANCHORS.map((_, i) => {
-  const [from, to] = getTierColorPair(i);
-  return buildTenueGradient(from, to, CARD_GRADIENT_ANGLE, 0.2, 0.13);
-});
-
 export const DARK_STAMP_GRADIENTS: string[] = TIER_ANCHORS.map((_, i) => {
   const [from, to] = getTierColorPair(i);
   return buildGradient(darken(from), darken(to), CARD_GRADIENT_ANGLE);
@@ -140,17 +129,6 @@ export function getStampsGradientIndex(n: number): number {
 export function getStampsGradient(n: number): string {
   const i = getStampsGradientIndex(n);
   return i >= 0 ? STAMP_GRADIENTS[i] : "rgba(45,212,191,0.2)";
-}
-
-export function getStampsGradientAngle(n: number): string {
-  return getStampsGradient(n);
-}
-
-export function getStampsTenueGradient(n: number): string {
-  const i = getStampsGradientIndex(n);
-  return i >= 0
-    ? TENUE_GRADIENTS[i]
-    : "linear-gradient(135deg, rgba(45,212,191,0.2), rgba(34,197,94,0.12))";
 }
 
 export function getStampsDarkGradient(n: number): string {
