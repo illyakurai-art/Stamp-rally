@@ -2,7 +2,7 @@
 
 import { createClient } from "@supabase/supabase-js";
 
-const DEFAULT_PASSWORD = "Asunicha2025!";
+const DEFAULT_PASSWORD = "Origin2025!";
 
 export async function resetUserPassword(
   targetUserId: string
