@@ -31,6 +31,7 @@ export const translations = {
   "enter_password": { ITA: "Inserisci la password", ENG: "Enter your password" },
   "delete_account_btn": { ITA: "Elimina il mio account", ENG: "Delete my account" },
   "deleting": { ITA: "Eliminazione...", ENG: "Deleting..." },
+  "change_password": { ITA: "Cambia password", ENG: "Change password" },
 
   // Dashboard
   "welcome_prefix": { ITA: "Benvenuto alla", ENG: "Welcome to" },

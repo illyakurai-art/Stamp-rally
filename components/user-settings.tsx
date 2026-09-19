@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Settings, LogOut, Trash2, Globe, QrCode } from "lucide-react";
+import { Settings, LogOut, Trash2, Globe, QrCode, KeyRound } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -65,6 +65,13 @@ export function UserSettings() {
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [pwdChangeOpen, setPwdChangeOpen] = useState(false);
+  const [currentPwd, setCurrentPwd] = useState("");
+  const [newPwd, setNewPwd] = useState("");
+  const [confirmPwd, setConfirmPwd] = useState("");
+  const [pwdError, setPwdError] = useState<string | null>(null);
+  const [pwdSuccess, setPwdSuccess] = useState(false);
+  const [pwdLoading, setPwdLoading] = useState(false);
   const router = useRouter();
 
   const handleDeleteAccount = async () => {
@@ -89,6 +96,36 @@ export function UserSettings() {
     setConfirmDelete(false);
     setDeletePassword("");
     setDeleteError(null);
+  };
+
+  const resetPwdChange = () => {
+    setCurrentPwd("");
+    setNewPwd("");
+    setConfirmPwd("");
+    setPwdError(null);
+    setPwdSuccess(false);
+  };
+
+  const handleChangePassword = async () => {
+    setPwdError(null);
+    if (newPwd.length < 6) {
+      setPwdError("La password deve avere almeno 6 caratteri");
+      return;
+    }
+    if (newPwd !== confirmPwd) {
+      setPwdError("Le password non coincidono");
+      return;
+    }
+    setPwdLoading(true);
+    const supabase = createClient();
+    const { error } = await supabase.auth.updateUser({ password: newPwd });
+    if (error) {
+      setPwdError(error.message);
+      setPwdLoading(false);
+    } else {
+      setPwdSuccess(true);
+      setPwdLoading(false);
+    }
   };
 
   return (
@@ -178,6 +215,15 @@ export function UserSettings() {
 
             <div className="border-t border-foreground/10" />
 
+            {/* Cambia password */}
+            <button
+              onClick={() => { setPwdChangeOpen(true); setOpen(false); resetPwdChange(); }}
+              className="flex items-center justify-center gap-2 w-full rounded-xl border border-foreground/15 bg-foreground/[0.02] px-4 py-3 text-sm font-medium text-foreground transition-colors hover:bg-foreground/[0.06]"
+            >
+              <KeyRound className="h-4 w-4" />
+              {t("change_password")}
+            </button>
+
             {/* Logout */}
             <button
               onClick={handleLogout}
@@ -230,6 +276,85 @@ export function UserSettings() {
               </div>
             )}
 
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* ── CAMBIO PASSWORD POPUP ── */}
+      <Dialog open={pwdChangeOpen} onOpenChange={(o) => { setPwdChangeOpen(o); if (!o) resetPwdChange(); }}>
+        <DialogContent className="max-w-sm overflow-hidden p-0" aria-describedby={undefined}>
+          <VisuallyHidden.Root>
+            <DialogTitle>{t("change_password")}</DialogTitle>
+          </VisuallyHidden.Root>
+
+          <div className="px-6 pt-8 pb-5 border-b border-foreground/10">
+            <p className="text-xs font-semibold uppercase tracking-widest text-foreground/60 mb-1">Account</p>
+            <h2 className="text-xl font-bold">{t("change_password")}</h2>
+          </div>
+
+          <div className="px-6 py-5 flex flex-col gap-4">
+            {pwdSuccess ? (
+              <div className="flex flex-col items-center gap-3 py-4">
+                <div className="rounded-full bg-green-500/10 p-3">
+                  <KeyRound className="h-6 w-6 text-green-500" />
+                </div>
+                <p className="text-sm font-medium text-green-600">Password aggiornata con successo</p>
+                <button
+                  onClick={() => { setPwdChangeOpen(false); resetPwdChange(); }}
+                  className="w-full rounded-lg bg-foreground px-4 py-2.5 text-sm font-medium text-background hover:bg-foreground/90 transition-colors"
+                >
+                  {t("close")}
+                </button>
+              </div>
+            ) : (
+              <>
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-semibold text-foreground/70">{t("enter_password")}</label>
+                  <input
+                    type="password"
+                    value={currentPwd}
+                    onChange={(e) => setCurrentPwd(e.target.value)}
+                    className="rounded-lg border border-foreground/15 bg-background px-3 py-2.5 text-sm outline-none focus:border-foreground/30 focus:ring-1 focus:ring-foreground/20"
+                  />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-semibold text-foreground/70">Nuova password</label>
+                  <input
+                    type="password"
+                    value={newPwd}
+                    onChange={(e) => setNewPwd(e.target.value)}
+                    className="rounded-lg border border-foreground/15 bg-background px-3 py-2.5 text-sm outline-none focus:border-foreground/30 focus:ring-1 focus:ring-foreground/20"
+                  />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-semibold text-foreground/70">Conferma nuova password</label>
+                  <input
+                    type="password"
+                    value={confirmPwd}
+                    onChange={(e) => setConfirmPwd(e.target.value)}
+                    className="rounded-lg border border-foreground/15 bg-background px-3 py-2.5 text-sm outline-none focus:border-foreground/30 focus:ring-1 focus:ring-foreground/20"
+                  />
+                </div>
+                {pwdError && (
+                  <p className="text-xs text-red-500">{pwdError}</p>
+                )}
+                <div className="flex gap-2 mt-1">
+                  <button
+                    onClick={() => { setPwdChangeOpen(false); resetPwdChange(); }}
+                    className="flex-1 rounded-lg border border-foreground/15 px-3 py-2.5 text-sm font-medium hover:bg-foreground/5 transition-colors"
+                  >
+                    {t("cancel")}
+                  </button>
+                  <button
+                    onClick={handleChangePassword}
+                    disabled={!currentPwd || !newPwd || !confirmPwd || pwdLoading}
+                    className="flex-1 rounded-lg bg-foreground px-3 py-2.5 text-sm font-medium text-background disabled:opacity-50 hover:bg-foreground/90 transition-colors"
+                  >
+                    {pwdLoading ? "…" : t("confirm")}
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </DialogContent>
       </Dialog>
