@@ -3,13 +3,15 @@
 import { useState, useEffect, useTransition, useRef } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Stamp, Trophy, Clock, ChevronRight, Loader2, CheckCircle2, KeyRound } from "lucide-react";
+import { Stamp, Trophy, Clock, ChevronRight, Loader2, CheckCircle2, KeyRound, CreditCard } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import { adminRedeem, getUserStamps } from "@/app/actions/admin-redeem";
 import type { RedeemResult } from "@/app/actions/admin-redeem";
 import { resetUserPassword } from "@/app/actions/reset-password";
 import { saveRedeemCards } from "@/app/actions/save-redeem-cards";
+import { getUserRedeemCards } from "@/app/actions/get-user-redeem-cards";
+import type { RedeemCardEntry } from "@/app/actions/get-user-redeem-cards";
 import type { AssignedCard } from "@/components/admin/redeem-flow";
 import { getStampsGradient } from "@/lib/stamp-gradient";
 import { RedeemFlow } from "@/components/admin/redeem-flow";
@@ -300,6 +302,9 @@ export function AdminUserModal({ userId, nickname, stampCount, open, initialView
   const [stamps, setStamps] = useState<StampEntry[] | null>(null);
   const [result, setResult] = useState<RedeemResult | null>(null);
   const [resetPwdResult, setResetPwdResult] = useState<{ password?: string; error?: string } | null>(null);
+  const [redeemCardsOpen, setRedeemCardsOpen] = useState(false);
+  const [redeemCards, setRedeemCards] = useState<RedeemCardEntry[]>([]);
+  const [redeemCardsLoading, setRedeemCardsLoading] = useState(false);
   const flowSubtractedIdsRef = useRef<string[]>([]);
   const flowCompletedRef = useRef(false);
   const assignedCardsRef = useRef<AssignedCard[]>([]);
@@ -335,6 +340,14 @@ export function AdminUserModal({ userId, nickname, stampCount, open, initialView
   const handleResetPassword = async () => {
     const res = await resetUserPassword(userId);
     setResetPwdResult(res);
+  };
+
+  const handleLoadRedeemCards = async () => {
+    setRedeemCardsOpen(true);
+    setRedeemCardsLoading(true);
+    const cards = await getUserRedeemCards(userId);
+    setRedeemCards(cards);
+    setRedeemCardsLoading(false);
   };
 
   const handleRedeem = () => {
@@ -378,6 +391,7 @@ export function AdminUserModal({ userId, nickname, stampCount, open, initialView
   };
 
   return (
+    <>
     <Dialog open={open} onOpenChange={(o) => !o && handleClose()}>
       <DialogContent className={`overflow-hidden ${view === "result" && result?.is_full_collection ? "max-w-sm sm:max-w-lg" : "max-w-sm sm:max-w-md"}`} aria-describedby={undefined}>
         <VisuallyHidden.Root>
@@ -475,6 +489,20 @@ export function AdminUserModal({ userId, nickname, stampCount, open, initialView
                   {resetPwdResult.error}
                 </div>
               )}
+
+              {/* Card ritirate */}
+              <button
+                onClick={handleLoadRedeemCards}
+                className="flex items-center justify-between w-full rounded-xl border border-foreground/10 bg-foreground/[0.02] px-4 py-3.5 text-sm font-medium hover:bg-foreground/[0.05] transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="rounded-full bg-blue-500/10 p-2">
+                    <CreditCard className="h-4 w-4 text-blue-500" />
+                  </div>
+                  <span>Card ritirate</span>
+                </div>
+                <ChevronRight className="h-4 w-4 text-foreground/30" />
+              </button>
             </div>
           </div>
         )}
@@ -575,5 +603,53 @@ export function AdminUserModal({ userId, nickname, stampCount, open, initialView
         )}
       </DialogContent>
     </Dialog>
+
+    {/* ── CARD RITIRATE POPUP ── */}
+    <Dialog open={redeemCardsOpen} onOpenChange={setRedeemCardsOpen}>
+      <DialogContent className="max-w-sm overflow-hidden p-0" aria-describedby={undefined}>
+        <VisuallyHidden.Root>
+          <DialogTitle>Card ritirate</DialogTitle>
+        </VisuallyHidden.Root>
+
+        <div className="px-6 pt-8 pb-5 border-b border-foreground/10">
+          <p className="text-xs font-semibold uppercase tracking-widest text-foreground/60 mb-1">{nickname}</p>
+          <h2 className="text-xl font-bold">Card ritirate</h2>
+        </div>
+
+        <div className="px-6 py-5">
+          {redeemCardsLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="h-5 w-5 animate-spin text-foreground/40" />
+            </div>
+          ) : redeemCards.length === 0 ? (
+            <p className="text-sm text-foreground/40 text-center py-8">Nessuna card riscattata.</p>
+          ) : (
+            <div className="max-h-[50vh] overflow-y-auto flex flex-col gap-2">
+              {redeemCards.map((card, i) => (
+                <div key={i} className="flex items-center justify-between rounded-lg bg-foreground/[0.03] px-3 py-2.5">
+                  <div className="flex items-center gap-2.5">
+                    <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${
+                      card.source === "gatcha"
+                        ? "bg-purple-100 text-purple-700"
+                        : "bg-blue-100 text-blue-700"
+                    }`}>
+                      {card.source === "gatcha" ? "Gacha" : "Extra"}
+                    </span>
+                    <span className="text-sm font-medium">{card.artist_name}</span>
+                  </div>
+                  <span className="text-xs text-foreground/40">
+                    {new Date(card.redeemed_at).toLocaleString("it-IT", {
+                      day: "2-digit", month: "2-digit",
+                      hour: "2-digit", minute: "2-digit",
+                    })}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
+  </>
   );
 }
