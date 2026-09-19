@@ -54,7 +54,7 @@ export function TierBreakdown({ data, total }: { data: TierStat[]; total: number
               className="font-bold tabular-nums min-w-[32px] text-right"
               style={{
                 color: count > 0
-                  ? `rgba(16, 185, 129, ${ratio})`
+                  ? `rgba(64, 64, 64, ${ratio})`
                   : "rgba(128, 128, 128, 0.4)",
               }}
             >

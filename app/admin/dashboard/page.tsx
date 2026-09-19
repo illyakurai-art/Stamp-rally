@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { Users, Stamp, Trophy, Activity, BarChart3 } from "lucide-react";
+import { Users, Stamp, Trophy, Activity, BarChart3, Hash } from "lucide-react";
 import { fetchRecentRedeems, fetchRecentStamps } from "@/lib/admin-recent";
 import {
   RecentRedeemsList,
@@ -43,6 +43,11 @@ export default async function AdminDashboardPage() {
     .map(([tier, count]) => ({ tier, count }))
     .sort((a, b) => a.tier - b.tier);
 
+  // Timbri consumati dai redeem (tier * count)
+  const stampsConsumed = tierBreakdown.reduce((sum, t) => sum + t.tier * t.count, 0);
+  // Totale timbri elargiti = ancora in possesso + consumati
+  const stampsTotal = stats.totalStamps + stampsConsumed;
+
   return (
     <section className="mx-auto w-full max-w-6xl px-5 py-10">
       <div className="mb-8">
@@ -51,7 +56,7 @@ export default async function AdminDashboardPage() {
       </div>
 
       {/* Statistiche */}
-      <div className="grid gap-4 sm:grid-cols-3 mb-10">
+      <div className="grid gap-4 grid-cols-2 sm:grid-cols-4 mb-10">
         <StatCard
           icon={<Users className="h-5 w-5" />}
           label="Visitatori registrati"
@@ -72,6 +77,13 @@ export default async function AdminDashboardPage() {
           value={stats.totalRedeems}
           tint="from-emerald-500/15 to-teal-500/15 text-emerald-700 dark:text-emerald-300"
           iconTint="text-emerald-600 dark:text-emerald-400"
+        />
+        <StatCard
+          icon={<Hash className="h-5 w-5" />}
+          label="Timbri totali"
+          value={stampsTotal}
+          tint="from-amber-500/15 to-orange-500/15 text-amber-700 dark:text-amber-300"
+          iconTint="text-amber-600 dark:text-amber-400"
         />
       </div>
 
