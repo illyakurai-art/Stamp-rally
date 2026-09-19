@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Search, QrCode, Crown } from "lucide-react";
+import { Search, QrCode, Crown, ArrowDownAZ, BarChart3 } from "lucide-react";
 import { AdminUserModal } from "@/components/admin-user-modal";
 import { AdminQrScanner } from "@/components/admin-qr-scanner";
 import { getStampsDarkGradient } from "@/lib/stamp-gradient";
+import { cn } from "@/lib/utils";
 
 const TIERS = [
   { stamps: 50, label: "Full collection" },
@@ -32,8 +33,11 @@ export interface UserEntry {
   kkUnlocked?: boolean;
 }
 
+type SortMode = "alpha" | "stamps";
+
 export function AdminUsersList({ users }: { users: UserEntry[] }) {
   const [query, setQuery] = useState("");
+  const [sort, setSort] = useState<SortMode>("alpha");
   const [selected, setSelected] = useState<UserEntry | null>(null);
   const [scannerOpen, setScannerOpen] = useState(false);
   const [initialView, setInitialView] = useState<"main" | "confirm">("main");
@@ -44,7 +48,18 @@ export function AdminUsersList({ users }: { users: UserEntry[] }) {
       )
     : users;
 
+  const sorted = [...filtered].sort((a, b) =>
+    sort === "alpha"
+      ? a.nickname.localeCompare(b.nickname, "it", { sensitivity: "base" })
+      : b.stamps - a.stamps
+  );
+
   const max = 50;
+
+  const SORT_OPTIONS: { mode: SortMode; label: string; icon: typeof ArrowDownAZ }[] = [
+    { mode: "alpha", label: "Alfabetico", icon: ArrowDownAZ },
+    { mode: "stamps", label: "Numero timbri", icon: BarChart3 },
+  ];
 
   return (
     <div className="flex flex-col gap-6">
@@ -58,7 +73,7 @@ export function AdminUsersList({ users }: { users: UserEntry[] }) {
         Scansiona QR utente
       </button>
 
-      {/* Barra ricerca */}
+      {/* Barra ricerca + ordinamento */}
       <div className="flex items-center gap-3">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground/40" />
@@ -72,15 +87,34 @@ export function AdminUsersList({ users }: { users: UserEntry[] }) {
         </div>
         {query && (
           <span className="text-xs text-foreground/40">
-            {filtered.length} risultat{filtered.length === 1 ? "o" : "i"}
+            {sorted.length} risultat{sorted.length === 1 ? "o" : "i"}
           </span>
         )}
+        <div className="ml-auto flex items-center gap-2">
+          <div className="flex items-center rounded-lg border border-foreground/15 bg-background p-0.5">
+            {SORT_OPTIONS.map(({ mode, label, icon: Icon }) => (
+              <button
+                key={mode}
+                onClick={() => setSort(mode)}
+                className={cn(
+                  "flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors",
+                  sort === mode
+                    ? "bg-foreground/10 text-foreground"
+                    : "text-foreground/50 hover:text-foreground"
+                )}
+              >
+                <Icon className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">{label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* Griglia card — cliccabili */}
-      {filtered.length > 0 ? (
+      {sorted.length > 0 ? (
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((user) => {
+          {sorted.map((user) => {
             const tier = getTier(user.stamps);
             const progress = Math.min((user.stamps / max) * 100, 100);
 
