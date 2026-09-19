@@ -39,41 +39,49 @@ export default function MappaPage() {
   useEffect(() => {
     const supabase = createClient();
     (async () => {
-      const { data: artistsRes } = await supabase
-        .from("artists")
-        .select("id, name, display_id, image_url, prize_image_url, map_x, map_y, instagram")
-        .eq("active", true);
+      try {
+        const { data: artistsRes } = await supabase
+          .from("artists")
+          .select("id, name, display_id, image_url, prize_image_url, map_x, map_y, instagram")
+          .eq("active", true);
 
-      const { data: { user } } = await supabase.auth.getUser();
+        let scanned = new Set<string>();
+        try {
+          const { data: { user } } = await supabase.auth.getUser();
+          if (user) {
+            let displayId: string | null = null;
+            const { data: profile } = await supabase
+              .from("profiles")
+              .select("display_id")
+              .eq("id", user.id)
+              .maybeSingle();
+            displayId = profile?.display_id ?? null;
 
-      let scanned = new Set<string>();
-      if (user) {
-        let displayId: string | null = null;
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("display_id")
-          .eq("id", user.id)
-          .maybeSingle();
-        displayId = profile?.display_id ?? null;
+            const userIdsToMatch = [user.id];
+            if (displayId) userIdsToMatch.push(displayId);
 
-        const userIdsToMatch = [user.id];
-        if (displayId) userIdsToMatch.push(displayId);
+            const { data: stampsRes } = await supabase
+              .from("stamps")
+              .select("artist_id")
+              .in("user_id", userIdsToMatch);
 
-        const { data: stampsRes } = await supabase
-          .from("stamps")
-          .select("artist_id")
-          .in("user_id", userIdsToMatch);
+            scanned = new Set(stampsRes?.map((s) => s.artist_id) ?? []);
+          }
+        } catch {
+          // Guest: no stamps to load
+        }
 
-        scanned = new Set(stampsRes?.map((s) => s.artist_id) ?? []);
+        setArtists(
+          (artistsRes ?? []).map((a) => ({
+            ...a,
+            scanned: scanned.has(a.id) || (a.display_id ? scanned.has(a.display_id) : false),
+          }))
+        );
+      } catch {
+        // artists query failed
+      } finally {
+        setLoading(false);
       }
-
-      setArtists(
-        (artistsRes ?? []).map((a) => ({
-          ...a,
-          scanned: scanned.has(a.id) || (a.display_id ? scanned.has(a.display_id) : false),
-        }))
-      );
-      setLoading(false);
     })();
   }, []);
 
