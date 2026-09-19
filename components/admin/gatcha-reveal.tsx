@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import Image from "next/image";
 import type { GatchaResult } from "@/app/actions/stand-inventory";
 import { ScrollProgress } from "@/components/ui/scroll-progress";
 
@@ -84,12 +83,10 @@ export function GatchaReveal({ prizes, selectedCards = [], nickname, onDone }: G
                     <div className="gatcha-card-face gatcha-card-back">
                       {card.prize_image_url ? (
                         <div className="relative w-full h-full">
-                          <Image
+                          <img
                             src={card.prize_image_url}
                             alt={card.name}
-                            fill
-                            className="object-cover"
-                            sizes="(max-width: 640px) 30vw, 150px"
+                            className="absolute inset-0 w-full h-full object-cover"
                           />
                           <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent p-2 pt-6">
                             <span className="text-[10px] font-bold text-white text-center leading-tight block line-clamp-2">
@@ -138,12 +135,10 @@ export function GatchaReveal({ prizes, selectedCards = [], nickname, onDone }: G
                 <div className="gatcha-card-face gatcha-card-back">
                   {prize.prize_image_url ? (
                     <div className="relative w-full h-full">
-                      <Image
+                      <img
                         src={prize.prize_image_url}
                         alt={prize.name ?? prize.artist_id}
-                        fill
-                        className="object-cover"
-                        sizes="(max-width: 640px) 30vw, 150px"
+                        className="absolute inset-0 w-full h-full object-cover"
                       />
                       <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent p-2 pt-6">
                         <span className="text-[10px] font-bold text-white text-center leading-tight block line-clamp-2">
