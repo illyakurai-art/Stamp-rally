@@ -27,7 +27,7 @@ export function ForgotPasswordForm({
             chiedi assistenza al personale.
           </p>
           <Link
-            href="/mappa"
+            href="/mappa?artist=A0001"
             className="inline-flex items-center gap-2 rounded-lg bg-[#996C9E] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#8a5f8e]"
           >
             <MapPin className="h-4 w-4" />
