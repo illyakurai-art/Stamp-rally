@@ -17,12 +17,18 @@ type SelectedCard = {
   prize_image_url?: string | null;
 };
 
+export type AssignedCard = {
+  artist_id: string;
+  source: "extra" | "gatcha";
+};
+
 interface RedeemFlowProps {
   extraCount: number;
   gatchaCount: number;
   nickname: string;
   onSuccess: () => void;
   onCancel: () => void;
+  onCardsAssigned?: (cards: AssignedCard[]) => void;
   subtractedIdsRef?: React.MutableRefObject<string[]>;
   completedRef?: React.MutableRefObject<boolean>;
 }
@@ -35,6 +41,7 @@ export function RedeemFlow({
   nickname,
   onSuccess,
   onCancel,
+  onCardsAssigned,
   subtractedIdsRef: externalSubtractedIdsRef,
   completedRef: externalCompletedRef,
 }: RedeemFlowProps) {
@@ -98,6 +105,12 @@ export function RedeemFlow({
         setGatchaPrizes(prizes);
         setStep("gatcha");
       } else {
+        // Solo extra, niente gatcha
+        const assignedCards: AssignedCard[] = selectedStandInfos.map((s) => ({
+          artist_id: s.artist_id,
+          source: "extra",
+        }));
+        onCardsAssigned?.(assignedCards);
         setStep("done");
         completedRef.current = true;
         onSuccess();
@@ -114,6 +127,14 @@ export function RedeemFlow({
       if (!result.success) return;
       subtractedIdsRef.current = [...subtractedIdsRef.current, ...gatchaIds];
     }
+
+    // Raccogli tutte le card assegnate (extra + gatcha)
+    const assignedCards: AssignedCard[] = [
+      ...selectedCards.map((c) => ({ artist_id: c.artist_id, source: "extra" as const })),
+      ...gatchaPrizes.map((p) => ({ artist_id: p.artist_id, source: "gatcha" as const })),
+    ];
+    onCardsAssigned?.(assignedCards);
+
     completedRef.current = true;
     setStep("done");
     onSuccess();

@@ -9,6 +9,8 @@ import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import { adminRedeem, getUserStamps } from "@/app/actions/admin-redeem";
 import type { RedeemResult } from "@/app/actions/admin-redeem";
 import { resetUserPassword } from "@/app/actions/reset-password";
+import { saveRedeemCards } from "@/app/actions/save-redeem-cards";
+import type { AssignedCard } from "@/components/admin/redeem-flow";
 import { getStampsGradient } from "@/lib/stamp-gradient";
 import { RedeemFlow } from "@/components/admin/redeem-flow";
 import { Confetti } from "@/components/ui/confetti";
@@ -300,6 +302,7 @@ export function AdminUserModal({ userId, nickname, stampCount, open, initialView
   const [resetPwdResult, setResetPwdResult] = useState<{ password?: string; error?: string } | null>(null);
   const flowSubtractedIdsRef = useRef<string[]>([]);
   const flowCompletedRef = useRef(false);
+  const assignedCardsRef = useRef<AssignedCard[]>([]);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
@@ -340,6 +343,11 @@ export function AdminUserModal({ userId, nickname, stampCount, open, initialView
       setResult(res);
       setView("result");
       if (res.success) {
+        // Salva le card assegnate
+        if (assignedCardsRef.current.length > 0) {
+          await saveRedeemCards(userId, assignedCardsRef.current);
+          assignedCardsRef.current = [];
+        }
         router.refresh();
         // Delay broadcast per permettere alla pagina /scan/result dell'utente
         // di chiudersi/redirigere prima che arrivi la notifica su /protected
@@ -362,8 +370,11 @@ export function AdminUserModal({ userId, nickname, stampCount, open, initialView
   };
 
   const handleRedeemFlowSuccess = () => {
-    // Dopo che il flusso premi è completato, esegui il redeem per rimuovere i timbri
     handleRedeem();
+  };
+
+  const handleCardsAssigned = (cards: AssignedCard[]) => {
+    assignedCardsRef.current = cards;
   };
 
   return (
@@ -524,6 +535,7 @@ export function AdminUserModal({ userId, nickname, stampCount, open, initialView
                   nickname={nickname}
                   onSuccess={handleRedeemFlowSuccess}
                   onCancel={() => setView("main")}
+                  onCardsAssigned={handleCardsAssigned}
                   subtractedIdsRef={flowSubtractedIdsRef}
                   completedRef={flowCompletedRef}
                 />
