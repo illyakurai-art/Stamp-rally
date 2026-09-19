@@ -41,9 +41,18 @@ export async function getAvailableStands(): Promise<StandInfo[]> {
 
   const stands = (data as { artist_id: string; name: string; display_id: string; total: number; remaining: number }[]) ?? [];
 
+  const { data: artists } = await supabase
+    .from("artists")
+    .select("display_id, prize_image_url")
+    .in("display_id", stands.map((s) => s.artist_id));
+
+  const imageMap = new Map(
+    (artists ?? []).map((a) => [a.display_id, a.prize_image_url])
+  );
+
   return stands.map((s) => ({
     ...s,
-    prize_image_url: `https://qoniejhhzixwzgtzlngo.supabase.co/storage/v1/render/image/public/artists-cards/Premi%20artisti/${s.artist_id}.webp?width=150&height=220`,
+    prize_image_url: imageMap.get(s.artist_id) ?? null,
   }));
 }
 
