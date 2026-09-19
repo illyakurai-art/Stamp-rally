@@ -3,11 +3,12 @@
 import { useState, useEffect, useTransition, useRef } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Stamp, Trophy, Clock, ChevronRight, Loader2, CheckCircle2 } from "lucide-react";
+import { Stamp, Trophy, Clock, ChevronRight, Loader2, CheckCircle2, KeyRound } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import { adminRedeem, getUserStamps } from "@/app/actions/admin-redeem";
 import type { RedeemResult } from "@/app/actions/admin-redeem";
+import { resetUserPassword } from "@/app/actions/reset-password";
 import { getStampsGradient } from "@/lib/stamp-gradient";
 import { RedeemFlow } from "@/components/admin/redeem-flow";
 import { Confetti } from "@/components/ui/confetti";
@@ -296,6 +297,7 @@ export function AdminUserModal({ userId, nickname, stampCount, open, initialView
   const [view, setView] = useState<View>(initialView);
   const [stamps, setStamps] = useState<StampEntry[] | null>(null);
   const [result, setResult] = useState<RedeemResult | null>(null);
+  const [resetPwdResult, setResetPwdResult] = useState<{ password?: string; error?: string } | null>(null);
   const flowSubtractedIdsRef = useRef<string[]>([]);
   const flowCompletedRef = useRef(false);
   const [isPending, startTransition] = useTransition();
@@ -325,6 +327,11 @@ export function AdminUserModal({ userId, nickname, stampCount, open, initialView
       setStamps(data?.stamps ?? []);
       setView("stamps");
     });
+  };
+
+  const handleResetPassword = async () => {
+    const res = await resetUserPassword(userId);
+    setResetPwdResult(res);
   };
 
   const handleRedeem = () => {
@@ -432,6 +439,31 @@ export function AdminUserModal({ userId, nickname, stampCount, open, initialView
                 </div>
                 <ChevronRight className={`h-4 w-4 ${tier ? "text-emerald-800/60" : "text-foreground/20"}`} />
               </button>
+
+              {/* Reset password */}
+              <button
+                onClick={handleResetPassword}
+                disabled={!!resetPwdResult?.password}
+                className="flex items-center justify-between w-full rounded-xl border border-foreground/10 bg-foreground/[0.02] px-4 py-3.5 text-sm font-medium hover:bg-foreground/[0.05] transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="rounded-full bg-amber-500/10 p-2">
+                    <KeyRound className="h-4 w-4 text-amber-500" />
+                  </div>
+                  <span>Reset password</span>
+                </div>
+                <ChevronRight className="h-4 w-4 text-foreground/30" />
+              </button>
+              {resetPwdResult?.password && (
+                <div className="rounded-lg bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-800">
+                  Nuova password: <span className="font-mono font-bold">{resetPwdResult.password}</span>
+                </div>
+              )}
+              {resetPwdResult?.error && (
+                <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-600">
+                  {resetPwdResult.error}
+                </div>
+              )}
             </div>
           </div>
         )}
