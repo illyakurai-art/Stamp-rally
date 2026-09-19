@@ -33,6 +33,17 @@ export function ForgotPasswordForm({
             <MapPin className="h-4 w-4" />
             Vedi mappa
           </Link>
+          <p className="text-sm text-muted-foreground">
+            Oppure contatta direttamente l&apos;Amministratore di Sistema tramite{" "}
+            <a
+              href="https://t.me/Illya_frutti_rossi"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline underline-offset-4 font-semibold text-[#996C9E] hover:text-[#8a5f8e] transition-colors"
+            >
+              chat
+            </a>
+          </p>
           <div className="mt-2 text-center text-sm">
             Hai già un account?{" "}
             <Link
