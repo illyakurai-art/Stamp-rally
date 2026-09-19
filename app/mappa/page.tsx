@@ -38,39 +38,43 @@ export default function MappaPage() {
 
   useEffect(() => {
     const supabase = createClient();
-    supabase.auth.getUser().then(async ({ data: { user } }) => {
-      if (!user) return;
-      let displayId: string | null = null;
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("display_id")
-        .eq("id", user.id)
-        .maybeSingle();
-      displayId = profile?.display_id ?? null;
+    (async () => {
+      const { data: artistsRes } = await supabase
+        .from("artists")
+        .select("id, name, display_id, image_url, prize_image_url, map_x, map_y, instagram")
+        .eq("active", true);
 
-      const userIdsToMatch = [user.id];
-      if (displayId) userIdsToMatch.push(displayId);
+      const { data: { user } } = await supabase.auth.getUser();
 
-      const [artistsRes, stampsRes] = await Promise.all([
-        supabase
-          .from("artists")
-          .select("id, name, display_id, image_url, prize_image_url, map_x, map_y, instagram")
-          .eq("active", true),
-        supabase
+      let scanned = new Set<string>();
+      if (user) {
+        let displayId: string | null = null;
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("display_id")
+          .eq("id", user.id)
+          .maybeSingle();
+        displayId = profile?.display_id ?? null;
+
+        const userIdsToMatch = [user.id];
+        if (displayId) userIdsToMatch.push(displayId);
+
+        const { data: stampsRes } = await supabase
           .from("stamps")
           .select("artist_id")
-          .in("user_id", userIdsToMatch),
-      ]);
+          .in("user_id", userIdsToMatch);
 
-      const scanned = new Set(stampsRes.data?.map((s) => s.artist_id) ?? []);
+        scanned = new Set(stampsRes?.map((s) => s.artist_id) ?? []);
+      }
+
       setArtists(
-        (artistsRes.data ?? []).map((a) => ({
+        (artistsRes ?? []).map((a) => ({
           ...a,
           scanned: scanned.has(a.id) || (a.display_id ? scanned.has(a.display_id) : false),
         }))
       );
       setLoading(false);
-    });
+    })();
   }, []);
 
   const positioned = artists.filter((a) => a.map_x != null && a.map_y != null);
