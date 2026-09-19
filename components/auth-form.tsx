@@ -279,7 +279,7 @@ export function AuthForm() {
             <>
               <p className="text-xs text-red-500">{t("wrong_password_hint")}</p>
               <a
-                href={`/auth/forgot-password?nickname=${encodeURIComponent(nickname.trim())}`}
+                href="/auth/forgot-password"
                 className="text-xs underline underline-offset-2 text-foreground/60 hover:text-foreground"
               >
                 {t("forgot_my_password")}
