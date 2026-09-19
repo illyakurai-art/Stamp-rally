@@ -68,6 +68,15 @@ export default function RootLayout({
             >
               @IllyA
             </a>
+            {" · Per assistenza clicca "}
+            <a
+              href="https://t.me/Illya_frutti_rossi"
+              target="_blank"
+              rel="noreferrer"
+              className="font-semibold text-foreground/70 hover:text-foreground hover:underline"
+            >
+              qui
+            </a>
           </p>
         </footer>
         <ToasterProvider />
