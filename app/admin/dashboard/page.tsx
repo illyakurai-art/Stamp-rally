@@ -1,10 +1,11 @@
 import { createClient } from "@/lib/supabase/server";
-import { Users, Stamp, Trophy, Activity } from "lucide-react";
+import { Users, Stamp, Trophy, Activity, BarChart3 } from "lucide-react";
 import { fetchRecentRedeems, fetchRecentStamps } from "@/lib/admin-recent";
 import {
   RecentRedeemsList,
   RecentStampsList,
 } from "@/components/admin-recent-lists";
+import { TierBreakdown } from "@/components/admin-tier-breakdown";
 
 // Semplificato rimuovendo la funzione getStats separata per ottimizzare il Promise.all unico
 export default async function AdminDashboardPage() {
@@ -16,13 +17,15 @@ export default async function AdminDashboardPage() {
     stampsRes, 
     redeemsRes, 
     recentStamps, 
-    recentRedeems
+    recentRedeems,
+    tierStatsRes,
   ] = await Promise.all([
     supabase.from("profiles").select("id", { count: "exact", head: true }).eq("role", "visitor"),
     supabase.from("stamps").select("id", { count: "exact", head: true }),
     supabase.from("redeems").select("id", { count: "exact", head: true }),
     fetchRecentStamps(supabase, { offset: 0, limit: 10 }),
     fetchRecentRedeems(supabase, { offset: 0, limit: 10 }),
+    supabase.from("redeems").select("tier_threshold"),
   ]);
 
   const stats = {
@@ -30,6 +33,15 @@ export default async function AdminDashboardPage() {
     totalStamps: stampsRes.count ?? 0,
     totalRedeems: redeemsRes.count ?? 0,
   };
+
+  // Calcola tier breakdown
+  const tierCounts = new Map<number, number>();
+  for (const r of tierStatsRes.data ?? []) {
+    tierCounts.set(r.tier_threshold, (tierCounts.get(r.tier_threshold) ?? 0) + 1);
+  }
+  const tierBreakdown = Array.from(tierCounts.entries())
+    .map(([tier, count]) => ({ tier, count }))
+    .sort((a, b) => a.tier - b.tier);
 
   return (
     <section className="mx-auto w-full max-w-6xl px-5 py-10">
@@ -64,12 +76,23 @@ export default async function AdminDashboardPage() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
+        {/* Tier List */}
+        <div className="rounded-xl border border-foreground/10 bg-gradient-to-br from-amber-500/10 to-orange-500/10 p-5">
+          <div className="flex items-center gap-2 mb-4">
+            <BarChart3 className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-amber-700 dark:text-amber-300">
+              Tier List
+            </h2>
+          </div>
+          <TierBreakdown data={tierBreakdown} total={stats.totalRedeems} />
+        </div>
+
         {/* Ultimi riscatti */}
         <div className="rounded-xl border border-foreground/10 bg-gradient-to-br from-emerald-500/10 to-teal-500/10 p-5">
           <div className="flex items-center gap-2 mb-4">
             <Trophy className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
             <h2 className="text-sm font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-300">
-              Ultimi riscatti
+              Riscossioni
             </h2>
           </div>
           <RecentRedeemsList initial={recentRedeems} />
