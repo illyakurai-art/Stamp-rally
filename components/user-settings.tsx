@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Settings, LogOut, Trash2, Globe, QrCode, KeyRound } from "lucide-react";
+import { Settings, LogOut, Trash2, Globe, QrCode, KeyRound, Eye, EyeOff } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -72,6 +72,9 @@ export function UserSettings() {
   const [pwdError, setPwdError] = useState<string | null>(null);
   const [pwdSuccess, setPwdSuccess] = useState(false);
   const [pwdLoading, setPwdLoading] = useState(false);
+  const [showCurrentPwd, setShowCurrentPwd] = useState(false);
+  const [showNewPwd, setShowNewPwd] = useState(false);
+  const [showConfirmPwd, setShowConfirmPwd] = useState(false);
   const router = useRouter();
 
   const handleDeleteAccount = async () => {
@@ -104,6 +107,9 @@ export function UserSettings() {
     setConfirmPwd("");
     setPwdError(null);
     setPwdSuccess(false);
+    setShowCurrentPwd(false);
+    setShowNewPwd(false);
+    setShowConfirmPwd(false);
   };
 
   const handleChangePassword = async () => {
@@ -310,30 +316,57 @@ export function UserSettings() {
               <>
                 <div className="flex flex-col gap-1.5">
                   <label className="text-xs font-semibold text-foreground/70">{t("enter_password")}</label>
-                  <input
-                    type="password"
-                    value={currentPwd}
-                    onChange={(e) => setCurrentPwd(e.target.value)}
-                    className="rounded-lg border border-foreground/15 bg-background px-3 py-2.5 text-sm outline-none focus:border-foreground/30 focus:ring-1 focus:ring-foreground/20"
-                  />
+                  <div className="relative">
+                    <input
+                      type={showCurrentPwd ? "text" : "password"}
+                      value={currentPwd}
+                      onChange={(e) => setCurrentPwd(e.target.value)}
+                      className="w-full rounded-lg border border-foreground/15 bg-background px-3 py-2.5 pr-10 text-sm outline-none focus:border-foreground/30 focus:ring-1 focus:ring-foreground/20"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowCurrentPwd(!showCurrentPwd)}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-foreground/40 hover:text-foreground/70"
+                    >
+                      {showCurrentPwd ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
                 </div>
                 <div className="flex flex-col gap-1.5">
                   <label className="text-xs font-semibold text-foreground/70">Nuova password</label>
-                  <input
-                    type="password"
-                    value={newPwd}
-                    onChange={(e) => setNewPwd(e.target.value)}
-                    className="rounded-lg border border-foreground/15 bg-background px-3 py-2.5 text-sm outline-none focus:border-foreground/30 focus:ring-1 focus:ring-foreground/20"
-                  />
+                  <div className="relative">
+                    <input
+                      type={showNewPwd ? "text" : "password"}
+                      value={newPwd}
+                      onChange={(e) => setNewPwd(e.target.value)}
+                      className="w-full rounded-lg border border-foreground/15 bg-background px-3 py-2.5 pr-10 text-sm outline-none focus:border-foreground/30 focus:ring-1 focus:ring-foreground/20"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowNewPwd(!showNewPwd)}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-foreground/40 hover:text-foreground/70"
+                    >
+                      {showNewPwd ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
                 </div>
                 <div className="flex flex-col gap-1.5">
                   <label className="text-xs font-semibold text-foreground/70">Conferma nuova password</label>
-                  <input
-                    type="password"
-                    value={confirmPwd}
-                    onChange={(e) => setConfirmPwd(e.target.value)}
-                    className="rounded-lg border border-foreground/15 bg-background px-3 py-2.5 text-sm outline-none focus:border-foreground/30 focus:ring-1 focus:ring-foreground/20"
-                  />
+                  <div className="relative">
+                    <input
+                      type={showConfirmPwd ? "text" : "password"}
+                      value={confirmPwd}
+                      onChange={(e) => setConfirmPwd(e.target.value)}
+                      className="w-full rounded-lg border border-foreground/15 bg-background px-3 py-2.5 pr-10 text-sm outline-none focus:border-foreground/30 focus:ring-1 focus:ring-foreground/20"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPwd(!showConfirmPwd)}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-foreground/40 hover:text-foreground/70"
+                    >
+                      {showConfirmPwd ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
                 </div>
                 {pwdError && (
                   <p className="text-xs text-red-500">{pwdError}</p>
