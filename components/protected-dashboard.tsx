@@ -288,7 +288,7 @@ export function ProtectedDashboard() {
             <>
               {t("rally_terminated")}
               <br />
-              <span className="text-sm font-medium text-nowrap opacity-80">{t("rally_terminated_desc")}</span>
+              <span className="text-sm font-medium px-4">{t("rally_terminated_desc")}</span>
             </>
           ) : (
             <>
