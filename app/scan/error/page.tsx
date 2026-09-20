@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { AlertCircle, ArrowLeft } from "lucide-react";
+import { AlertCircle, ArrowLeft, Trophy } from "lucide-react";
 import { Suspense, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useI18n } from "@/lib/i18n/context";
@@ -13,7 +13,8 @@ function ScanErrorContent() {
 
   const isRateLimit = reason.toLowerCase().includes("attendi");
   const isAlreadyScanned = reason.toLowerCase().includes("già timbrato");
-  const autoClose = isRateLimit || isAlreadyScanned;
+  const isRallyTerminated = reason.toLowerCase().includes("terminata");
+  const autoClose = (isRateLimit || isAlreadyScanned) && !isRallyTerminated;
 
   const [countdown, setCountdown] = useState(3);
   const doneRef = useRef(false);
@@ -44,24 +45,32 @@ function ScanErrorContent() {
     <main className="min-h-screen px-4 py-6 sm:px-6 flex items-center justify-center">
       <div className="mx-auto flex w-full max-w-sm flex-col items-center gap-6 text-center">
 
-        <div className="flex h-20 w-20 items-center justify-center rounded-full bg-red-500/10">
-          <AlertCircle className="h-10 w-10 text-red-500" />
+        <div className={`flex h-20 w-20 items-center justify-center rounded-full ${isRallyTerminated ? "bg-amber-500/10" : "bg-red-500/10"}`}>
+          {isRallyTerminated ? (
+            <Trophy className="h-10 w-10 text-amber-500" />
+          ) : (
+            <AlertCircle className="h-10 w-10 text-red-500" />
+          )}
         </div>
 
         <div className="flex flex-col gap-2">
           <h1 className="text-2xl font-bold tracking-tight">
-            {isRateLimit || isAlreadyScanned
-              ? t("stamp_too_hot")
-              : t("stamp_not_registered")}
+            {isRallyTerminated
+              ? t("rally_terminated")
+              : isRateLimit || isAlreadyScanned
+                ? t("stamp_too_hot")
+                : t("stamp_not_registered")}
           </h1>
           <p className="text-sm text-foreground/60">
-            {isRateLimit || isAlreadyScanned
-              ? t("stamp_hot_desc")
-              : t("scan_failed")}
+            {isRallyTerminated
+              ? t("rally_terminated_desc")
+              : isRateLimit || isAlreadyScanned
+                ? t("stamp_hot_desc")
+                : t("scan_failed")}
           </p>
         </div>
 
-        {!isRateLimit && !isAlreadyScanned && (
+        {!isRateLimit && !isAlreadyScanned && !isRallyTerminated && (
           <div className="w-full rounded-xl border border-red-500/20 bg-red-500/8 px-4 py-3 text-sm text-red-600 dark:text-red-400">
             {reason}
           </div>
@@ -74,7 +83,7 @@ function ScanErrorContent() {
         )}
 
         <div className="flex w-full flex-col gap-3">
-          {!isRateLimit && !isAlreadyScanned && (
+          {!isRateLimit && !isAlreadyScanned && !isRallyTerminated && (
             <Link
               href="/scan"
               className="min-h-12 rounded-xl bg-foreground px-4 py-3 text-center text-sm font-semibold text-background transition-opacity hover:opacity-90"
