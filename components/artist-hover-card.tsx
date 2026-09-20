@@ -232,7 +232,7 @@ export function ArtistHoverCard({
                       <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
                     </svg>
                     <a
-                      href={`https://www.instagram.com/${h}`}
+                      href={h.startsWith("http") ? h : `https://www.instagram.com/${h}`}
                       target="_blank"
                       rel="noreferrer"
                       className="hover:underline text-green-400 hover:text-green-300 font-medium truncate"

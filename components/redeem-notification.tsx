@@ -190,10 +190,64 @@ export function RedeemNotification({ userId }: { userId: string }) {
       )
       .subscribe();
 
+    // ── Canale 4: notifiche card in esaurimento ──
+    const lowStockChannel = supabase
+      .channel(`lowstock-notify-${userId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "notifications",
+          filter: `user_id=eq.${userId}`,
+        },
+        (event) => {
+          const row = event.new as { type: string; payload: { message?: string; stands?: string; count?: number } };
+          if (row.type !== "low_stock") return;
+
+          const p = row.payload;
+
+          toast.custom((id) => (
+            <div className="w-full max-w-sm rounded-2xl overflow-hidden shadow-2xl border border-red-500/30"
+              style={{ fontFamily: "inherit" }}>
+              <div style={{ background: "linear-gradient(135deg, #dc2626 0%, #ea580c 50%, #f59e0b 100%)" }}
+                className="px-4 pt-4 pb-3 relative">
+                <button
+                  onClick={() => toast.dismiss(id)}
+                  className="absolute top-2 right-2 rounded-full bg-black/20 p-1 hover:bg-black/30 transition-colors"
+                >
+                  <X className="h-3 w-3 text-white" />
+                </button>
+                <div className="flex items-center gap-2 mb-1">
+                  <Gift className="h-5 w-5 text-white shrink-0" style={{ filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.4))" }} />
+                  <span className="text-white font-black text-base tracking-wide"
+                    style={{ textShadow: "0 1px 3px rgba(0,0,0,0.3)" }}>
+                    ⚠️ ATTENZIONE
+                  </span>
+                </div>
+                <p className="text-white font-extrabold text-sm leading-tight"
+                  style={{ textShadow: "0 1px 4px rgba(0,0,0,0.3)" }}>
+                  Card in esaurimento!
+                </p>
+              </div>
+              <div className="bg-zinc-900 px-4 pb-3 pt-2.5 flex flex-col gap-1.5">
+                <p className="text-red-300 text-xs font-semibold">{p.message}</p>
+                {p.stands && (
+                  <p className="text-zinc-400 text-xs">{p.stands}</p>
+                )}
+                <p className="text-zinc-500 text-[10px]">Affrettatevi a ritirare le vostre card!</p>
+              </div>
+            </div>
+          ), { duration: 10000 });
+        }
+      )
+      .subscribe();
+
     return () => {
       supabase.removeChannel(redeemChannel);
       supabase.removeChannel(stampChannel);
       supabase.removeChannel(secretChannel);
+      supabase.removeChannel(lowStockChannel);
     };
   }, [userId, router]);
 
