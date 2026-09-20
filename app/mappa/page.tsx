@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { TransformWrapper, TransformComponent, type ReactZoomPanPinchRef } from "react-zoom-pan-pinch";
 import { createClient } from "@/lib/supabase/client";
@@ -163,7 +162,7 @@ export default function MappaPage() {
           {({ zoomIn, zoomOut, resetTransform }) => (
             <>
               <div className="mb-3 flex items-center gap-3">
-                <Image src="/map-icon.png" alt="Mappa" width={24} height={24} className="h-6 w-6" />
+                <img src="/map-icon.png" alt="Mappa" width={24} height={24} className="h-6 w-6" />
                 <span className="text-xl font-bold tracking-tight">{t("map")}</span>
                 <div className="flex items-center gap-2 ml-auto">
                   <button
@@ -219,15 +218,14 @@ export default function MappaPage() {
                               style={{ width: 22, height: 22 }}
                               >
                                 {a.image_url ? (
-                                  <Image
-                                    src={a.image_url}
-                                    alt={a.name}
-                                    width={88}
-                                    height={88}
-                                    loading="lazy"
-                                    sizes="88px"
-                                    className="h-full w-full object-cover"
-                                  />
+                  <img
+                    src={a.image_url}
+                    alt={a.name}
+                    width={88}
+                    height={88}
+                    loading="lazy"
+                    className="h-full w-full object-cover"
+                  />
                                 ) : (
                                   <span className={`flex h-full w-full items-center justify-center text-[10px] font-bold ${
                                     a.scanned ? "bg-green-600 text-white" : "bg-secondary text-foreground/70"

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import { Search, Download, ExternalLink } from "lucide-react";
 
 interface ArtistQR {
@@ -56,14 +55,13 @@ export function AdminQrGrid({ artists }: { artists: ArtistQR[] }) {
             className="flex flex-col items-center gap-2 rounded-xl border border-foreground/10 bg-foreground/[0.02] p-4"
           >
             <div className="rounded-lg overflow-hidden bg-white p-1 shadow-sm">
-              <Image
-                src={`/qr-stand/${artist.filename}`}
-                alt={`QR ${artist.name}`}
-                width={150}
-                height={150}
-                className="w-[150px] h-[150px] object-contain"
-                unoptimized
-              />
+        <img
+          src={`/qr-stand/${artist.filename}`}
+          alt={`QR ${artist.name}`}
+          width={150}
+          height={150}
+          className="w-[150px] h-[150px] object-contain"
+        />
             </div>
             <p className="text-xs font-semibold text-center truncate w-full">
               {artist.name}

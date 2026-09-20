@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useTransition, useRef } from "react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Stamp, Trophy, Clock, ChevronRight, Loader2, CheckCircle2, KeyRound, CreditCard } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
@@ -190,13 +189,11 @@ function FullCollectionCard({
                     zIndex: 10 + i,
                   }}
                 >
-                  <Image
-                    src={card}
-                    alt="Card premio"
-                    fill
-                    className="object-cover"
-                    sizes="clamp(50px, 12vw, 72px)"
-                  />
+                <img
+                  src={card}
+                  alt="Card premio"
+                  className="absolute inset-0 h-full w-full object-cover"
+                />
                 </div>
               );
             })}

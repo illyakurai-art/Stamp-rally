@@ -1,7 +1,6 @@
 "use client"
 
 import { useRef, useState } from "react"
-import Image from "next/image"
 import { motion } from "motion/react"
 import { ArtistCard } from "@/components/artist-card"
 import { ArtistHoverCard, type Artist } from "@/components/artist-hover-card"
@@ -166,16 +165,15 @@ function PairArtistCard({ artists }: { artists: Artist[] }) {
           }`}
         >
           {artists[current].image_url ? (
-            <Image
-              key={`${merged.id}-${current}`}
-              src={artists[current].image_url}
-              alt={artists[current].name}
-              width={220}
-              height={220}
-              loading="lazy"
-              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 200px"
-              className="tile-fade h-full w-full bg-white object-cover"
-            />
+        <img
+          key={`${merged.id}-${current}`}
+          src={artists[current].image_url}
+          alt={artists[current].name}
+          width={220}
+          height={220}
+          loading="lazy"
+          className="tile-fade h-full w-full bg-white object-cover"
+        />
           ) : (
             <div className="flex h-full w-full items-center justify-center bg-muted text-3xl font-bold text-foreground/30">
               {name.charAt(0)}

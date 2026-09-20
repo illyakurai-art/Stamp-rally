@@ -3,7 +3,6 @@
 import React, { useState, useRef, useEffect } from "react"
 import { createPortal } from "react-dom"
 import Link from "next/link"
-import Image from "next/image"
 import { MapPin, Link2, Check, HelpCircle, Gift, ChevronDown } from "lucide-react"
 import { useI18n } from "@/lib/i18n/context"
 
@@ -151,15 +150,14 @@ export function ArtistHoverCard({
       <div className="flex space-x-4">
         <div className="h-12 w-12 border border-white/15 shrink-0 rounded-full overflow-hidden bg-white/10 flex items-center justify-center">
           {artist.image_url ? (
-            <Image
-              src={artist.image_url}
-              alt={artist.name}
-              width={48}
-              height={48}
-              className="h-full w-full object-cover"
-              loading="lazy"
-              sizes="48px"
-            />
+                  <img
+                    src={artist.image_url}
+                    alt={artist.name}
+                    width={48}
+                    height={48}
+                    className="h-full w-full object-cover"
+                    loading="lazy"
+                  />
           ) : (
             <span className="text-sm font-semibold text-background">{initials}</span>
           )}
@@ -284,15 +282,14 @@ export function ArtistHoverCard({
           {prizeOpen && (
             <div className="mt-1 overflow-hidden rounded-lg border border-white/15 bg-white/5 animate-in slide-in-from-top-1 fade-in duration-150">
               {artist.prize_image_url ? (
-                <Image
-                  src={artist.prize_image_url}
-                  alt={`${artist.name} prize`}
-                  width={320}
-                  height={200}
-                  className="w-full object-cover"
-                  loading="lazy"
-                  sizes="320px"
-                />
+                  <img
+                    src={artist.prize_image_url}
+                    alt={`${artist.name} prize`}
+                    width={320}
+                    height={200}
+                    className="w-full object-cover"
+                    loading="lazy"
+                  />
               ) : (
                 <div className="flex flex-col items-center justify-center gap-1.5 py-6 text-center">
                   <Gift className="h-6 w-6 text-background/60" />
