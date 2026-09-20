@@ -41,6 +41,7 @@ export function ProtectedDashboard() {
   const [artists, setArtists] = useState<ArtistData[]>([]);
   const [loading, setLoading] = useState(true);
   const [qrMode, setQrMode] = useState(false);
+  const [rallyTerminated, setRallyTerminated] = useState(false);
   const [stampTick, setStampTick] = useState(0); // incrementato per forzare re-fetch stamps
   const [artistSort, setArtistSort] = useState<ArtistSort>(() => {
     if (typeof window === "undefined") return "alpha";
@@ -140,7 +141,7 @@ export function ProtectedDashboard() {
         userIdsToMatch.push(profileDisplayId);
       }
 
-      const [stampsResult, artistsResult] = await Promise.all([
+      const [stampsResult, artistsResult, configResult] = await Promise.all([
         supabase
           .from("stamps")
           .select("artist_id, stamped_at")
@@ -149,6 +150,11 @@ export function ProtectedDashboard() {
           .from("artists")
           .select("id, name, image_url, prize_image_url, active, display_id, map_x, map_y, instagram")
           .eq("active", true),
+        supabase
+          .from("app_config")
+          .select("value")
+          .eq("key", "rally_terminated")
+          .maybeSingle(),
       ]);
 
       const scannedIdentifiers = new Set(
@@ -184,6 +190,7 @@ export function ProtectedDashboard() {
       setActiveStampsCount(getEffectiveStampCount(rawCount, scannedNames));
 
       setArtists(artistList);
+      setRallyTerminated(configResult?.data?.value === "true");
       setLoading(false);
     });
   }, [router]);
@@ -277,9 +284,19 @@ export function ProtectedDashboard() {
 
       <div className="flex items-center justify-center">
         <h1 className="text-2xl font-bold leading-snug text-center bg-gradient-to-b from-purple-500 via-pink-500 to-orange-400 bg-clip-text text-transparent animate-gradient-flow">
-          {t("welcome_prefix")}
-          <br />
-          <span className="text-nowrap">{t("welcome_event_name")}</span>
+          {rallyTerminated ? (
+            <>
+              {t("rally_terminated")}
+              <br />
+              <span className="text-sm font-medium text-nowrap opacity-80">{t("rally_terminated_desc")}</span>
+            </>
+          ) : (
+            <>
+              {t("welcome_prefix")}
+              <br />
+              <span className="text-nowrap">{t("welcome_event_name")}</span>
+            </>
+          )}
         </h1>
       </div>
 

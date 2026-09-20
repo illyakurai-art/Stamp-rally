@@ -66,7 +66,7 @@ export const translations = {
   "stamp_too_hot": { ITA: "Timbro troppo caldo 🔥", ENG: "Stamp too hot 🔥" },
   "stamp_not_registered": { ITA: "Timbro non registrato", ENG: "Stamp not registered" },
   "stamp_hot_desc": { ITA: "Questo stand è stato timbrato di recente. Aspetta che si raffreddi prima di riprovare.", ENG: "This stand was stamped recently. Wait for it to cool down before trying again." },
-  "rally_terminated": { ITA: "La Stamp Rally è terminata ✨", ENG: "The Stamp Rally has ended ✨" },
+  "rally_terminated": { ITA: "La Stamp Rally è terminata", ENG: "The Stamp Rally has ended" },
   "rally_terminated_desc": { ITA: "Grazie per aver partecipato! I premi sono esauriti, ma vi invitiamo a mantenere attivi i vostri account con i timbri collezionati per poter avere possibilità extra alla nostra prossima edizione.", ENG: "Thank you for participating! Prizes are sold out, but we invite you to keep your accounts active with the stamps collected for extra chances at our next edition." },
   "scan_failed": { ITA: "La scansione non è andata a buon fine.", ENG: "Scan failed." },
   "retry_scan": { ITA: "Riprova la scansione", ENG: "Retry scan" },
