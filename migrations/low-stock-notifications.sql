@@ -12,12 +12,11 @@ SECURITY DEFINER
 AS $$
 DECLARE
   v_threshold int := 3;
-  v_stands text;
   v_count int;
 BEGIN
-  -- Trova stand con card <= soglia
-  SELECT string_agg(CONCAT(a.name, ' (', si.remaining, '/', si.total, ')'), ', '), count(*)
-  INTO v_stands, v_count
+  -- Conta stand con card <= soglia
+  SELECT count(*)
+  INTO v_count
   FROM stand_inventory si
   JOIN artists a ON a.display_id = si.artist_id
   WHERE si.remaining <= v_threshold AND si.remaining > 0 AND a.active = true;
@@ -29,9 +28,7 @@ BEGIN
   -- Inserisci notifica per TUTTI gli utenti attivi (solo se non ne è stata mandata una identica negli ultimi 5 min)
   INSERT INTO notifications (user_id, type, payload)
   SELECT p.id, 'low_stock', jsonb_build_object(
-    'message', 'ATTENZIONE: Alcune prize card sono in esaurimento, affrettatevi!',
-    'stands', v_stands,
-    'count', v_count
+    'message', 'ATTENZIONE: Alcune prize card sono in esaurimento, affrettatevi!'
   )
   FROM profiles p
   WHERE p.role = 'visitor'

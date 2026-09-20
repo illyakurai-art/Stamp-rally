@@ -202,7 +202,7 @@ export function RedeemNotification({ userId }: { userId: string }) {
           filter: `user_id=eq.${userId}`,
         },
         (event) => {
-          const row = event.new as { type: string; payload: { message?: string; stands?: string; count?: number } };
+          const row = event.new as { type: string; payload: { message?: string } };
           if (row.type !== "low_stock") return;
 
           const p = row.payload;
@@ -227,14 +227,10 @@ export function RedeemNotification({ userId }: { userId: string }) {
                 </div>
                 <p className="text-white font-extrabold text-sm leading-tight"
                   style={{ textShadow: "0 1px 4px rgba(0,0,0,0.3)" }}>
-                  Card in esaurimento!
+                  {p.message}
                 </p>
               </div>
-              <div className="bg-zinc-900 px-4 pb-3 pt-2.5 flex flex-col gap-1.5">
-                <p className="text-red-300 text-xs font-semibold">{p.message}</p>
-                {p.stands && (
-                  <p className="text-zinc-400 text-xs">{p.stands}</p>
-                )}
+              <div className="bg-zinc-900 px-4 pb-3 pt-2.5">
                 <p className="text-zinc-500 text-[10px]">Affrettatevi a ritirare le vostre card!</p>
               </div>
             </div>
