@@ -36,7 +36,6 @@ BEGIN
       SELECT 1 FROM notifications n
       WHERE n.user_id = p.id
         AND n.type = 'low_stock'
-        AND n.created_at > now() - interval '6 minutes'
     );
 END;
 $$;
