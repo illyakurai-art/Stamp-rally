@@ -21,7 +21,7 @@ export default async function AdminDashboardPage() {
     tierStatsRes,
   ] = await Promise.all([
     supabase.from("profiles").select("id", { count: "exact", head: true }).eq("role", "visitor"),
-    supabase.from("stamps").select("id", { count: "exact", head: true }),
+    supabase.from("stamps").select("id", { count: "exact", head: true }).eq("redeemed", false),
     supabase.from("redeems").select("id", { count: "exact", head: true }),
     fetchRecentStamps(supabase, { offset: 0, limit: 10 }),
     fetchRecentRedeems(supabase, { offset: 0, limit: 10 }),

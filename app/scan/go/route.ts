@@ -124,6 +124,7 @@ async function checkAndUnlockSecret(userId: string) {
       .from("stamps")
       .select("id", { count: "exact", head: true })
       .eq("user_id", userDisplayId)
+      .eq("redeemed", false)
       .in("artist_id", artistIds);
 
     if (count !== artistIds.length) continue;

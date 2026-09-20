@@ -37,3 +37,19 @@ CREATE POLICY "Staff can view all stamps"
       WHERE p.id = auth.uid() AND p.role = 'staff'
     )
   );
+
+-- Policy UPDATE per staff: possono marcare timbri come riscattati
+CREATE POLICY "Staff can update stamps"
+  ON public.stamps FOR UPDATE
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.profiles p
+      WHERE p.id = auth.uid() AND p.role = 'staff'
+    )
+  )
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM public.profiles p
+      WHERE p.id = auth.uid() AND p.role = 'staff'
+    )
+  );

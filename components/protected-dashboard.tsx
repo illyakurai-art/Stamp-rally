@@ -145,7 +145,8 @@ export function ProtectedDashboard() {
         supabase
           .from("stamps")
           .select("artist_id, stamped_at")
-          .in("user_id", userIdsToMatch),
+          .in("user_id", userIdsToMatch)
+          .eq("redeemed", false),
         supabase
           .from("artists")
           .select("id, name, image_url, prize_image_url, active, display_id, map_x, map_y, instagram")
@@ -211,14 +212,16 @@ export function ProtectedDashboard() {
       const { count } = await supabase
         .from("stamps")
         .select("id", { count: "exact", head: true })
-        .in("user_id", userIdsToMatch);
+        .in("user_id", userIdsToMatch)
+        .eq("redeemed", false);
 
       // Marca scanned sui nuovi artisti senza rifetchare l'intera lista
       if (artists.length > 0) {
         const { data: newStamps } = await supabase
           .from("stamps")
           .select("artist_id, stamped_at")
-          .in("user_id", userIdsToMatch);
+          .in("user_id", userIdsToMatch)
+          .eq("redeemed", false);
 
         const scannedIds = new Set(newStamps?.map((s) => s.artist_id) ?? []);
         const stampedAtById = new Map<string, string | null>();

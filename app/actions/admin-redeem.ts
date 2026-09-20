@@ -50,6 +50,7 @@ export async function adminRedeem(userId: string): Promise<RedeemResult> {
     .from("stamps")
     .select("id, stamped_at, artist_id")
     .eq("user_id", targetProfile.display_id ?? targetProfile.id)
+    .eq("redeemed", false)
     .order("stamped_at", { ascending: true });
 
   console.log("[adminRedeem] stamps fetched:", stamps?.length, "error:", stampsError?.message);
@@ -135,41 +136,41 @@ export async function adminRedeem(userId: string): Promise<RedeemResult> {
     return { success: false, error: "Nessun timbro da rimuovere" };
   }
 
-  // Delete timbri - prova prima con tutti, poi senza K&K se fallisce
-  let deleteResult = await supabase
+  // Marca timbri come riscattati (UPDATE invece di DELETE per preservare lo storico)
+  let updateResult = await supabase
     .from("stamps")
-    .delete({ count: "exact" })
+    .update({ redeemed: true }, { count: "exact" })
     .in("id", stampsToRemove);
 
-  let deletedCount = deleteResult.count;
-  let deleteError = deleteResult.error;
+  let updatedCount = updateResult.count;
+  let updateError = updateResult.error;
 
-  // Se fallisce e ci sono coppie K&K, prova a rimuovere solo i timbri base
-  if (deleteError && kkPairsToRemove.length > 0) {
+  // Se fallisce e ci sono coppie K&K, prova a marcare solo i timbri base
+  if (updateError && kkPairsToRemove.length > 0) {
     console.log("[adminRedeem] RLS bloccato con K&K, tentativo senza extra K&K");
     const baseStamps = stampsToRemove.filter(
       (id) => !kkPairsToRemove.some((pair) => pair[1] === id)
     );
-    deleteResult = await supabase
+    updateResult = await supabase
       .from("stamps")
-      .delete({ count: "exact" })
+      .update({ redeemed: true }, { count: "exact" })
       .in("id", baseStamps);
-    deletedCount = deleteResult.count;
-    deleteError = deleteResult.error;
+    updatedCount = updateResult.count;
+    updateError = updateResult.error;
   }
 
-  console.log("[adminRedeem] deleted:", deletedCount, "error:", deleteError?.message);
+  console.log("[adminRedeem] updated:", updatedCount, "error:", updateError?.message);
 
-  if (deleteError) {
-    return { success: false, error: `Errore eliminazione timbri: ${deleteError.message}` };
+  if (updateError) {
+    return { success: false, error: `Errore aggiornamento timbri: ${updateError.message}` };
   }
 
-  if (deletedCount === null || deletedCount === 0) {
-    return { success: false, error: "Nessun timbro rimosso" };
+  if (updatedCount === null || updatedCount === 0) {
+    return { success: false, error: "Nessun timbro marcato come riscattato" };
   }
 
   // Calcola i timbri rimanenti (K&K conta come 1)
-  const effectiveRemoved = deletedCount - kkPairsToRemove.length;
+  const effectiveRemoved = updatedCount - kkPairsToRemove.length;
   const remainingAfter = stampCount - effectiveRemoved;
 
   // Full Collection: riduci tutte le card rimanenti di 1
@@ -248,6 +249,7 @@ export async function getUserStamps(userId: string) {
     .from("stamps")
     .select("id, stamped_at, artist_id")
     .eq("user_id", profile.display_id ?? profile.id)
+    .eq("redeemed", false)
     .order("stamped_at", { ascending: true });
 
   // Risolvi i nomi degli artisti

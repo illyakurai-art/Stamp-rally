@@ -27,6 +27,7 @@ export async function fetchRecentStamps(
   const { data: rawStamps } = await supabase
     .from("stamps")
     .select("id, stamped_at, user_id, artist_id")
+    .eq("redeemed", false)
     .order("stamped_at", { ascending: false })
     .range(offset, offset + limit - 1);
 

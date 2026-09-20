@@ -29,7 +29,7 @@ async function UsersContent() {
   const [stampCountsRes, allStampsRes] = displayIds.length > 0
     ? await Promise.all([
         supabase.rpc("get_stamp_counts_by_users", { p_user_ids: displayIds }),
-        supabase.from("stamps").select("user_id, artist_id").in("user_id", displayIds)
+        supabase.from("stamps").select("user_id, artist_id").in("user_id", displayIds).eq("redeemed", false)
       ])
     : [{ data: [] }, { data: [] }];
 

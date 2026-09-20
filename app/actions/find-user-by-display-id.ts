@@ -29,7 +29,8 @@ export async function findUserByDisplayId(displayId: string): Promise<UserEntry 
   const { data: stamps } = await supabase
     .from("stamps")
     .select("id")
-    .eq("user_id", profile.display_id ?? profile.id);
+    .eq("user_id", profile.display_id ?? profile.id)
+    .eq("redeemed", false);
 
   return {
     id: profile.id,

@@ -63,7 +63,8 @@ export default function MappaPage() {
             const { data: stampsRes } = await supabase
               .from("stamps")
               .select("artist_id")
-              .in("user_id", userIdsToMatch);
+              .in("user_id", userIdsToMatch)
+              .eq("redeemed", false);
 
             scanned = new Set(stampsRes?.map((s) => s.artist_id) ?? []);
           }
