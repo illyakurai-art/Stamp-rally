@@ -124,6 +124,7 @@ export const translations = {
   "passwords_dont_match": { ITA: "Le password non coincidono", ENG: "Passwords don't match", JPN: "パスワードが一致しません" },
   "passwords_match": { ITA: "Le password coincidono", ENG: "Passwords match", JPN: "パスワードが一致します" },
   "nickname_too_short": { ITA: "Il nickname deve avere almeno 2 caratteri", ENG: "Nickname must be at least 2 characters", JPN: "ニックネームは2文字以上必要です" },
+  "auth_description": { ITA: "Scegli il tuo nome giocatore e la password per giocare e collezionare i tuoi timbri. Le tue credenziali ti servono per non perdere i tuoi timbri che sono personali!", ENG: "Choose your player name and password to play and collect your stamps. Your credentials keep your personal stamps safe!", JPN: "プレイヤー名とパスワードを選んでゲームを始めましょう。スタンプを集めよう！あなたの認証情報は個人のスタンプを守ります！" },
   "checking_availability": { ITA: "Controllo disponibilità…", ENG: "Checking availability…", JPN: "確認中…" },
   "nickname_available": { ITA: "Nickname disponibile ✓", ENG: "Nickname available ✓", JPN: "ニックネームが利用可能です ✓" },
   "account_not_confirmed": { ITA: "Account creato ma email non confermata. Disabilita 'Confirm email' su Supabase.", ENG: "Account created but email not confirmed. Disable 'Confirm email' on Supabase.", JPN: "アカウントは作成されましたが、メールが確認されていません。Supabaseで'Confirm email'を無効にしてください。" },

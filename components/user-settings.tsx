@@ -43,6 +43,15 @@ function FlagGB({ className }: { className?: string }) {
   );
 }
 
+function FlagJP({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 9 6" className={className} aria-hidden="true">
+      <rect width="9" height="6" fill="#ffffff" />
+      <circle cx="4.5" cy="3" r="1.8" fill="#BC002D" />
+    </svg>
+  );
+}
+
 export function UserSettings() {
   const { lang, setLang, t } = useI18n();
   const [open, setOpen] = useState(false);
@@ -189,6 +198,19 @@ export function UserSettings() {
                   <span className="flex items-center justify-center gap-1.5">
                     <FlagGB className="h-4 w-4 rounded-[2px]" />
                     English
+                  </span>
+                </button>
+                <button
+                  onClick={() => setLang("JPN")}
+                  className={`flex-1 py-2 text-sm font-medium transition-colors ${
+                    lang === "JPN"
+                      ? "bg-foreground text-background"
+                      : "text-foreground/80 hover:text-foreground hover:bg-foreground/5"
+                  }`}
+                >
+                  <span className="flex items-center justify-center gap-1.5">
+                    <FlagJP className="h-4 w-4 rounded-[2px]" />
+                    日本語
                   </span>
                 </button>
               </div>

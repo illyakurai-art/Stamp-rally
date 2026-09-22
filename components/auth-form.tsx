@@ -241,8 +241,7 @@ export function AuthForm() {
           className="w-full max-w-[260px] rounded-lg object-contain"
         />
         <p className="text-center text-xs text-foreground/60 leading-snug max-w-[280px]">
-          Scegli il tuo nome giocatore e la password per giocare e collezionare i tuoi timbri.
-          Le tue credenziali ti servono per non perdere i tuoi timbri che sono personali!
+          {t("auth_description")}
         </p>
       </div>
 
