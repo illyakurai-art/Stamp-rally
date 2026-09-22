@@ -45,3 +45,6 @@ certificates
 
 # script locali (non devono essere pushati/deployati)
 *.bat
+
+# backup database
+backups/
