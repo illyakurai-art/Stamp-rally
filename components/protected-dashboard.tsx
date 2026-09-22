@@ -380,7 +380,7 @@ export function ProtectedDashboard() {
         <div className="mt-10">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <h2 className="text-lg font-semibold">{t("artists")}</h2>
+              <h2 className="text-lg font-semibold whitespace-nowrap">{t("artists")}</h2>
               <p className="mt-1 text-sm text-foreground/80">
                 {t("select_card")}
               </p>

@@ -49,7 +49,7 @@ export function ArtistMap({ artists }: { artists: MapArtist[] }) {
 
       <div className="rounded-xl border border-foreground/10 p-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-sm font-semibold">{t("artist_stands")}</h2>
+          <h2 className="text-sm font-semibold whitespace-nowrap">{t("artist_stands")}</h2>
           <span className="text-xs text-foreground/60">
             {scannedCount}/{artists.length} {t("scanned_counter")}
           </span>

@@ -4,6 +4,7 @@ import { ThemeProvider } from "next-themes";
 import { ToasterProvider } from "@/components/toaster-provider";
 import { I18nProvider } from "@/lib/i18n/context";
 import { ImageProtection } from "@/components/image-protection";
+import { Footer } from "@/components/footer";
 import { Analytics } from "@vercel/analytics/react";
 import "./globals.css";
 
@@ -54,31 +55,10 @@ export default function RootLayout({
         >
 <I18nProvider>
             {children}
+            <Footer />
           </I18nProvider>
         </ThemeProvider>
         <ImageProtection />
-        <footer className="w-full pb-6 pt-4 text-center">
-          <p className="text-xs text-foreground/50">
-            WebApp realizzata da{" "}
-            <a
-              href="https://www.instagram.com/illya.cosph?igsh=d3g4azVmcGUxMW82"
-              target="_blank"
-              rel="noreferrer"
-              className="font-semibold text-foreground/70 hover:text-foreground hover:underline"
-            >
-              @IllyA
-            </a>
-            {" · Per assistenza clicca "}
-            <a
-              href="https://t.me/Illya_frutti_rossi"
-              target="_blank"
-              rel="noreferrer"
-              className="font-semibold text-foreground/70 hover:text-foreground hover:underline"
-            >
-              qui
-            </a>
-          </p>
-        </footer>
         <ToasterProvider />
         <Analytics />
       </body>

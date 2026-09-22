@@ -223,6 +223,30 @@ export const translations = {
   "take_me_to_stand": { ITA: "Portami a questo stand", ENG: "Take me to this stand", JPN: "このスタンドへ" },
   "edition": { ITA: "Edizione", ENG: "Edition", JPN: "エディション" },
   "visit_stand_bio": { ITA: "Visita lo stand di {name} per collezionare il timbro unico!", ENG: "Visit {name}'s stand to collect the unique stamp!", JPN: "{name}のスタンドを訪問してユニークなスタンプを集めましょう！" },
+
+  // Game rules
+  "rules_title": { ITA: "Regole della Rally", ENG: "Rally Rules", JPN: "ラリールール" },
+  "rules_welcome": { ITA: "Benvenuti alla Stamp Rally!", ENG: "Welcome to the Stamp Rally!", JPN: "スタンプリレーへようこそ！" },
+  "rules_intro": { ITA: "Colleziona un timbro con un acquisto minimo di €1 presso uno dei 51 artisti partecipanti. Una volta raccolti i timbri, vieni allo stand Asunicha per ritirare il tuo premio!", ENG: "Collect a stamp with a minimum purchase of €1 at any of the 51 participating artists. Once you've collected stamps, come to the Asunicha stand to claim your prize!", JPN: "参加51アーティストのいずれかで€1以上の購入でスタンプを獲得しよう。スタンプを集めたらAsunichaスタンドで賞品を受け取ろう！" },
+  "rules_prizes": { ITA: "Cosa si ottiene", ENG: "What you get", JPN: "報酬一覧" },
+  "stamps_count": { ITA: "{count} timbri", ENG: "{count} stamps", JPN: "{count}スタンプ" },
+  "rules_section_title": { ITA: "Regole", ENG: "Rules", JPN: "ルール" },
+  "rules_artists_info": { ITA: "In questa stamp rally partecipano 51 artisti, tutti segnalati sulla mappa della rally e sul proprio stand con un cartello identificativo.", ENG: "51 artists participate in this stamp rally, all marked on the rally map and at their own stand with an identifying sign.", JPN: "このスタンプリレーには51人のアーティストが参加しており、ラリーマップと各スタンドに識別プレートが設置されています。" },
+  "rules_app_info": { ITA: "Tutte le informazioni utili sono disponibili sull'app web della rally, che viene usata anche per timbrare digitalmente ogni stand visitato tramite QR/NFC.", ENG: "All useful information is available on the rally web app, which is also used to digitally stamp each visited stand via QR/NFC.", JPN: "必要な情報はすべてラリーアプリで確認でき、QR/NFCで各スタンドのデジタルスタンプも記録できます。" },
+  "rules_purchase": { ITA: "Per ottenere un timbro su uno stand partecipante è necessario spendere almeno €1. Servono minimo 5 timbri per accedere a un premio. Raccogliere più timbri sblocca premi via via più ricchi.", ENG: "To get a stamp at a participating stand, you need to spend at least €1. A minimum of 5 stamps is required to unlock a prize. Collecting more stamps unlocks richer prizes.", JPN: "参加スタンドでスタンプを獲得するには€1以上の購入が必要です。賞品の受取には最低5つのスタンプが必要です。多くのスタンプを集めると、より豪華な賞品が手に入ります。" },
+  "rules_repeat": { ITA: "La rally può essere ripetuta quante volte si vuole: ogni stand può dare un solo timbro per giro, ma torna disponibile non appena il giro viene chiuso con un ritiro premio.", ENG: "The rally can be repeated as many times as you want: each stand can give one stamp per round, but becomes available again once the round is closed with a prize redemption.", JPN: "ラリーは何度でも繰り返せます：各スタンドは1ラウンドで1つのスタンプしかもらえませんが、賞品を受け取ってラウンドを終了すると再び利用可能になります。" },
+  "rules_redemption": { ITA: "Per ritirare il vostro premio, basterà tornare presso lo stand di Asunicha, in modo da scansionare il vostro QR code e ricevere i vostri premi a seconda di quanti timbri avete ottenuto nel vostro giro.", ENG: "To claim your prize, simply return to the Asunicha stand to scan your QR code and receive your prizes based on how many stamps you collected.", JPN: "賞品を受け取るにはAsunichaスタンドに戻ってQRコードをスキャンし、集めたスタンプ数に応じた賞品を受け取ってください。" },
+  "rules_stock": { ITA: "I premi saranno distribuiti fino ad esaurimento scorte. I premi a scelta dovranno essere scelti 1 quantità a design. Per ricevere una seconda copia dello stesso design a scelta si dovrà fare un nuovo giro.", ENG: "Prizes will be distributed while supplies last. Choice prizes are limited to 1 quantity per design. To receive a second copy of the same design, you'll need to complete a new round.", JPN: "賞品は在庫がある限り分配されます。選択賞品はデザイン1つにつき1個までです。同じデザインの2個目を受け取るには、新しいラウンドを完了する必要があります。" },
+  "rules_disclaimer": { ITA: "Questa rally non è affiliata all'evento Milan Artist Alley, agli organizzatori o all'ente Parco Esposizioni Novegro.", ENG: "This rally is not affiliated with the Milan Artist Alley event, the organizers, or Parco Esposizioni Novegro.", JPN: "このラリーはミラン・アーティスト・アレーイベント、主催者、またはParco Esposizioni Novegroとは提携していません。" },
+  "rules_changes": { ITA: "Queste regole potranno essere modificate durante il corso dell'evento per garantire il fair play e favorire l'esperienza piacevole ed equa per tutti.", ENG: "These rules may be modified during the event to ensure fair play and promote a pleasant and equitable experience for all.", JPN: "これらのルールは、フェアプレーを確保し、全員にとって快適で公平な体験を促進するために、イベント中に変更される場合があります。" },
+  "rules_organized_by": { ITA: "Stamp rally organizzata da", ENG: "Stamp rally organized by", JPN: "スタンプリレー主催：" },
+  "rules_graphic_help": { ITA: "Aiuto grafiche e ideazione logo", ENG: "Graphic design and logo creation", JPN: "グラフィックデザイン＆ロゴ制作" },
+  "rules_made_by": { ITA: "App web realizzata da", ENG: "Web app made by", JPN: "ウェブアプリ制作：" },
+
+  // Footer
+  "footer_made_by": { ITA: "WebApp realizzata da", ENG: "WebApp made by", JPN: "ウェブアプリ制作：" },
+  "footer_assistance": { ITA: "Per assistenza clicca", ENG: "For assistance click", JPN: "サポートはこちら：" },
+  "here": { ITA: "qui", ENG: "here", JPN: "こちら" },
 } as const;
 
 export type Lang = keyof typeof translations["stamp_rally"];
