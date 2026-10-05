@@ -1,148 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
-import { TransformWrapper, TransformComponent, type ReactZoomPanPinchRef } from "react-zoom-pan-pinch";
-import { createClient } from "@/lib/supabase/client";
+import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { useI18n } from "@/lib/i18n/context";
 import { ArrowLeft, ZoomIn, ZoomOut, RotateCcw } from "lucide-react";
-import { ArtistHoverCard } from "@/components/artist-hover-card";
-
-interface MapArtist {
-  id: string;
-  name: string;
-  display_id?: string | null;
-  image_url?: string | null;
-  prize_image_url?: string | null;
-  map_x?: number | null;
-  map_y?: number | null;
-  scanned: boolean;
-}
 
 export default function MappaPage() {
   const { t } = useI18n();
-  const [artists, setArtists] = useState<MapArtist[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [mapScale, setMapScale] = useState(1);
-  const transformRef = useRef<ReactZoomPanPinchRef | null>(null);
-  const viewportRef = useRef<HTMLDivElement | null>(null);
-  const imgRef = useRef<HTMLImageElement | null>(null);
-  const targetIdRef = useRef<string | null>(null);
-  const centeredRef = useRef(false);
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    targetIdRef.current = params.get("artist");
-  }, []);
-
-  useEffect(() => {
-    const supabase = createClient();
-    (async () => {
-      try {
-        const { data: artistsRes } = await supabase
-          .from("artists")
-          .select("id, name, display_id, image_url, prize_image_url, map_x, map_y, instagram")
-          .eq("active", true);
-
-        let scanned = new Set<string>();
-        try {
-          const { data: { user } } = await supabase.auth.getUser();
-          if (user) {
-            let displayId: string | null = null;
-            const { data: profile } = await supabase
-              .from("profiles")
-              .select("display_id")
-              .eq("id", user.id)
-              .maybeSingle();
-            displayId = profile?.display_id ?? null;
-
-            const userIdsToMatch = [user.id];
-            if (displayId) userIdsToMatch.push(displayId);
-
-            const { data: stampsRes } = await supabase
-              .from("stamps")
-              .select("artist_id")
-              .in("user_id", userIdsToMatch)
-              .eq("redeemed", false);
-
-            scanned = new Set(stampsRes?.map((s) => s.artist_id) ?? []);
-          }
-        } catch {
-          // Guest: no stamps to load
-        }
-
-        setArtists(
-          (artistsRes ?? []).map((a) => ({
-            ...a,
-            scanned: scanned.has(a.id) || (a.display_id ? scanned.has(a.display_id) : false),
-          }))
-        );
-      } catch {
-        // artists query failed
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, []);
-
-  const positioned = artists.filter((a) => a.map_x != null && a.map_y != null);
-
-  const centerOnTarget = () => {
-    if (centeredRef.current) return;
-    const targetId = targetIdRef.current;
-    if (!targetId) return;
-    const artist = artists.find((a) => a.display_id === targetId || a.id === targetId);
-    if (!artist || artist.map_x == null || artist.map_y == null) return;
-    const api = transformRef.current;
-    const viewport = viewportRef.current;
-    const img = imgRef.current;
-    if (!api || !viewport || !img) return;
-    const nw = img.naturalWidth;
-    const nh = img.naturalHeight;
-    if (!nw || !nh) return;
-    const contentW = 1600;
-    const contentH = (1600 * nh) / nw;
-    const scale = 2;
-    const cx = (artist.map_x / 100) * contentW;
-    const cy = (artist.map_y / 100) * contentH;
-    const vw = viewport.clientWidth;
-    const vh = viewport.clientHeight;
-    api.setTransform(vw / 2 - cx * scale, vh / 2 - cy * scale, scale, 600);
-    centeredRef.current = true;
-  };
-
-  const locateArtist = (artist: (typeof positioned)[number]) => {
-    const api = transformRef.current;
-    const viewport = viewportRef.current;
-    const img = imgRef.current;
-    if (!api || !viewport || !img) return;
-    const nw = img.naturalWidth;
-    const nh = img.naturalHeight;
-    if (!nw || !nh) return;
-    const contentW = 1600;
-    const contentH = (1600 * nh) / nw;
-    const scale = 2;
-    const cx = ((artist.map_x ?? 0) / 100) * contentW;
-    const cy = ((artist.map_y ?? 0) / 100) * contentH;
-    const vw = viewport.clientWidth;
-    const vh = viewport.clientHeight;
-    api.setTransform(vw / 2 - cx * scale, vh / 2 - cy * scale, scale, 600);
-  };
-
-  useEffect(() => {
-    if (loading || artists.length === 0) return;
-    centerOnTarget();
-  }, [loading, artists]);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const api = transformRef.current;
-      if (api?.state) {
-        setMapScale(api.state.scale);
-      }
-    }, 100);
-    return () => clearInterval(interval);
-  }, []);
 
   return (
     <main className="h-screen flex flex-col overflow-hidden">
@@ -151,7 +15,6 @@ export default function MappaPage() {
       </div>
       <div className="flex-1 mt-4 mx-auto w-full max-w-5xl px-4 sm:px-6 min-h-0">
         <TransformWrapper
-          ref={transformRef}
           initialScale={1}
           minScale={0.5}
           maxScale={4}
@@ -185,72 +48,18 @@ export default function MappaPage() {
                   </button>
                 </div>
               </div>
-              <div ref={viewportRef} className="relative overflow-hidden rounded-xl border border-foreground/10 flex-1 min-h-0 mb-2" style={{ background: "#FBCFE8" }}>
+              <div className="relative overflow-hidden rounded-xl border border-foreground/10 flex-1 min-h-0 mb-2" style={{ background: "#FBCFE8" }}>
                 <TransformComponent wrapperClass="!w-full !h-full">
                   <div className="relative" style={{ width: 1600 }}>
                     <img
-                      ref={imgRef}
-                      onLoad={centerOnTarget}
                       src="/mappa.webp"
                       alt="Mappa"
                       className="max-w-none block"
                       style={{ width: 1600, height: "auto" }}
                       draggable={false}
                     />
-                    {!loading &&
-                      positioned.map((a) => (
-                        <div
-                          key={a.id}
-                          className="absolute z-10 -translate-x-1/2 -translate-y-1/2"
-                          style={{
-                            left: `${a.map_x}%`,
-                            top: `${a.map_y}%`,
-                          }}
-                        >
-                          <ArtistHoverCard artist={a} side="top" counterScale={mapScale} fixed onLocate={() => locateArtist(a)}>
-                            <div className="transition-transform hover:scale-110" onContextMenu={(e) => e.preventDefault()} onDragStart={(e) => e.preventDefault()}>
-                              <div
-                              className={`overflow-hidden rounded-full flex items-center justify-center ${
-                                a.scanned
-                                  ? "border-2 border-green-500 shadow-[0_2px_6px_rgba(0,0,0,0.5)]"
-                                  : "border-2 border-white/90 shadow-[0_2px_6px_rgba(0,0,0,0.5)]"
-                              }`}
-                              style={{ width: 22, height: 22 }}
-                              >
-                                {a.image_url ? (
-                  <img
-                    src={a.image_url}
-                    alt={a.name}
-                    width={88}
-                    height={88}
-                    loading="lazy"
-                    className="h-full w-full object-cover"
-                  />
-                                ) : (
-                                  <span className={`flex h-full w-full items-center justify-center text-[10px] font-bold ${
-                                    a.scanned ? "bg-green-600 text-white" : "bg-secondary text-foreground/70"
-                                  }`}>
-                                    {a.name.charAt(0)}
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                          </ArtistHoverCard>
-                        </div>
-                      ))}
                   </div>
                 </TransformComponent>
-                {/* Legenda */}
-                <div className="absolute bottom-3 right-3 z-20 flex items-center gap-3 rounded-lg border border-foreground/10 bg-background/80 backdrop-blur-sm px-3 py-2 text-xs">
-                  <div className="flex items-center gap-1.5">
-                    <span className="inline-block h-3 w-3 rounded-full bg-green-500 border border-white" />
-                    <span className="text-foreground/70">{t("scanned")}</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="inline-block h-3 w-3 rounded-full bg-secondary border border-border" />
-                    <span className="text-foreground/70">{t("to_visit")}</span>
-                  </div>
-                </div>
               </div>
             </>
           )}
