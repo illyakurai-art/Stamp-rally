@@ -22,14 +22,18 @@ export interface RecentRedeem {
 
 export async function fetchRecentStamps(
   supabase: Supabase,
-  { offset, limit }: { offset: number; limit: number }
+  { offset, limit, dateStart, dateEnd }: { offset: number; limit: number; dateStart?: string; dateEnd?: string }
 ): Promise<RecentStamp[]> {
-  const { data: rawStamps } = await supabase
+  let query = supabase
     .from("stamps")
     .select("id, stamped_at, user_id, artist_id")
     .eq("redeemed", false)
     .order("stamped_at", { ascending: false })
     .range(offset, offset + limit - 1);
+  if (dateStart && dateEnd) {
+    query = query.gte("stamped_at", dateStart).lte("stamped_at", dateEnd);
+  }
+  const { data: rawStamps } = await query;
 
   if (!rawStamps || rawStamps.length === 0) return [];
 
@@ -71,13 +75,17 @@ export async function fetchRecentStamps(
 
 export async function fetchRecentRedeems(
   supabase: Supabase,
-  { offset, limit }: { offset: number; limit: number }
+  { offset, limit, dateStart, dateEnd }: { offset: number; limit: number; dateStart?: string; dateEnd?: string }
 ): Promise<RecentRedeem[]> {
-  const { data: rawRedeems } = await supabase
+  let query = supabase
     .from("redeems")
     .select("id, created_at, user_id, confirmed_by, tier_threshold, stamps_removed_count")
     .order("created_at", { ascending: false })
     .range(offset, offset + limit - 1);
+  if (dateStart && dateEnd) {
+    query = query.gte("created_at", dateStart).lte("created_at", dateEnd);
+  }
+  const { data: rawRedeems } = await query;
 
   if (!rawRedeems || rawRedeems.length === 0) return [];
 

@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { AdminQrGrid } from "@/components/admin/admin-qr-grid";
+import { getEditionDates } from "@/lib/editions";
 
 interface ArtistQR {
   display_id: string;
@@ -15,21 +16,29 @@ function safeFilename(name: string): string {
 export default async function AdminQrPage() {
   const supabase = await createClient();
 
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return null;
+  const edition = await getEditionDates(supabase, "current");
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .maybeSingle();
-
-  if (profile?.role !== "staff") return null;
+  if (!edition.isActive) {
+    return (
+      <div className="mx-auto w-full max-w-6xl px-5 py-8">
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold">QR Code Artisti</h1>
+        </div>
+        <div className="rounded-xl border border-foreground/10 bg-foreground/[0.02] px-6 py-12 text-center">
+          <p className="text-lg font-semibold text-foreground/70">Nessuna edizione attiva</p>
+          <p className="mt-2 text-sm text-foreground/50">
+            Imposta il range date dell&apos;edizione corrente in app_config per visualizzare i QR.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   const { data: artists } = await supabase
     .from("artists")
     .select("display_id, name, qr_token, active")
-    .eq("active", true)
+    .gte("created_at", edition.start)
+    .lte("created_at", edition.end)
     .order("display_id");
 
   const artistQRs: ArtistQR[] = (artists ?? [])
@@ -46,7 +55,9 @@ export default async function AdminQrPage() {
       <div className="mb-6">
         <h1 className="text-2xl font-bold">QR Code Artisti</h1>
         <p className="text-sm text-foreground/50 mt-1">
-          {artistQRs.length} artisti attivi — QR generati con profile picture al centro
+          Edizione: <span className="font-medium text-foreground/70">{edition.name}</span>
+          {" — "}
+          {artistQRs.length} artisti — QR generati con profile picture al centro
         </p>
       </div>
       <AdminQrGrid artists={artistQRs} />

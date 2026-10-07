@@ -6,26 +6,50 @@ import {
   RecentStampsList,
 } from "@/components/admin-recent-lists";
 import { TierBreakdown } from "@/components/admin-tier-breakdown";
+import { getEditionDates } from "@/lib/editions";
 
-// Semplificato rimuovendo la funzione getStats separata per ottimizzare il Promise.all unico
 export default async function AdminDashboardPage() {
   const supabase = await createClient();
 
-  // Eseguiamo TUTTE le query in parallelo in un unico livello di waterfall
+  const edition = await getEditionDates(supabase, "current");
+
+  if (!edition.isActive) {
+    return (
+      <section className="mx-auto w-full max-w-6xl px-5 py-10">
+        <div className="mb-8">
+          <p className="text-sm font-medium text-foreground/50 uppercase tracking-wider">Admin</p>
+          <h1 className="mt-1 text-3xl font-bold">Dashboard</h1>
+        </div>
+        <div className="rounded-xl border border-foreground/10 bg-foreground/[0.02] px-6 py-12 text-center">
+          <p className="text-lg font-semibold text-foreground/70">Nessuna edizione attiva</p>
+          <p className="mt-2 text-sm text-foreground/50">
+            Imposta il range date dell&apos;edizione corrente in app_config per visualizzare le statistiche.
+          </p>
+        </div>
+      </section>
+    );
+  }
+
+  const filterStamps = <T extends { gte: Function; lte: Function }>(q: T) =>
+    q.gte("stamped_at", edition.start).lte("stamped_at", edition.end) as T;
+  const filterRedeems = <T extends { gte: Function; lte: Function }>(q: T) =>
+    q.gte("created_at", edition.start).lte("created_at", edition.end) as T;
+
+  // Query in parallelo con filtro edizione
   const [
-    usersRes, 
-    stampsRes, 
-    redeemsRes, 
-    recentStamps, 
+    usersRes,
+    stampsRes,
+    redeemsRes,
+    recentStamps,
     recentRedeems,
     tierStatsRes,
   ] = await Promise.all([
     supabase.from("profiles").select("id", { count: "exact", head: true }).eq("role", "visitor"),
-    supabase.from("stamps").select("id", { count: "exact", head: true }).eq("redeemed", false),
-    supabase.from("redeems").select("id", { count: "exact", head: true }),
-    fetchRecentStamps(supabase, { offset: 0, limit: 10 }),
-    fetchRecentRedeems(supabase, { offset: 0, limit: 10 }),
-    supabase.from("redeems").select("tier_threshold"),
+    filterStamps(supabase.from("stamps").select("id", { count: "exact", head: true }).eq("redeemed", false)),
+    filterRedeems(supabase.from("redeems").select("id", { count: "exact", head: true })),
+    fetchRecentStamps(supabase, { offset: 0, limit: 10, dateStart: edition.start, dateEnd: edition.end }),
+    fetchRecentRedeems(supabase, { offset: 0, limit: 10, dateStart: edition.start, dateEnd: edition.end }),
+    filterRedeems(supabase.from("redeems").select("tier_threshold")),
   ]);
 
   const stats = {
@@ -43,9 +67,7 @@ export default async function AdminDashboardPage() {
     .map(([tier, count]) => ({ tier, count }))
     .sort((a, b) => a.tier - b.tier);
 
-  // Timbri consumati dai redeem (tier * count)
   const stampsConsumed = tierBreakdown.reduce((sum, t) => sum + t.tier * t.count, 0);
-  // Totale timbri elargiti = ancora in possesso + consumati
   const stampsTotal = stats.totalStamps + stampsConsumed;
 
   return (
@@ -53,6 +75,9 @@ export default async function AdminDashboardPage() {
       <div className="mb-8">
         <p className="text-sm font-medium text-foreground/50 uppercase tracking-wider">Admin</p>
         <h1 className="mt-1 text-3xl font-bold">Dashboard</h1>
+        <p className="mt-1 text-sm text-foreground/50">
+          Edizione: <span className="font-medium text-foreground/70">{edition.name}</span>
+        </p>
       </div>
 
       {/* Statistiche */}

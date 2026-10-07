@@ -2,11 +2,24 @@ import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { AdminUsersList, type UserEntry } from "@/components/admin-users-list";
 import { getEffectiveStampCount, SECRET_PAIRS } from "@/lib/secret-pairs";
+import { getEditionDates } from "@/lib/editions";
 
 async function UsersContent() {
   const supabase = await createClient();
 
-  // LIVELLO 1: Recuperiamo profili e artisti in parallelo
+  const edition = await getEditionDates(supabase, "current");
+  if (!edition.isActive) {
+    return (
+      <div className="rounded-xl border border-foreground/10 bg-foreground/[0.02] px-6 py-12 text-center">
+        <p className="text-lg font-semibold text-foreground/70">Nessuna edizione attiva</p>
+        <p className="mt-2 text-sm text-foreground/50">
+          Imposta il range date dell&apos;edizione corrente in app_config per visualizzare i dati.
+        </p>
+      </div>
+    );
+  }
+
+  // Recuperiamo profili e artisti in parallelo
   const [profilesRes, artistsRes] = await Promise.all([
     supabase
       .from("profiles")
@@ -16,6 +29,8 @@ async function UsersContent() {
     supabase
       .from("artists")
       .select("display_id, name")
+      .gte("created_at", edition.start)
+      .lte("created_at", edition.end),
   ]);
 
   const profiles = profilesRes.data ?? [];
@@ -25,38 +40,33 @@ async function UsersContent() {
     .map((u) => u.display_id)
     .filter(Boolean) as string[];
 
-  // LIVELLO 2: Recuperiamo i timbri e i conteggi rpc in parallelo (solo se ci sono utenti)
-  const [stampCountsRes, allStampsRes] = displayIds.length > 0
-    ? await Promise.all([
-        supabase.rpc("get_stamp_counts_by_users", { p_user_ids: displayIds }),
-        supabase.from("stamps").select("user_id, artist_id").in("user_id", displayIds).eq("redeemed", false)
-      ])
-    : [{ data: [] }, { data: [] }];
+  // Timbri filtrati per edizione corrente
+  const allStamps = displayIds.length > 0
+    ? await supabase
+        .from("stamps")
+        .select("user_id, artist_id")
+        .in("user_id", displayIds)
+        .eq("redeemed", false)
+        .gte("stamped_at", edition.start)
+        .lte("stamped_at", edition.end)
+    : { data: [] as { user_id: string; artist_id: string }[] };
 
-  const stampCounts = stampCountsRes.data as { user_id: string; count: number }[] ?? [];
-  const allStamps = allStampsRes.data ?? [];
+  const stamps = allStamps.data ?? [];
 
-  // Mappatura rapida degli artisti
+  // Conteggio timbri per utente
   const artistNameById = new Map(allArtists.map((a) => [a.display_id, a.name]));
 
-  // Raggruppamento dei timbri per utente
-  const stampsByUser = stampCounts.reduce<Record<string, number>>((acc, s) => {
-    acc[s.user_id] = s.count;
-    return acc;
-  }, {});
-
   const stampsByUserGrouped = new Map<string, string[]>();
-  for (const stamp of allStamps) {
+  for (const stamp of stamps) {
     const names = stampsByUserGrouped.get(stamp.user_id) ?? [];
     const artistName = artistNameById.get(stamp.artist_id);
     if (artistName) names.push(artistName);
     stampsByUserGrouped.set(stamp.user_id, names);
   }
 
-  // Costruzione della lista utenti finale
   const users: UserEntry[] = profiles.map((u) => {
-    const rawCount = stampsByUser[u.display_id ?? ""] ?? 0;
     const scannedNames = stampsByUserGrouped.get(u.display_id ?? "") ?? [];
+    const rawCount = scannedNames.length;
     const kkUnlocked = SECRET_PAIRS.some((pair) =>
       pair.members.every((name) =>
         scannedNames.some((n) => n.toLowerCase() === name.toLowerCase())
@@ -75,6 +85,8 @@ async function UsersContent() {
   return (
     <>
       <p className="mt-1 text-sm text-foreground/50 mb-8">
+        Edizione: <span className="font-medium text-foreground/70">{edition.name}</span>
+        {" — "}
         {users.length} visitator{users.length === 1 ? "e" : "i"} registrat{users.length === 1 ? "o" : "i"}
       </p>
       <AdminUsersList users={users} />

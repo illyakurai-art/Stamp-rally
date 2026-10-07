@@ -23,8 +23,32 @@ function safeFilename(name: string): string {
   return name.replace(/[^\w\-]+/g, "_").replace(/^_+|_+$/g, "") || "artista";
 }
 
+type EditionInfo = { name: string; start: string; end: string; isActive: boolean };
+
+async function fetchEdition(): Promise<EditionInfo> {
+  const supabase = createClient();
+  const { data } = await supabase
+    .from("app_config")
+    .select("key, value")
+    .in("key", ["edition_novegro_2026_name", "edition_novegro_2026_start", "edition_novegro_2026_end"]);
+  const map = new Map((data ?? []).map((r) => [r.key, r.value]));
+  const start = map.get("edition_novegro_2026_start") ?? "";
+  const end = map.get("edition_novegro_2026_end") ?? "";
+  return {
+    name: map.get("edition_novegro_2026_name") ?? "Novegro Artist Alley 2026",
+    start,
+    end,
+    isActive: Boolean(start && end),
+  };
+}
+
 export default function PastEditionPage() {
   const [tab, setTab] = useState<Tab>("dashboard");
+  const [edition, setEdition] = useState<EditionInfo | null>(null);
+
+  useEffect(() => {
+    fetchEdition().then(setEdition);
+  }, []);
 
   return (
     <section className="mx-auto w-full max-w-6xl px-5 py-10">
@@ -34,13 +58,18 @@ export default function PastEditionPage() {
           Edizioni Passate
         </p>
         <div className="mt-2 flex items-center gap-3 flex-wrap">
-          <h1 className="text-3xl font-bold">Novegro Artist Alley 2026</h1>
+          <h1 className="text-3xl font-bold">{edition?.name ?? "Novegro Artist Alley 2026"}</h1>
           <span className="rounded-full bg-amber-500/15 border border-amber-500/30 px-3 py-1 text-xs font-semibold text-amber-700 dark:text-amber-300 uppercase tracking-wider">
             Conclusa
           </span>
         </div>
         <p className="mt-1 text-sm text-foreground/50">
           Dati archiviati — visualizzazione in sola lettura
+          {edition?.start && edition?.end && (
+            <span className="ml-2 text-foreground/40">
+              ({edition.start} → {edition.end})
+            </span>
+          )}
         </p>
       </div>
 
@@ -64,17 +93,30 @@ export default function PastEditionPage() {
       </div>
 
       {/* Contenuto tab */}
-      {tab === "dashboard" && <DashboardTab />}
-      {tab === "utenti" && <UtentiTab />}
-      {tab === "stand" && <StandTab />}
-      {tab === "qr" && <QrTab />}
+      {!edition ? (
+        <p className="text-sm text-foreground/40">Caricamento edizione…</p>
+      ) : !edition.isActive ? (
+        <div className="rounded-xl border border-foreground/10 bg-foreground/[0.02] px-6 py-12 text-center">
+          <p className="text-lg font-semibold text-foreground/70">Range date non configurato</p>
+          <p className="mt-2 text-sm text-foreground/50">
+            Imposta i range date di {edition.name} in app_config.
+          </p>
+        </div>
+      ) : (
+        <>
+          {tab === "dashboard" && <DashboardTab edition={edition} />}
+          {tab === "utenti" && <UtentiTab edition={edition} />}
+          {tab === "stand" && <StandTab edition={edition} />}
+          {tab === "qr" && <QrTab edition={edition} />}
+        </>
+      )}
     </section>
   );
 }
 
 // ── Dashboard Tab ──
 
-function DashboardTab() {
+function DashboardTab({ edition }: { edition: EditionInfo }) {
   const [stats, setStats] = useState<{ users: number; stamps: number; redeems: number; totalStamps: number } | null>(null);
   const [tierBreakdown, setTierBreakdown] = useState<{ tier: number; count: number }[]>([]);
   const [loading, setLoading] = useState(true);
@@ -84,9 +126,12 @@ function DashboardTab() {
     (async () => {
       const [usersRes, stampsRes, redeemsRes, tierRes] = await Promise.all([
         supabase.from("profiles").select("id", { count: "exact", head: true }).eq("role", "visitor"),
-        supabase.from("stamps").select("id", { count: "exact", head: true }).eq("redeemed", false),
-        supabase.from("redeems").select("id", { count: "exact", head: true }),
-        supabase.from("redeems").select("tier_threshold"),
+        supabase.from("stamps").select("id", { count: "exact", head: true }).eq("redeemed", false)
+          .gte("stamped_at", edition.start).lte("stamped_at", edition.end),
+        supabase.from("redeems").select("id", { count: "exact", head: true })
+          .gte("created_at", edition.start).lte("created_at", edition.end),
+        supabase.from("redeems").select("tier_threshold")
+          .gte("created_at", edition.start).lte("created_at", edition.end),
       ]);
 
       const tierCounts = new Map<number, number>();
@@ -108,7 +153,7 @@ function DashboardTab() {
       setTierBreakdown(tiers);
       setLoading(false);
     })();
-  }, []);
+  }, [edition]);
 
   if (loading) return <p className="text-sm text-foreground/40">Caricamento statistiche…</p>;
   if (!stats) return <p className="text-sm text-foreground/40">Nessun dato disponibile.</p>;
@@ -161,7 +206,7 @@ function DashboardTab() {
 
 // ── Utenti Tab ──
 
-function UtentiTab() {
+function UtentiTab({ edition }: { edition: EditionInfo }) {
   const [users, setUsers] = useState<UserEntry[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -174,31 +219,29 @@ function UtentiTab() {
           .select("id, nickname, display_id, created_at")
           .eq("role", "visitor")
           .order("nickname", { ascending: true }),
-        supabase.from("artists").select("display_id, name"),
+        supabase.from("artists").select("display_id, name")
+          .gte("created_at", edition.start).lte("created_at", edition.end),
       ]);
 
       const profiles = profilesRes.data ?? [];
       const allArtists = artistsRes.data ?? [];
       const displayIds = profiles.map((u) => u.display_id).filter(Boolean) as string[];
 
-      const [stampCountsRes, allStampsRes] = displayIds.length > 0
-        ? await Promise.all([
-            supabase.rpc("get_stamp_counts_by_users", { p_user_ids: displayIds }),
-            supabase.from("stamps").select("user_id, artist_id").in("user_id", displayIds).eq("redeemed", false),
-          ])
-        : [{ data: [] as unknown[] }, { data: [] as unknown[] }];
+      const allStamps = displayIds.length > 0
+        ? await supabase
+            .from("stamps")
+            .select("user_id, artist_id")
+            .in("user_id", displayIds)
+            .eq("redeemed", false)
+            .gte("stamped_at", edition.start)
+            .lte("stamped_at", edition.end)
+        : { data: [] as { user_id: string; artist_id: string }[] };
 
-      const stampCounts = (stampCountsRes.data as { user_id: string; count: number }[]) ?? [];
-      const allStamps = (allStampsRes.data as { user_id: string; artist_id: string }[]) ?? [];
+      const stamps = allStamps.data ?? [];
       const artistNameById = new Map(allArtists.map((a) => [a.display_id, a.name]));
 
-      const stampsByUser = stampCounts.reduce<Record<string, number>>((acc, s) => {
-        acc[s.user_id] = s.count;
-        return acc;
-      }, {});
-
       const stampsByUserGrouped = new Map<string, string[]>();
-      for (const stamp of allStamps) {
+      for (const stamp of stamps) {
         const names = stampsByUserGrouped.get(stamp.user_id) ?? [];
         const artistName = artistNameById.get(stamp.artist_id);
         if (artistName) names.push(artistName);
@@ -206,8 +249,8 @@ function UtentiTab() {
       }
 
       const result: UserEntry[] = profiles.map((u) => {
-        const rawCount = stampsByUser[u.display_id ?? ""] ?? 0;
         const scannedNames = stampsByUserGrouped.get(u.display_id ?? "") ?? [];
+        const rawCount = scannedNames.length;
         const kkUnlocked = SECRET_PAIRS.some((pair) =>
           pair.members.every((name) =>
             scannedNames.some((n) => n.toLowerCase() === name.toLowerCase())
@@ -226,7 +269,7 @@ function UtentiTab() {
       setUsers(result);
       setLoading(false);
     })();
-  }, []);
+  }, [edition]);
 
   if (loading) return <p className="text-sm text-foreground/40">Caricamento utenti…</p>;
 
@@ -242,7 +285,7 @@ function UtentiTab() {
 
 // ── Stand Tab ──
 
-function StandTab() {
+function StandTab({ edition }: { edition: EditionInfo }) {
   const [stands, setStands] = useState<StandEntry[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -252,25 +295,35 @@ function StandTab() {
       const { data: artists } = await supabase
         .from("artists")
         .select("id, name, display_id")
+        .gte("created_at", edition.start)
+        .lte("created_at", edition.end)
         .order("display_id", { ascending: true });
 
       const displayIds = (artists ?? []).map((a) => a.display_id).filter(Boolean) as string[];
 
-      const { data: stampCounts } = displayIds.length > 0
-        ? await supabase.rpc("get_stamp_counts_by_artists", { p_artist_ids: displayIds })
-        : { data: [] as unknown[] };
+      const { data: stampRows } = displayIds.length > 0
+        ? await supabase
+            .from("stamps")
+            .select("artist_id")
+            .in("artist_id", displayIds)
+            .gte("stamped_at", edition.start)
+            .lte("stamped_at", edition.end)
+        : { data: [] as { artist_id: string }[] };
 
-      const stampsByArtist = ((stampCounts as { artist_id: string; count: number }[]) ?? []).reduce<Record<string, number>>(
+      const stampsByArtist = (stampRows ?? []).reduce<Record<string, number>>(
         (acc, s) => {
-          acc[s.artist_id] = s.count;
+          acc[s.artist_id] = (acc[s.artist_id] ?? 0) + 1;
           return acc;
         },
         {}
       );
 
-      const { data: inventory } = await supabase
-        .from("stand_inventory")
-        .select("artist_id, remaining, total");
+      const { data: inventory } = displayIds.length > 0
+        ? await supabase
+            .from("stand_inventory")
+            .select("artist_id, remaining, total")
+            .in("artist_id", displayIds)
+        : { data: [] as { artist_id: string; remaining: number; total: number }[] };
 
       const inventoryByArtist = (inventory ?? []).reduce<Record<string, { remaining: number; total: number }>>(
         (acc, row) => {
@@ -295,7 +348,7 @@ function StandTab() {
       setStands(result);
       setLoading(false);
     })();
-  }, []);
+  }, [edition]);
 
   if (loading) return <p className="text-sm text-foreground/40">Caricamento stand…</p>;
 
@@ -311,7 +364,7 @@ function StandTab() {
 
 // ── QR Code Tab ──
 
-function QrTab() {
+function QrTab({ edition }: { edition: EditionInfo }) {
   const [artistQRs, setArtistQRs] = useState<{ display_id: string; name: string; qr_token: string; filename: string }[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -321,6 +374,8 @@ function QrTab() {
       const { data: artists } = await supabase
         .from("artists")
         .select("display_id, name, qr_token, active")
+        .gte("created_at", edition.start)
+        .lte("created_at", edition.end)
         .order("display_id");
 
       const result = (artists ?? [])
@@ -335,7 +390,7 @@ function QrTab() {
       setArtistQRs(result);
       setLoading(false);
     })();
-  }, []);
+  }, [edition]);
 
   if (loading) return <p className="text-sm text-foreground/40">Caricamento QR…</p>;
 
