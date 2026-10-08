@@ -101,7 +101,7 @@ export function ProtectedDashboard() {
           .eq("redeemed", false),
         supabase
           .from("artists")
-          .select("name")
+          .select("display_id, name")
           .eq("active", true),
         supabase
           .from("app_config")
@@ -112,19 +112,11 @@ export function ProtectedDashboard() {
 
       const scannedIds = new Set(stampsResult.data?.map((s) => s.artist_id) ?? []);
       const artistNames = (artistsResult.data ?? []).map((a) => a.name);
-      const scannedNames = artistNames.filter((_, i) => scannedIds.has(String(i)));
+      // Nomi degli artisti timbrati (per deduzione K&K)
+      const scannedNames = (artistsResult.data ?? [])
+        .filter((a) => a.display_id && scannedIds.has(a.display_id))
+        .map((a) => a.name);
       artistNamesRef.current = artistNames;
-
-      // Calcola quali coppie segrete sono sbloccate
-      const scannedArtistNames = new Set<string>();
-      for (const a of artistsResult.data ?? []) {
-        scannedArtistNames.add(a.name);
-      }
-      // Le coppie si basano sugli artisti timbrati
-      const scannedNameSet = new Set<string>();
-      for (const a of artistsResult.data ?? []) {
-        if (scannedIds.has(a.name)) scannedNameSet.add(a.name);
-      }
 
       setUserId(user.id);
       userIdRef.current = user.id;
@@ -151,13 +143,24 @@ export function ProtectedDashboard() {
       const userIdsToMatch = [uid];
       if (did) userIdsToMatch.push(did);
 
-      const { count } = await supabase
-        .from("stamps")
-        .select("id", { count: "exact", head: true })
-        .in("user_id", userIdsToMatch)
-        .eq("redeemed", false);
+      const [stampsRes, artistsRes] = await Promise.all([
+        supabase
+          .from("stamps")
+          .select("artist_id")
+          .in("user_id", userIdsToMatch)
+          .eq("redeemed", false),
+        supabase
+          .from("artists")
+          .select("display_id, name")
+          .eq("active", true),
+      ]);
 
-      setActiveStampsCount(getEffectiveStampCount(count ?? 0, []));
+      const scannedIds = new Set(stampsRes.data?.map((s) => s.artist_id) ?? []);
+      const scannedNames = (artistsRes.data ?? [])
+        .filter((a) => a.display_id && scannedIds.has(a.display_id))
+        .map((a) => a.name);
+
+      setActiveStampsCount(getEffectiveStampCount(stampsRes.data?.length ?? 0, scannedNames));
     };
     fetchStamps();
   }, [stampTick]);

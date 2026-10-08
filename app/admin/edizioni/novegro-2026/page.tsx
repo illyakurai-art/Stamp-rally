@@ -124,9 +124,11 @@ function DashboardTab({ edition }: { edition: EditionInfo }) {
   useEffect(() => {
     const supabase = createClient();
     (async () => {
-      const [usersRes, stampsRes, redeemsRes, tierRes] = await Promise.all([
+      const [usersRes, stampsRes, allStampsRes, redeemsRes, tierRes] = await Promise.all([
         supabase.from("profiles").select("id", { count: "exact", head: true }).eq("role", "visitor"),
         supabase.from("stamps").select("id", { count: "exact", head: true }).eq("redeemed", false)
+          .gte("stamped_at", edition.start).lte("stamped_at", edition.end),
+        supabase.from("stamps").select("id", { count: "exact", head: true })
           .gte("stamped_at", edition.start).lte("stamped_at", edition.end),
         supabase.from("redeems").select("id", { count: "exact", head: true })
           .gte("created_at", edition.start).lte("created_at", edition.end),
@@ -141,14 +143,12 @@ function DashboardTab({ edition }: { edition: EditionInfo }) {
       const tiers = Array.from(tierCounts.entries())
         .map(([tier, count]) => ({ tier, count }))
         .sort((a, b) => a.tier - b.tier);
-      const stampsConsumed = tiers.reduce((sum, t) => sum + t.tier * t.count, 0);
-      const activeStamps = stampsRes.count ?? 0;
 
       setStats({
         users: usersRes.count ?? 0,
-        stamps: activeStamps,
+        stamps: stampsRes.count ?? 0,
         redeems: redeemsRes.count ?? 0,
-        totalStamps: activeStamps + stampsConsumed,
+        totalStamps: allStampsRes.count ?? 0,
       });
       setTierBreakdown(tiers);
       setLoading(false);

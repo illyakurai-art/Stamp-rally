@@ -39,6 +39,7 @@ export default async function AdminDashboardPage() {
   const [
     usersRes,
     stampsRes,
+    allStampsRes,
     redeemsRes,
     recentStamps,
     recentRedeems,
@@ -46,6 +47,7 @@ export default async function AdminDashboardPage() {
   ] = await Promise.all([
     supabase.from("profiles").select("id", { count: "exact", head: true }).eq("role", "visitor"),
     filterStamps(supabase.from("stamps").select("id", { count: "exact", head: true }).eq("redeemed", false)),
+    filterStamps(supabase.from("stamps").select("id", { count: "exact", head: true })),
     filterRedeems(supabase.from("redeems").select("id", { count: "exact", head: true })),
     fetchRecentStamps(supabase, { offset: 0, limit: 10, dateStart: edition.start, dateEnd: edition.end }),
     fetchRecentRedeems(supabase, { offset: 0, limit: 10, dateStart: edition.start, dateEnd: edition.end }),
@@ -67,8 +69,8 @@ export default async function AdminDashboardPage() {
     .map(([tier, count]) => ({ tier, count }))
     .sort((a, b) => a.tier - b.tier);
 
-  const stampsConsumed = tierBreakdown.reduce((sum, t) => sum + t.tier * t.count, 0);
-  const stampsTotal = stats.totalStamps + stampsConsumed;
+  // Totale timbri = tutte le righe (attive + riscattate) nell'edizione
+  const stampsTotal = allStampsRes.count ?? 0;
 
   return (
     <section className="mx-auto w-full max-w-6xl px-5 py-10">
