@@ -228,7 +228,7 @@ export function ProtectedDashboard() {
               {t("scan_nfc_line3")}
             </span>
             <img
-              src="/nfc-icon.png"
+              src="/nfc-icon.svg"
               alt=""
               className="absolute right-6 h-12 w-12 shrink-0 object-contain z-10"
               style={{ filter: "brightness(0) invert(1)" }}

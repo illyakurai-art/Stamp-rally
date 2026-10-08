@@ -25,7 +25,7 @@ export default function MappaPage() {
           {({ zoomIn, zoomOut, resetTransform }) => (
             <>
               <div className="mb-3 flex items-center gap-3">
-                <img src="/map-icon.png" alt="Mappa" width={24} height={24} className="h-6 w-6" />
+                <img src="/map-icon.svg" alt="Mappa" width={24} height={24} className="h-6 w-6" />
                 <span className="text-xl font-bold tracking-tight">{t("map")}</span>
                 <div className="flex items-center gap-2 ml-auto">
                   <button
