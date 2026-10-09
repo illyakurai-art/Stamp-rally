@@ -421,14 +421,23 @@ function StampAppTab({ edition }: { edition: EditionInfo }) {
   useEffect(() => {
     const supabase = createClient();
     (async () => {
-      const { data: artistRows } = await supabase
-        .from("artists")
-        .select("id, name, image_url, prize_image_url, display_id, map_x, map_y, instagram")
-        .gte("created_at", edition.start)
-        .lte("created_at", edition.end)
-        .order("name", { ascending: true });
+      // Posizioni snapshot per edizione da artist_map_positions (dopo la migrazione);
+      // se la tabella è assente/vuota si usano artists.map_x/map_y (Novegro = edizione corrente al momento dello snapshot)
+      const [artistsRes, posRes] = await Promise.all([
+        supabase
+          .from("artists")
+          .select("id, name, image_url, prize_image_url, display_id, map_x, map_y, instagram")
+          .gte("created_at", edition.start)
+          .lte("created_at", edition.end)
+          .order("name", { ascending: true }),
+        supabase
+          .from("artist_map_positions")
+          .select("artist_id, map_x, map_y")
+          .eq("edition_key", "edition_novegro_2026"),
+      ]);
 
-      const rows = artistRows ?? [];
+      const rows = artistsRes.data ?? [];
+      const posById = new Map((posRes.data ?? []).map((p) => [p.artist_id, p]));
 
       // Stato "scanned" delle tile: timbri attivi dell'admin nell'edizione
       const scannedIds = new Set<string>();
@@ -453,10 +462,15 @@ function StampAppTab({ edition }: { edition: EditionInfo }) {
       }
 
       setArtists(
-        rows.map((a) => ({
-          ...a,
-          scanned: scannedIds.has(a.id) || (a.display_id ? scannedIds.has(a.display_id) : false),
-        }))
+        rows.map((a) => {
+          const pos = a.display_id ? posById.get(a.display_id) : undefined;
+          return {
+            ...a,
+            map_x: pos ? pos.map_x : a.map_x,
+            map_y: pos ? pos.map_y : a.map_y,
+            scanned: scannedIds.has(a.id) || (a.display_id ? scannedIds.has(a.display_id) : false),
+          };
+        })
       );
     })();
   }, [edition]);
