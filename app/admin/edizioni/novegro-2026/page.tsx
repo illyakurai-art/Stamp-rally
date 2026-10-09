@@ -1,17 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { TransformWrapper, TransformComponent, type ReactZoomPanPinchRef } from "react-zoom-pan-pinch";
 import { createClient } from "@/lib/supabase/client";
 import { AdminUsersList, type UserEntry } from "@/components/admin-users-list";
 import { AdminStandsList, type StandEntry } from "@/components/admin-stands-list";
 import { AdminQrGrid } from "@/components/admin/admin-qr-grid";
 import { TierBreakdown } from "@/components/admin-tier-breakdown";
 import { ArtistCards } from "@/components/artist-cards";
-import type { Artist } from "@/components/artist-hover-card";
+import { ArtistHoverCard, type Artist } from "@/components/artist-hover-card";
 import { InView } from "@/components/motion/in-view";
 import { getEffectiveStampCount, SECRET_PAIRS } from "@/lib/secret-pairs";
 import { cn } from "@/lib/utils";
-import { Users, Stamp, Trophy, Hash, LayoutDashboard, Store, QrCode, BarChart3 } from "lucide-react";
+import { Users, Stamp, Trophy, Hash, LayoutDashboard, Store, QrCode, BarChart3, ZoomIn, ZoomOut, RotateCcw } from "lucide-react";
 
 type Tab = "dashboard" | "utenti" | "stand" | "qr" | "stampapp";
 
@@ -27,14 +28,14 @@ function safeFilename(name: string): string {
   return name.replace(/[^\w\-]+/g, "_").replace(/^_+|_+$/g, "") || "artista";
 }
 
-type EditionInfo = { name: string; start: string; end: string; isActive: boolean };
+type EditionInfo = { name: string; start: string; end: string; isActive: boolean; mapPath: string };
 
 async function fetchEdition(): Promise<EditionInfo> {
   const supabase = createClient();
   const { data } = await supabase
     .from("app_config")
     .select("key, value")
-    .in("key", ["edition_novegro_2026_name", "edition_novegro_2026_start", "edition_novegro_2026_end"]);
+    .in("key", ["edition_novegro_2026_name", "edition_novegro_2026_start", "edition_novegro_2026_end", "edition_novegro_2026_map"]);
   const map = new Map((data ?? []).map((r) => [r.key, r.value]));
   const start = map.get("edition_novegro_2026_start") ?? "";
   const end = map.get("edition_novegro_2026_end") ?? "";
@@ -43,6 +44,7 @@ async function fetchEdition(): Promise<EditionInfo> {
     start,
     end,
     isActive: Boolean(start && end),
+    mapPath: map.get("edition_novegro_2026_map") ?? "/mappa.webp",
   };
 }
 
@@ -414,6 +416,7 @@ function QrTab({ edition }: { edition: EditionInfo }) {
 
 function StampAppTab({ edition }: { edition: EditionInfo }) {
   const [artists, setArtists] = useState<Artist[] | null>(null);
+  const [mapOpen, setMapOpen] = useState(false);
 
   useEffect(() => {
     const supabase = createClient();
@@ -468,6 +471,27 @@ function StampAppTab({ edition }: { edition: EditionInfo }) {
       <p className="text-sm text-foreground/50 mb-2">
         {artists.length} artisti presenti a questa edizione — tiles come le vedono gli utenti.
       </p>
+
+      {/* Apertura mappa edizione */}
+      <button
+        onClick={() => setMapOpen((o) => !o)}
+        className="relative mt-4 w-full min-h-12 rounded-md bg-foreground px-5 py-4 text-sm font-medium text-background transition-all hover:opacity-90 flex items-center justify-center sm:min-w-[340px] active:translate-x-[3px] active:translate-y-[3px] active:shadow-[3px_3px_0_rgba(0,0,0,0.25)]"
+        style={{ boxShadow: "6px 6px 0 rgba(0, 0, 0, 0.25)" }}
+      >
+        <span className="text-center leading-snug">
+          {mapOpen ? "Nascondi mappa" : "Apri mappa edizione"}
+          <br />
+          <span className="text-xs font-normal opacity-70">
+            Posizioni degli stand come durante l'evento
+          </span>
+        </span>
+        <span className="absolute right-4 flex h-14 w-14 items-center justify-center rounded-md bg-white shadow-sm">
+          <img src="/map-icon.svg" alt="Mappa" className="h-10 w-10" />
+        </span>
+      </button>
+
+      {mapOpen && <EditionMap artists={artists} mapPath={edition.mapPath} />}
+
       <InView
         viewOptions={{ once: true, margin: "0px 0px -250px 0px" }}
         variants={{
@@ -477,6 +501,163 @@ function StampAppTab({ edition }: { edition: EditionInfo }) {
       >
         <ArtistCards artists={artists} />
       </InView>
+    </div>
+  );
+}
+
+// ── Mappa edizione (solo admin, archivio) ──
+
+function EditionMap({ artists, mapPath }: { artists: Artist[]; mapPath: string }) {
+  const [mapScale, setMapScale] = useState(1);
+  const transformRef = useRef<ReactZoomPanPinchRef | null>(null);
+  const viewportRef = useRef<HTMLDivElement | null>(null);
+  const imgRef = useRef<HTMLImageElement | null>(null);
+
+  const positioned = artists.filter((a) => a.map_x != null && a.map_y != null);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const api = transformRef.current;
+      if (api?.state) {
+        setMapScale(api.state.scale);
+      }
+    }, 100);
+    return () => clearInterval(interval);
+  }, []);
+
+  const locateArtist = (artist: Artist) => {
+    const api = transformRef.current;
+    const viewport = viewportRef.current;
+    const img = imgRef.current;
+    if (!api || !viewport || !img) return;
+    const nw = img.naturalWidth;
+    const nh = img.naturalHeight;
+    if (!nw || !nh) return;
+    const contentW = 1600;
+    const contentH = (1600 * nh) / nw;
+    const scale = 2;
+    const cx = ((artist.map_x ?? 0) / 100) * contentW;
+    const cy = ((artist.map_y ?? 0) / 100) * contentH;
+    const vw = viewport.clientWidth;
+    const vh = viewport.clientHeight;
+    api.setTransform(vw / 2 - cx * scale, vh / 2 - cy * scale, scale, 600);
+  };
+
+  if (positioned.length === 0) {
+    return <p className="mt-4 text-sm text-foreground/40">Nessuna posizione stand configurata per questa edizione.</p>;
+  }
+
+  return (
+    <div className="mt-4">
+      <TransformWrapper
+        ref={transformRef}
+        initialScale={1}
+        minScale={0.5}
+        maxScale={4}
+        limitToBounds
+        centerOnInit
+        wheel={{ step: 0.1 }}
+      >
+        {({ zoomIn, zoomOut, resetTransform }) => (
+          <>
+            <div className="mb-3 flex items-center gap-3">
+              <span className="text-lg font-bold tracking-tight">Mappa edizione</span>
+              <div className="flex items-center gap-2 ml-auto">
+                <button
+                  onClick={() => zoomIn()}
+                  className="flex h-9 w-9 items-center justify-center rounded-md border border-foreground/20 transition-colors hover:bg-foreground/5"
+                >
+                  <ZoomIn className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={() => zoomOut()}
+                  className="flex h-9 w-9 items-center justify-center rounded-md border border-foreground/20 transition-colors hover:bg-foreground/5"
+                >
+                  <ZoomOut className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={() => resetTransform()}
+                  className="flex h-9 w-9 items-center justify-center rounded-md border border-foreground/20 transition-colors hover:bg-foreground/5"
+                >
+                  <RotateCcw className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+            <div
+              ref={viewportRef}
+              className="relative overflow-hidden rounded-xl border border-foreground/10 h-[70vh] min-h-[420px]"
+              style={{ background: "#FBCFE8" }}
+            >
+              <TransformComponent wrapperClass="!w-full !h-full">
+                <div className="relative" style={{ width: 1600 }}>
+                  <img
+                    ref={imgRef}
+                    src={mapPath}
+                    alt="Mappa edizione"
+                    className="max-w-none block"
+                    style={{ width: 1600, height: "auto" }}
+                    draggable={false}
+                  />
+                  {positioned.map((a) => (
+                    <div
+                      key={a.id}
+                      className="absolute z-10 -translate-x-1/2 -translate-y-1/2"
+                      style={{ left: `${a.map_x}%`, top: `${a.map_y}%` }}
+                    >
+                      <ArtistHoverCard artist={a} side="top" counterScale={mapScale} fixed onLocate={() => locateArtist(a)}>
+                        <div
+                          className="transition-transform hover:scale-110"
+                          onContextMenu={(e) => e.preventDefault()}
+                          onDragStart={(e) => e.preventDefault()}
+                        >
+                          <div
+                            className={`overflow-hidden rounded-full flex items-center justify-center ${
+                              a.scanned
+                                ? "border-2 border-green-500 shadow-[0_2px_6px_rgba(0,0,0,0.5)]"
+                                : "border-2 border-white/90 shadow-[0_2px_6px_rgba(0,0,0,0.5)]"
+                            }`}
+                            style={{ width: 22, height: 22 }}
+                          >
+                            {a.image_url ? (
+                              <img
+                                src={a.image_url}
+                                alt={a.name}
+                                width={88}
+                                height={88}
+                                loading="lazy"
+                                className="h-full w-full object-cover"
+                              />
+                            ) : (
+                              <span
+                                className={`flex h-full w-full items-center justify-center text-[10px] font-bold ${
+                                  a.scanned ? "bg-green-600 text-white" : "bg-secondary text-foreground/70"
+                                }`}
+                              >
+                                {a.name.charAt(0)}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </ArtistHoverCard>
+                    </div>
+                  ))}
+                </div>
+              </TransformComponent>
+              {/* Legenda */}
+              <div className="absolute bottom-3 right-3 z-20 flex items-center gap-3 rounded-lg border border-foreground/10 bg-background/80 backdrop-blur-sm px-3 py-2 text-xs">
+                <div className="flex items-center gap-1.5">
+                  <span className="inline-block h-3 w-3 rounded-full bg-green-500 border border-white" />
+                  <span className="text-foreground/70">Timbrato</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="inline-block h-3 w-3 rounded-full bg-secondary border border-border" />
+                  <span className="text-foreground/70">Da visitare</span>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+      </TransformWrapper>
     </div>
   );
 }
