@@ -6,7 +6,9 @@ import { AdminUsersList, type UserEntry } from "@/components/admin-users-list";
 import { AdminStandsList, type StandEntry } from "@/components/admin-stands-list";
 import { AdminQrGrid } from "@/components/admin/admin-qr-grid";
 import { TierBreakdown } from "@/components/admin-tier-breakdown";
-import { ProtectedDashboard } from "@/components/protected-dashboard";
+import { ArtistCards } from "@/components/artist-cards";
+import type { Artist } from "@/components/artist-hover-card";
+import { InView } from "@/components/motion/in-view";
 import { getEffectiveStampCount, SECRET_PAIRS } from "@/lib/secret-pairs";
 import { cn } from "@/lib/utils";
 import { Users, Stamp, Trophy, Hash, LayoutDashboard, Store, QrCode, BarChart3 } from "lucide-react";
@@ -97,8 +99,6 @@ export default function PastEditionPage() {
       {/* Contenuto tab */}
       {!edition ? (
         <p className="text-sm text-foreground/40">Caricamento edizione…</p>
-      ) : tab === "stampapp" ? (
-        <StampAppTab />
       ) : !edition.isActive ? (
         <div className="rounded-xl border border-foreground/10 bg-foreground/[0.02] px-6 py-12 text-center">
           <p className="text-lg font-semibold text-foreground/70">Range date non configurato</p>
@@ -106,6 +106,8 @@ export default function PastEditionPage() {
             Imposta i range date di {edition.name} in app_config.
           </p>
         </div>
+      ) : tab === "stampapp" ? (
+        <StampAppTab edition={edition} />
       ) : (
         <>
           {tab === "dashboard" && <DashboardTab edition={edition} />}
@@ -410,15 +412,71 @@ function QrTab({ edition }: { edition: EditionInfo }) {
 
 // ── StampApp Tab ──
 
-function StampAppTab() {
+function StampAppTab({ edition }: { edition: EditionInfo }) {
+  const [artists, setArtists] = useState<Artist[] | null>(null);
+
+  useEffect(() => {
+    const supabase = createClient();
+    (async () => {
+      const { data: artistRows } = await supabase
+        .from("artists")
+        .select("id, name, image_url, prize_image_url, display_id, map_x, map_y, instagram")
+        .gte("created_at", edition.start)
+        .lte("created_at", edition.end)
+        .order("name", { ascending: true });
+
+      const rows = artistRows ?? [];
+
+      // Stato "scanned" delle tile: timbri attivi dell'admin nell'edizione
+      const scannedIds = new Set<string>();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const userIds = [user.id];
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("display_id")
+          .eq("id", user.id)
+          .maybeSingle();
+        if (profile?.display_id) userIds.push(profile.display_id);
+
+        const { data: stampRows } = await supabase
+          .from("stamps")
+          .select("artist_id")
+          .in("user_id", userIds)
+          .eq("redeemed", false)
+          .gte("stamped_at", edition.start)
+          .lte("stamped_at", edition.end);
+        for (const s of stampRows ?? []) scannedIds.add(s.artist_id);
+      }
+
+      setArtists(
+        rows.map((a) => ({
+          ...a,
+          scanned: scannedIds.has(a.id) || (a.display_id ? scannedIds.has(a.display_id) : false),
+        }))
+      );
+    })();
+  }, [edition]);
+
+  if (!artists) return <p className="text-sm text-foreground/40">Caricamento artisti…</p>;
+
+  if (artists.length === 0)
+    return <p className="text-sm text-foreground/40">Nessun artista presente in questa edizione.</p>;
+
   return (
     <div>
-      <p className="text-sm text-foreground/50 mb-6">
-        Vista della pagina principale dell'app — identica a quella che vedono gli utenti, dati in tempo reale.
+      <p className="text-sm text-foreground/50 mb-2">
+        {artists.length} artisti presenti a questa edizione — tiles come le vedono gli utenti.
       </p>
-      <div className="rounded-xl border border-foreground/10 bg-foreground/[0.02] overflow-hidden">
-        <ProtectedDashboard />
-      </div>
+      <InView
+        viewOptions={{ once: true, margin: "0px 0px -250px 0px" }}
+        variants={{
+          hidden: { opacity: 0 },
+          visible: { opacity: 1, transition: { staggerChildren: 0.09 } },
+        }}
+      >
+        <ArtistCards artists={artists} />
+      </InView>
     </div>
   );
 }
