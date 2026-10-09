@@ -6,17 +6,19 @@ import { AdminUsersList, type UserEntry } from "@/components/admin-users-list";
 import { AdminStandsList, type StandEntry } from "@/components/admin-stands-list";
 import { AdminQrGrid } from "@/components/admin/admin-qr-grid";
 import { TierBreakdown } from "@/components/admin-tier-breakdown";
+import { ProtectedDashboard } from "@/components/protected-dashboard";
 import { getEffectiveStampCount, SECRET_PAIRS } from "@/lib/secret-pairs";
 import { cn } from "@/lib/utils";
 import { Users, Stamp, Trophy, Hash, LayoutDashboard, Store, QrCode, BarChart3 } from "lucide-react";
 
-type Tab = "dashboard" | "utenti" | "stand" | "qr";
+type Tab = "dashboard" | "utenti" | "stand" | "qr" | "stampapp";
 
 const TABS: { id: Tab; label: string; icon: React.ElementType }[] = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
   { id: "utenti", label: "Utenti", icon: Users },
   { id: "stand", label: "Stand", icon: Store },
   { id: "qr", label: "QR Code", icon: QrCode },
+  { id: "stampapp", label: "StampApp", icon: Stamp },
 ];
 
 function safeFilename(name: string): string {
@@ -95,6 +97,8 @@ export default function PastEditionPage() {
       {/* Contenuto tab */}
       {!edition ? (
         <p className="text-sm text-foreground/40">Caricamento edizione…</p>
+      ) : tab === "stampapp" ? (
+        <StampAppTab />
       ) : !edition.isActive ? (
         <div className="rounded-xl border border-foreground/10 bg-foreground/[0.02] px-6 py-12 text-center">
           <p className="text-lg font-semibold text-foreground/70">Range date non configurato</p>
@@ -400,6 +404,21 @@ function QrTab({ edition }: { edition: EditionInfo }) {
         {artistQRs.length} artisti — QR generati con profile picture al centro
       </p>
       <AdminQrGrid artists={artistQRs} />
+    </div>
+  );
+}
+
+// ── StampApp Tab ──
+
+function StampAppTab() {
+  return (
+    <div>
+      <p className="text-sm text-foreground/50 mb-6">
+        Vista della pagina principale dell'app — identica a quella che vedono gli utenti, dati in tempo reale.
+      </p>
+      <div className="rounded-xl border border-foreground/10 bg-foreground/[0.02] overflow-hidden">
+        <ProtectedDashboard />
+      </div>
     </div>
   );
 }
