@@ -47,7 +47,7 @@ export default function MapEditorPage() {
           .order("display_id", { ascending: true }),
         supabase
           .from("artist_map_positions")
-          .select("id", { count: "exact", head: true })
+          .select("artist_id", { count: "exact", head: true })
           .eq("edition_key", "edition_novegro_2026"),
       ]);
       setSnapshotMissing((snapshotRes.count ?? 0) === 0);
