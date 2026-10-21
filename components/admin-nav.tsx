@@ -4,12 +4,13 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { ShieldCheck, LogOut, Users, LayoutDashboard, Store, Stamp, QrCode, History, ChevronDown } from "lucide-react";
+import { ShieldCheck, LogOut, Users, LayoutDashboard, Store, Stamp, QrCode, History, ChevronDown, Map } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
   { href: "/admin/users", label: "Utenti", icon: Users, exact: false },
   { href: "/admin/stands", label: "Stand", icon: Store, exact: false },
+  { href: "/admin/map-editor", label: "Mappa", icon: Map, exact: true },
   { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard, exact: true },
   { href: "/admin/qr-codes", label: "QR Code", icon: QrCode, exact: false },
   { href: "/protected", label: "StampApp", icon: Stamp, exact: false },
