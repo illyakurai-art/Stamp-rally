@@ -29,6 +29,7 @@ export default function MapEditorPage() {
   const [saving, setSaving] = useState(false);
   const [saveMsg, setSaveMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const [snapshotMissing, setSnapshotMissing] = useState(false);
+  const [mapPath, setMapPath] = useState("/mappa.webp");
 
   const transformRef = useRef<ReactZoomPanPinchRef | null>(null);
   const viewportRef = useRef<HTMLDivElement | null>(null);
@@ -39,7 +40,7 @@ export default function MapEditorPage() {
   useEffect(() => {
     const supabase = createClient();
     (async () => {
-      const [artistsRes, snapshotRes] = await Promise.all([
+      const [artistsRes, snapshotRes, configRes] = await Promise.all([
         supabase
           .from("artists")
           .select("id, display_id, name, image_url, active, map_x, map_y")
@@ -49,8 +50,14 @@ export default function MapEditorPage() {
           .from("artist_map_positions")
           .select("artist_id", { count: "exact", head: true })
           .eq("edition_key", "edition_novegro_2026"),
+        supabase
+          .from("app_config")
+          .select("value")
+          .eq("key", "edition_current_map")
+          .maybeSingle(),
       ]);
       setSnapshotMissing((snapshotRes.count ?? 0) === 0);
+      if (configRes.data?.value) setMapPath(configRes.data.value);
       const list = (artistsRes.data ?? []) as EditorArtist[];
       setArtists(list);
       const pos: Record<string, Pos> = {};
@@ -67,7 +74,7 @@ export default function MapEditorPage() {
     const removed: string[] = [];
     for (const [id, p] of Object.entries(positions)) {
       const init = initial[id];
-      if (!init || Math.abs(init.x - p.x) > 0.01 || Math.abs(init.y - p.y) > 0.01) changed.push(id);
+      if (!init || Math.abs(init.x - p.x) > 0.001 || Math.abs(init.y - p.y) > 0.001) changed.push(id);
     }
     for (const id of Object.keys(initial)) {
       if (!(id in positions)) removed.push(id);
@@ -96,9 +103,11 @@ export default function MapEditorPage() {
     if (!el) return null;
     const rect = el.getBoundingClientRect();
     if (!rect.width || !rect.height) return null;
+    // Precisione al centesimo di percentuale (es. 12.34%)
+    const toCoord = (v: number) => Math.round(clamp(v) * 100) / 100;
     return {
-      x: Math.round(clamp(((clientX - rect.left) / rect.width) * 100)),
-      y: Math.round(clamp(((clientY - rect.top) / rect.height) * 100)),
+      x: toCoord(((clientX - rect.left) / rect.width) * 100),
+      y: toCoord(((clientY - rect.top) / rect.height) * 100),
     };
   };
 
@@ -185,6 +194,8 @@ export default function MapEditorPage() {
           </h1>
           <p className="mt-1 text-sm text-foreground/50">
             Trascina i pin per posizionare gli artisti sulla mappa live. Clicca un artista non posizionato, poi clicca sulla mappa.
+            Per cambiare mappa: carica il nuovo file in <span className="font-mono">public/</span> e aggiorna{" "}
+            <span className="font-mono">app_config → edition_current_map</span>.
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -232,7 +243,9 @@ export default function MapEditorPage() {
             {({ zoomIn, zoomOut, resetTransform }) => (
               <>
                 <div className="mb-3 flex items-center gap-3">
-                  <span className="text-sm font-semibold">Mappa live (/mappa)</span>
+                  <span className="text-sm font-semibold">
+                    Mappa edizione corrente: <span className="font-mono text-foreground/60">{mapPath}</span>
+                  </span>
                   {placingId && (
                     <span className="flex items-center gap-1.5 rounded-full bg-[#996C9E]/15 border border-[#996C9E]/30 px-3 py-1 text-xs font-medium text-[#996C9E] dark:text-purple-300">
                       <MapPin className="h-3.5 w-3.5" />
@@ -288,7 +301,7 @@ export default function MapEditorPage() {
                     >
                       <img
                         ref={imgRef}
-                        src="/mappa.webp"
+                        src={mapPath}
                         alt="Mappa"
                         className="max-w-none block select-none"
                         style={{ width: 1600, height: "auto" }}
@@ -433,7 +446,7 @@ export default function MapEditorPage() {
                         <span className="flex-1 min-w-0">
                           <span className={`block font-medium truncate ${a.active ? "" : "opacity-50"}`}>{a.name}</span>
                           <span className="block text-xs text-foreground/40 font-mono">
-                            {a.display_id} · {Math.round(p?.x ?? 0)}%, {Math.round(p?.y ?? 0)}%
+                            {a.display_id} · {p?.x.toFixed(2)}%, {p?.y.toFixed(2)}%
                           </span>
                         </span>
                       </button>

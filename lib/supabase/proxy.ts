@@ -10,7 +10,7 @@ export async function updateSession(request: NextRequest) {
   // Cache-control per risorse non-sensibili
   if (
     pathname === "/mappa.webp" ||
-    pathname === "/mappa-novegro-2026.webp" ||
+    pathname.startsWith("/mappa-") ||
     pathname === "/map-icon.svg" ||
     pathname === "/nfc-icon.svg" ||
     pathname === "/favicon.ico" ||

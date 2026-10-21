@@ -1,12 +1,27 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
+import { createClient } from "@/lib/supabase/client";
 import { useI18n } from "@/lib/i18n/context";
 import { ArrowLeft, ZoomIn, ZoomOut, RotateCcw } from "lucide-react";
 
 export default function MappaPage() {
   const { t } = useI18n();
+  const [mapPath, setMapPath] = useState("/mappa.webp");
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase
+      .from("app_config")
+      .select("value")
+      .eq("key", "edition_current_map")
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data?.value) setMapPath(data.value);
+      });
+  }, []);
 
   return (
     <main className="h-screen flex flex-col overflow-hidden">
@@ -52,7 +67,7 @@ export default function MappaPage() {
                 <TransformComponent wrapperClass="!w-full !h-full">
                   <div className="relative" style={{ width: 1600 }}>
                     <img
-                      src="/mappa.webp"
+                      src={mapPath}
                       alt="Mappa"
                       className="max-w-none block"
                       style={{ width: 1600, height: "auto" }}
